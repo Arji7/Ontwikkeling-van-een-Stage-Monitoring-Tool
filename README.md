@@ -14,3 +14,14 @@ editeerbare competenties. Wendbaarheid is een kernvereiste.
 ## Tools
 - GitHub / GitHub Desktop
 - Visual Studio Code
+
+
+## 👥 Team
+
+| Naam | Voornaam | E-mail | Rol | GitHub |
+|------|----------|--------|-----|--------|
+| Rajouai| Ayoub | ayoub.rajouai@student.ehb.be | ? | @... |
+| Ramdani | Achraf | @student.ehb.be | ?| @... |
+| Hamdaoui|Farouk | ...@student.ehb.be | ? | @... |
+| Rafaqat | Rafy | ...@student.ehb.be | ... | @... |
+| Yilmaz | Sena | ...@student.ehb.be | ... | @... |
