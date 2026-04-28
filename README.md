@@ -25,3 +25,11 @@ editeerbare competenties. Wendbaarheid is een kernvereiste.
 | Hamdaoui|Farouk | ...@student.ehb.be | ? | @... |
 | Rafaqat | Rafy | ...@student.ehb.be | ... | @... |
 | Yilmaz | Sena | ...@student.ehb.be | ... | @... |
+
+---
+
+## 🗄️ Database
+Het ERD schema is beschikbaar via dbdiagram.io:
+🔗 [Bekijk het ERD schema] https://dbdiagram.io/d/69f0b34cc6a36f9c1ba734a9 ← link hier invullen
+
+---
