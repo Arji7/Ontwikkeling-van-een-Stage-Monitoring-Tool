@@ -30,7 +30,7 @@ editeerbare competenties. Wendbaarheid is een kernvereiste.
 | Ramdani | Achraf | achraf.ramdani@student.ehb.be | ?| @... |
 | Hamdaoui|Farouk | farouk.hamdaoui@student.ehb.be | ? | @... |
 | Rafaqat | Rafy | rafy.rafaqat@student.ehb.be | ... | @... |
-| Yilmaz | Sena | sena.yilmaz@student.ehb.be | ... | @... |
+
 
 ---
 
