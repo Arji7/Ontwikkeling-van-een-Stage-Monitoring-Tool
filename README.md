@@ -14,8 +14,8 @@ editeerbare competenties. Wendbaarheid is een kernvereiste.
 
 ## Tech Stack
 - **Frontend:** React, HTML, CSS
-- **Backend:** java, Spring boot
-- **Database:** MySQL,php
+- **Backend:** java, node.js,express.js
+- **Database:** MySQL,
 
 ## Tools
 - GitHub / GitHub Desktop
