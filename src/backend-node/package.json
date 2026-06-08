@@ -1,0 +1,14 @@
+{
+  "name": "stage-monitor-backend",
+  "version": "1.0.0",
+  "description": "Backend API voor Stage Monitor Tool",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14"
+  }
+}
