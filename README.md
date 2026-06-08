@@ -26,10 +26,10 @@ editeerbare competenties. Wendbaarheid is een kernvereiste.
 
 | Naam | Voornaam | E-mail | Rol | GitHub |
 |------|----------|--------|-----|--------|
-| Rajouai| Ayoub | ayoub.rajouai@student.ehb.be | ? | @... |
-| Ramdani | Achraf | achraf.ramdani@student.ehb.be | ?| @... |
-| Hamdaoui|Farouk | farouk.hamdaoui@student.ehb.be | ? | @... |
-| Rafaqat | Rafy | rafy.rafaqat@student.ehb.be | ... | @... |
+| Rajouai| Ayoub | ayoub.rajouai@student.ehb.be | Back-end| @... |
+| Ramdani | Achraf | achraf.ramdani@student.ehb.be | Front-end| @... |
+| Hamdaoui|Farouk | farouk.hamdaoui@student.ehb.be |Back-end | @... |
+| Rafaqat | Rafy | rafy.rafaqat@student.ehb.be | Front-end | @... |
 
 
 ---
