@@ -1,2 +1,25 @@
+# Node.js
 node_modules/
+**/node_modules/
+npm-debug.log*
+package-lock.json
+
+# Omgevingsvariabelen
 .env
+.env.local
+
+# Java
+*.class
+*.jar
+target/
+
+# React build
+**/build/
+
+# OS bestanden
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
