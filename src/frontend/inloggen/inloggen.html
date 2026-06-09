@@ -21,24 +21,26 @@
 
       <div class="form-field">
         <label for="email">E-mail</label>
-        <input type="email" id="email" class="input"
-               autocomplete="username" placeholder="naam@ehb.be" />
-        <p id="emailError" class="field-error"></p>
+        <input type="email" id="email" name="email" class="input"
+               autocomplete="username" placeholder="naam@ehb.be"
+               aria-describedby="emailError" />
+        <p id="emailError" class="field-error" aria-live="polite"></p>
       </div>
 
       <div class="form-field">
         <label for="password">Wachtwoord</label>
-        <input type="password" id="password" class="input"
-               autocomplete="current-password" placeholder="••••••••" />
-        <p id="passwordError" class="field-error"></p>
+        <input type="password" id="password" name="password" class="input"
+               autocomplete="current-password" placeholder="••••••••"
+               aria-describedby="passwordError" />
+        <p id="passwordError" class="field-error" aria-live="polite"></p>
       </div>
 
       <div class="login-options">
         <label class="remember-me">
-          <input type="checkbox" id="remember" />
+          <input type="checkbox" id="remember" name="remember" />
           Onthoud mij
         </label>
-        <a href="#" class="forgot-link">Wachtwoord vergeten?</a>
+        <a href="../wachtwoord-vergeten/wachtwoord-vergeten.html" class="forgot-link">Wachtwoord vergeten?</a>
       </div>
 
       <button type="submit" id="loginButton" class="btn">Inloggen</button>
