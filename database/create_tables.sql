@@ -167,3 +167,32 @@ CREATE TABLE document_feedback (
   FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE SET NULL
 );
 
+CREATE TABLE competentie (
+  id           INT AUTO_INCREMENT PRIMARY KEY,
+  naam         VARCHAR(255) NOT NULL,
+  beschrijving TEXT,
+  volgorde     INT
+);
+
+CREATE TABLE subcompetentie (
+  id             INT AUTO_INCREMENT PRIMARY KEY,
+  competentie_id INT NOT NULL,
+  code           VARCHAR(20),
+  naam           VARCHAR(255) NOT NULL,
+  beschrijving   TEXT,
+  volgorde       INT,
+  FOREIGN KEY (competentie_id) REFERENCES competentie(id) ON DELETE CASCADE
+);
+
+CREATE TABLE subcompetentie_niveau (
+  id                INT AUTO_INCREMENT PRIMARY KEY,
+  subcompetentie_id INT NOT NULL,
+  niveau            INT NOT NULL COMMENT '1=Onvoldoende 2=Zwak 3=Voldoende 4=Goed 5=Uitmuntend',
+  label             VARCHAR(50)  COMMENT 'bv. Onvoldoende',
+  sublabel          VARCHAR(100) COMMENT 'bv. Onder verwachting',
+  beschrijving      TEXT         COMMENT 'bullet criteria tekst',
+  FOREIGN KEY (subcompetentie_id) REFERENCES subcompetentie(id) ON DELETE CASCADE
+);
+
+
+
