@@ -51,3 +51,13 @@ CREATE TABLE opleiding (
   afkorting VARCHAR(20),
   actief    BOOLEAN NOT NULL DEFAULT TRUE
 );
+CREATE TABLE student (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  gebruiker_id    INT NOT NULL UNIQUE,
+  studentnummer   VARCHAR(20) UNIQUE,
+  opleiding_id    INT,
+  academiejaar_id INT,
+  FOREIGN KEY (gebruiker_id)    REFERENCES gebruiker(id)    ON DELETE CASCADE,
+  FOREIGN KEY (opleiding_id)    REFERENCES opleiding(id)    ON DELETE SET NULL,
+  FOREIGN KEY (academiejaar_id) REFERENCES academiejaar(id) ON DELETE SET NULL
+);
