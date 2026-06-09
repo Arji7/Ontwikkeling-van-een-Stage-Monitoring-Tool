@@ -194,5 +194,41 @@ CREATE TABLE subcompetentie_niveau (
   FOREIGN KEY (subcompetentie_id) REFERENCES subcompetentie(id) ON DELETE CASCADE
 );
 
+CREATE TABLE logboek (
+  id                INT AUTO_INCREMENT PRIMARY KEY,
+  stage_id          INT NOT NULL,
+  week_nummer       INT NOT NULL,
+  titel             VARCHAR(255),
+  datum_van         DATE,
+  datum_tot         DATE,
+  uitgevoerde_taken TEXT,
+  leerpunten        TEXT,
+  mentor_feedback   TEXT,
+  totaal_uren       INT,
+  status            ENUM('concept','ingediend','wacht_op_mentor','goedgekeurd') NOT NULL DEFAULT 'concept',
+  ingediend_op      DATETIME,
+  aangemaakt_op     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (stage_id) REFERENCES stage(id) ON DELETE CASCADE
+);
+
+CREATE TABLE logboek_dag (
+  id                INT AUTO_INCREMENT PRIMARY KEY,
+  logboek_id        INT NOT NULL,
+  datum             DATE NOT NULL,
+  uren_gewerkt      DECIMAL(4,1),
+  uitgevoerde_taken TEXT,
+  is_afwezig        BOOLEAN NOT NULL DEFAULT FALSE,
+  afwezig_reden     ENUM('ziek','verlof'),
+  FOREIGN KEY (logboek_id) REFERENCES logboek(id) ON DELETE CASCADE
+);
+
+CREATE TABLE logboek_competentie (
+  id             INT AUTO_INCREMENT PRIMARY KEY,
+  logboek_id     INT NOT NULL,
+  competentie_id INT NOT NULL,
+  FOREIGN KEY (logboek_id)     REFERENCES logboek(id)     ON DELETE CASCADE,
+  FOREIGN KEY (competentie_id) REFERENCES competentie(id) ON DELETE CASCADE
+);
+
 
 
