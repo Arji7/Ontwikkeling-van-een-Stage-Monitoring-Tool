@@ -76,3 +76,25 @@ CREATE TABLE docent (
   FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
 );
 
+CREATE TABLE bedrijf (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  naam          VARCHAR(255) NOT NULL,
+  sector        VARCHAR(100),
+  adres         VARCHAR(255),
+  postcode      VARCHAR(20),
+  stad          VARCHAR(100),
+  land          VARCHAR(100) NOT NULL DEFAULT 'Belgie',
+  website       VARCHAR(255),
+  btw_nummer    VARCHAR(50),
+  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE mentor (
+  id           INT AUTO_INCREMENT PRIMARY KEY,
+  gebruiker_id INT NOT NULL UNIQUE,
+  bedrijf_id   INT,
+  functie      VARCHAR(100),
+  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE,
+  FOREIGN KEY (bedrijf_id)   REFERENCES bedrijf(id)   ON DELETE SET NULL
+);
+
