@@ -37,3 +37,12 @@ INSERT INTO rol (naam) VALUES
   ('commissielid'),
   ('admin');
 
+  CREATE TABLE gebruiker_rol (
+  gebruiker_id INT NOT NULL,
+  rol_id       INT NOT NULL,
+  PRIMARY KEY (gebruiker_id, rol_id),
+  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE,
+  FOREIGN KEY (rol_id)       REFERENCES rol(id)       ON DELETE CASCADE
+);
+
+
