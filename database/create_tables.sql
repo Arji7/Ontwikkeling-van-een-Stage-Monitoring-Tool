@@ -45,4 +45,9 @@ INSERT INTO rol (naam) VALUES
   FOREIGN KEY (rol_id)       REFERENCES rol(id)       ON DELETE CASCADE
 );
 
-
+CREATE TABLE opleiding (
+  id        INT AUTO_INCREMENT PRIMARY KEY,
+  naam      VARCHAR(150) NOT NULL,
+  afkorting VARCHAR(20),
+  actief    BOOLEAN NOT NULL DEFAULT TRUE
+);
