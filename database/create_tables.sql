@@ -37,3 +37,11 @@ INSERT INTO rol (naam) VALUES
   ('commissielid'),
   ('admin');
 
+
+
+
+
+
+
+  neyla is boos
+
