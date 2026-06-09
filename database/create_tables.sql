@@ -51,6 +51,13 @@ CREATE TABLE opleiding (
   afkorting VARCHAR(20),
   actief    BOOLEAN NOT NULL DEFAULT TRUE
 );
+CREATE TABLE academiejaar (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  naam       VARCHAR(20) NOT NULL,
+  startdatum DATE,
+  einddatum  DATE,
+  actief     BOOLEAN NOT NULL DEFAULT TRUE
+);
 CREATE TABLE student (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   gebruiker_id    INT NOT NULL UNIQUE,
