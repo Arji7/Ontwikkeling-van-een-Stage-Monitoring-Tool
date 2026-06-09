@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wachtwoord vergeten - StageMonitor</title>
+  <link rel="stylesheet" href="css/wachtwoord-vergeten.css" />
+</head>
+<body>
+
+     <!-- Topbalk -->
+  <header class="topbar">
+    <span class="topbar-title">Wachtwoord vergeten-pagina Stagemonitor</span>
+  </header>
+
+  <!-- Pagina inhoud -->
+  <main class="page-wrapper">
+ 
+    <p class="page-label">Wachtwoord vergeten</p>
+ 
+    <div class="card">
+
+        <!-- Card header -->
+      <div class="card-header">
+        <h1 class="brand-title">StageMonitor</h1>
+        <p class="brand-subtitle">Erasmushogeschool Brussel</p>
+        <span class="role-badge" id="roleBadge">Stagementor</span>
+      </div>
+ 
+      <!-- Terug link -->
+      <a href="login.html" class="back-link">← Terug naar aanmelden</a>
+ 
+      <!-- Formulier -->
+      <h2 class="form-title">Wachtwoord vergeten?</h2>
+      <p class="form-description">
+        Vul je e-mailadres in. We sturen je een link om een nieuw wachtwoord in te stellen.
+      </p>
+ 
+      <div class="form-group">
+        <label for="email" class="form-label">E-mailadres</label>
+        <input
+          type="email"
+          id="email"
+          class="form-input"
+          placeholder="k.devos@techcorp.be"
+          autocomplete="email"
+        />
+        <p class="input-error" id="emailError"></p>
+      </div>
+ 
+      <button class="btn-primary" id="submitBtn" onclick="handleSubmit()">
+        Resetlink versturen
+      </button>
+ 
+      <!-- Succes bericht (verborgen) -->
+      <div class="success-message" id="successMessage" style="display:none;">
+        ✅ Resetlink verstuurd! Controleer je inbox.
+      </div>
+ 
+      <p class="hint-text">
+        Je ontvangt de resetlink binnen 1 minuut op je e-mailadres.
+      </p>
+ 
+    </div>
+  </main>
+ 
+  <script src="js/wachtwoord-vergeten.js"></script>
+</body>
+</html>
+ 
+ 
