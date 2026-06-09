@@ -284,5 +284,24 @@ CREATE TABLE melding (
   FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
 );
 
+CREATE TABLE wachtwoord_reset (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  gebruiker_id  INT NOT NULL,
+  token         VARCHAR(255) NOT NULL,
+  vervalt_op    DATETIME NOT NULL,
+  gebruikt      BOOLEAN  NOT NULL DEFAULT FALSE,
+  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
+);
+
+CREATE TABLE refresh_token (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  gebruiker_id  INT NOT NULL,
+  token         VARCHAR(500) NOT NULL,
+  vervalt_op    DATETIME NOT NULL,
+  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
+);
+
 
 
