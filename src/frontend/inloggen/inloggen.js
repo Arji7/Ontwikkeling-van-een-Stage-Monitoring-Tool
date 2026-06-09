@@ -1,0 +1,109 @@
+/* ============================================================
+   StageMonitorage — Login (inloggen.js)
+   ============================================================ */
+
+/* ---------- INSTELLINGEN (pas hier aan) ---------- */
+const CONFIG = {
+  API_BASE_URL: "http://localhost:3000/api",
+  DEMO_MODE: true,
+  DASHBOARD_BY_ROLE: {
+    student:   "../dashboard-student/index.html",
+    docent:    "../dashboard-docent/index.html",
+    admin:     "../dashboard-admin/index.html",
+    mentor:    "../dashboard-mentor/index.html",
+    commissie: "../dashboard-commissie/index.html",
+  },
+  DEMO_USERS: [
+    { email: "tom.aertssens@ehb.be", password: "demo123", role: "docent",    name: "Tom Aertssens" },
+    { email: "student@ehb.be",       password: "demo123", role: "student",   name: "Test Student" },
+    { email: "admin@ehb.be",         password: "demo123", role: "admin",     name: "Test Admin" },
+    { email: "mentor@bedrijf.be",    password: "demo123", role: "mentor",    name: "Test Mentor" },
+    { email: "commissie@ehb.be",     password: "demo123", role: "commissie", name: "Test Commissie" },
+  ],
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+  const form          = document.getElementById("loginForm");
+  const emailInput    = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const rememberInput = document.getElementById("remember");
+  const submitButton  = document.getElementById("loginButton");
+  const formAlert     = document.getElementById("formAlert");
+
+  const savedEmail = localStorage.getItem("rememberedEmail");
+  if (savedEmail) { emailInput.value = savedEmail; rememberInput.checked = true; }
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    hideAlert();
+
+    const email    = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    let valid = true;
+    if (!isValidEmail(email)) { showFieldError("email", "Vul een geldig e-mailadres in."); valid = false; }
+    else clearFieldError("email");
+    if (password.length === 0) { showFieldError("password", "Vul je wachtwoord in."); valid = false; }
+    else clearFieldError("password");
+    if (!valid) return;
+
+    setLoading(true);
+    try {
+      const user = CONFIG.DEMO_MODE ? await demoLogin(email, password)
+                                    : await apiLogin(email, password);
+
+      if (rememberInput.checked) localStorage.setItem("rememberedEmail", email);
+      else localStorage.removeItem("rememberedEmail");
+
+      localStorage.setItem("currentUser", JSON.stringify(user));
+
+      const target = CONFIG.DASHBOARD_BY_ROLE[user.role];
+      if (target) window.location.href = target;
+      else showAlert("Onbekende rol: er is geen dashboard voor '" + user.role + "'.");
+    } catch (error) {
+      showAlert(error.message || "Inloggen is mislukt. Probeer opnieuw.");
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  async function apiLogin(email, password) {
+    let response;
+    try {
+      response = await fetch(CONFIG.API_BASE_URL + "/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password }),
+      });
+    } catch (e) { throw new Error("Geen verbinding met de server. Staat de backend aan?"); }
+    if (!response.ok) throw new Error("E-mailadres of wachtwoord is onjuist.");
+    const data = await response.json();
+    return { email: email, role: data.role, name: data.name || email, token: data.token || null };
+  }
+
+  async function demoLogin(email, password) {
+    const match = CONFIG.DEMO_USERS.find(function (u) {
+      return u.email.toLowerCase() === email.toLowerCase() && u.password === password;
+    });
+    if (!match) throw new Error("E-mailadres of wachtwoord is onjuist.");
+    return { email: match.email, role: match.role, name: match.name, token: null };
+  }
+
+  function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  function showFieldError(id, msg) {
+    document.getElementById(id).classList.add("is-invalid");
+    const e = document.getElementById(id + "Error");
+    e.textContent = msg; e.classList.add("is-visible");
+  }
+  function clearFieldError(id) {
+    document.getElementById(id).classList.remove("is-invalid");
+    document.getElementById(id + "Error").classList.remove("is-visible");
+  }
+  function showAlert(msg) { formAlert.textContent = msg; formAlert.classList.add("is-visible"); }
+  function hideAlert() { formAlert.classList.remove("is-visible"); }
+  function setLoading(on) {
+    submitButton.disabled = on;
+    submitButton.textContent = on ? "Bezig met inloggen..." : "Inloggen";
+  }
+});
