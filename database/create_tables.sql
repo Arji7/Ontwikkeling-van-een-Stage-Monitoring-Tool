@@ -261,5 +261,16 @@ CREATE TABLE competentiescore (
   FOREIGN KEY (subcompetentie_id) REFERENCES subcompetentie(id) ON DELETE CASCADE
 );
 
+CREATE TABLE beslissing_voorstel (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  stage_id        INT NOT NULL,
+  commissielid_id INT,
+  beslissing      ENUM('goedgekeurd','afgekeurd','aanpassingen_vereist') NOT NULL,
+  opmerking       TEXT,
+  datum           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (stage_id)        REFERENCES stage(id)     ON DELETE CASCADE,
+  FOREIGN KEY (commissielid_id) REFERENCES gebruiker(id) ON DELETE SET NULL
+);
+
 
 
