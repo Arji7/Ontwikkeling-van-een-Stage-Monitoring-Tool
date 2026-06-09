@@ -1,0 +1,184 @@
+/* ============================================================
+   StageMonitorage — Stijl van de loginpagina (inloggen.css)
+   ============================================================ */
+
+/* ---------- 1. Design tokens (kleuren, afronding, fonts) ----------
+   Wil je de huisstijl aanpassen? Verander het HIER. */
+:root {
+  --color-primary: #2563eb;          /* blauw van de knop */
+  --color-primary-hover: #1d4ed8;    /* blauw bij hover */
+  --color-primary-soft: #e8f0ff;     /* lichtblauwe focus-ring */
+
+  --color-heading: #1f2d4e;          /* titel */
+  --color-text: #334155;             /* gewone tekst */
+  --color-muted: #64748b;            /* labels / subtiele tekst */
+
+  --color-bg: #f4f6fb;               /* pagina-achtergrond */
+  --color-surface: #ffffff;          /* de witte kaart */
+  --color-border: #d6dde8;           /* rand van inputs */
+  --card-border: transparent;        /* rand van de kaart (zet op var(--color-primary) voor blauwe rand) */
+
+  --color-error: #dc2626;
+
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow-card: 0 12px 32px rgba(31, 45, 78, 0.10);
+
+  --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+}
+
+/* ---------- 2. Kleine reset ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.5;
+
+  /* De kaart mooi centreren op het scherm */
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- 3. Het witte login-kaartje ---------- */
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background-color: var(--color-surface);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 2.25rem 2rem;
+}
+
+.login-header { text-align: center; margin-bottom: 1.75rem; }
+
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  letter-spacing: -0.01em;
+}
+
+.login-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  margin-top: 0.25rem;
+}
+
+/* ---------- 4. Formulier-velden ---------- */
+.form-field { margin-bottom: 1rem; }
+
+.form-field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  margin-bottom: 0.375rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input::placeholder { color: #9aa6b6; }
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.input.is-invalid { border-color: var(--color-error); }
+
+.field-error {
+  display: none;
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  margin-top: 0.375rem;
+}
+.field-error.is-visible { display: block; }
+
+/* ---------- 5. Onthoud mij + Wachtwoord vergeten ---------- */
+.login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.25rem 0 1.25rem;
+}
+
+.remember-me {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.remember-me input {
+  width: 1rem; height: 1rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.forgot-link { font-size: 0.875rem; font-weight: 500; }
+
+/* ---------- 6. Algemene foutmelding (bv. verkeerd wachtwoord) ---------- */
+.form-alert {
+  display: none;
+  background-color: #fdecec;
+  color: var(--color-error);
+  font-size: 0.875rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+.form-alert.is-visible { display: block; }
+
+/* ---------- 7. Inlog-knop ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.6875rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #ffffff;
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.btn:hover { background-color: var(--color-primary-hover); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ---------- 8. Smalle schermen + minder beweging ---------- */
+@media (max-width: 420px) {
+  .login-card { padding: 1.75rem 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
