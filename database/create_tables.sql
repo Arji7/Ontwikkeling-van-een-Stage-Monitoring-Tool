@@ -230,5 +230,36 @@ CREATE TABLE logboek_competentie (
   FOREIGN KEY (competentie_id) REFERENCES competentie(id) ON DELETE CASCADE
 );
 
+CREATE TABLE evaluatie (
+  id                   INT AUTO_INCREMENT PRIMARY KEY,
+  stage_id             INT NOT NULL,
+  type                 ENUM('tussentijds','eind') NOT NULL,
+  week_nummer          INT,
+  datum_bespreking     DATE,
+  type_bespreking      ENUM('fysiek','online'),
+  sterke_punten        TEXT,
+  verbeterpunten       TEXT,
+  algemene_appreciatie TEXT,
+  globale_feedback     TEXT,
+  officieel_eindcijfer DECIMAL(4,1),
+  status               ENUM('open','ingediend','afgerond') NOT NULL DEFAULT 'open',
+  aangemaakt_op        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (stage_id) REFERENCES stage(id) ON DELETE CASCADE
+);
+
+CREATE TABLE competentiescore (
+  id                INT AUTO_INCREMENT PRIMARY KEY,
+  evaluatie_id      INT NOT NULL,
+  subcompetentie_id INT NOT NULL,
+  score_docent      INT CHECK (score_docent BETWEEN 1 AND 5),
+  score_mentor      INT CHECK (score_mentor BETWEEN 1 AND 5),
+  feedback_docent   TEXT,
+  student_reflectie TEXT,
+  eind_doelscore    INT CHECK (eind_doelscore BETWEEN 1 AND 5),
+  trend             ENUM('stijgend','stabiel','dalend'),
+  FOREIGN KEY (evaluatie_id)      REFERENCES evaluatie(id)      ON DELETE CASCADE,
+  FOREIGN KEY (subcompetentie_id) REFERENCES subcompetentie(id) ON DELETE CASCADE
+);
+
 
 
