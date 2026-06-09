@@ -22,3 +22,18 @@ CREATE TABLE gebruiker (
   actief          BOOLEAN      NOT NULL DEFAULT TRUE,
   aangemaakt_op   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE rol (
+  id   INT AUTO_INCREMENT PRIMARY KEY,
+  naam VARCHAR(50) NOT NULL UNIQUE
+);
+
+INSERT INTO rol (naam) VALUES
+  ('student'),
+  ('docent'),
+  ('mentor'),
+  ('stagemonitor'),
+  ('commissielid'),
+  ('admin');
+
