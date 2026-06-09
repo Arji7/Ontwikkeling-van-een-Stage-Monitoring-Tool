@@ -143,3 +143,27 @@ CREATE TABLE stage_geschiedenis (
   FOREIGN KEY (gewijzigd_door) REFERENCES gebruiker(id) ON DELETE SET NULL
 );
 
+CREATE TABLE document (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  stage_id        INT NOT NULL,
+  type            ENUM('stagevoorstel','stageovereenkomst','bijlage','evaluatie','andere') NOT NULL,
+  bestandsnaam    VARCHAR(255),
+  bestandspad     VARCHAR(500),
+  bestandsgrootte INT,
+  status          ENUM('ingediend','ondertekend','goedgekeurd','afgekeurd') NOT NULL DEFAULT 'ingediend',
+  geupload_door   INT,
+  geupload_op     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (stage_id)      REFERENCES stage(id)     ON DELETE CASCADE,
+  FOREIGN KEY (geupload_door) REFERENCES gebruiker(id) ON DELETE SET NULL
+);
+
+CREATE TABLE document_feedback (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  document_id   INT NOT NULL,
+  gebruiker_id  INT,
+  feedback      TEXT,
+  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (document_id)  REFERENCES document(id)  ON DELETE CASCADE,
+  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE SET NULL
+);
+
