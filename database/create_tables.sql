@@ -272,5 +272,17 @@ CREATE TABLE beslissing_voorstel (
   FOREIGN KEY (commissielid_id) REFERENCES gebruiker(id) ON DELETE SET NULL
 );
 
+CREATE TABLE melding (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  gebruiker_id  INT NOT NULL,
+  titel         VARCHAR(255),
+  bericht       TEXT,
+  type          VARCHAR(50),
+  link          VARCHAR(255),
+  gelezen       BOOLEAN  NOT NULL DEFAULT FALSE,
+  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
+);
+
 
 
