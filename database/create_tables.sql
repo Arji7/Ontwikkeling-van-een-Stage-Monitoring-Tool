@@ -37,14 +37,6 @@ INSERT INTO rol (naam) VALUES
   ('commissielid'),
   ('admin');
 
-
-
-
-
-
-
-  neyla is boos
-
   CREATE TABLE gebruiker_rol (
   gebruiker_id INT NOT NULL,
   rol_id       INT NOT NULL,
