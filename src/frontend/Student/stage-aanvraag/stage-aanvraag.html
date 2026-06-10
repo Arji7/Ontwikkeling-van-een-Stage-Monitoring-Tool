@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stagevoorstel indienen - StageMonitorage</title>
+  <link rel="stylesheet" href="stage-aanvraag.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item active">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+      <a href="../inloggen/inloggen.html" class="sidebar-logout">⎋ Uitloggen</a>
+    </aside>
+
+    <main class="content">
+      <div class="form-wrap">
+
+        <p class="breadcrumb">Mijn stage › Nieuw voorstel</p>
+
+        <div class="form-head">
+          <span class="head-circle"></span>
+          <div>
+            <h1>Stagevoorstel indienen</h1>
+            <p>Vul alle verplichte velden in om je voorstel ter beoordeling voor te leggen.</p>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <strong>📘 Belangrijk</strong>
+          Eens ingediend, kan je het voorstel niet meer aanpassen tot de stagecommissie heeft gereageerd.
+        </div>
+
+        <!-- Succesmelding (verschijnt na indienen) -->
+        <div id="successMessage" class="success-message">
+          ✅ Je stagevoorstel is ingediend en staat nu op "wachtend op goedkeuring".
+        </div>
+
+        <form id="voorstelForm" novalidate>
+
+          <h2 class="section-title">Bedrijfsgegevens</h2>
+          <div class="grid-2">
+            <div class="field">
+              <label for="bedrijf">Naam bedrijf <span class="req">*</span></label>
+              <input type="text" id="bedrijf" name="bedrijf" placeholder="TechCorp BV" />
+              <p class="field-error" id="bedrijfError" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="sector">Sector <span class="req">*</span></label>
+              <input type="text" id="sector" name="sector" placeholder="Software ontwikkeling" />
+              <p class="field-error" id="sectorError" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="mentor">Stagementor <span class="req">*</span></label>
+              <input type="text" id="mentor" name="mentor" placeholder="Karen Wouters" />
+              <p class="field-error" id="mentorError" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="mentorEmail">E-mail mentor <span class="req">*</span></label>
+              <input type="email" id="mentorEmail" name="mentorEmail" placeholder="k.wouters@techcorp.be" />
+              <p class="field-error" id="mentorEmailError" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <h2 class="section-title">Stagegegevens</h2>
+          <div class="field full">
+            <label for="docent">Begeleidende docent (EhB) <span class="req">*</span></label>
+            <input type="text" id="docent" name="docent" placeholder="J. Martens" />
+            <p class="field-error" id="docentError" aria-live="polite"></p>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="startDatum">Startdatum <span class="req">*</span></label>
+              <input type="date" id="startDatum" name="startDatum" />
+              <p class="field-error" id="startDatumError" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="eindDatum">Einddatum <span class="req">*</span></label>
+              <input type="date" id="eindDatum" name="eindDatum" />
+              <p class="field-error" id="eindDatumError" aria-live="polite"></p>
+            </div>
+          </div>
+          <div class="field full">
+            <label for="omschrijving">Omschrijving opdracht <span class="req">*</span></label>
+            <textarea id="omschrijving" name="omschrijving"
+              placeholder="Ontwikkeling van een interne API voor het klantportaal. Focus op authenticatie, integratie met bestaande systemen en documentatie."></textarea>
+            <p class="field-error" id="omschrijvingError" aria-live="polite"></p>
+          </div>
+
+          <div class="form-actions">
+       <a href="../empty-stage/empty-stage.html" class="btn btn-danger">terug naar dashboard</a>
+            <button type="submit" class="btn btn-primary">Indienen ter beoordeling</button>
+          </div>
+
+        </form>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="stage-aanvraag.js"></script>
+</body>
+</html>

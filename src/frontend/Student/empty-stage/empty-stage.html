@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - StageMonitorage</title>
+  <link rel="stylesheet" href="empty-stage.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active">Dashboard</a>
+        <a href="#" class="nav-item">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+     <a href="../inloggen/inloggen.html" class="sidebar-logout">⎋ Uitloggen</a>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <h1 class="page-title">Welkom terug, Lamine</h1>
+        <p class="page-subtitle">Stagejaar 2025-2026</p>
+      </header>
+
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h2 class="empty-title">Nog geen stagevoorstel ingediend</h2>
+        <p class="empty-text">Begin met het indienen van je stagevoorstel om het proces te starten.</p>
+       <a href="../stage-aanvraag/stage-aanvraag.html" class="btn-primary">+ Nieuw stagevoorstel indienen</a>
+    </main>
+  </div>
+
+  <script src="empty-stage.js"></script>
+</body>
+</html>
