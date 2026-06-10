@@ -18,13 +18,17 @@ async function getStudentId(gebruikerId) {
 // POST /api/stages — stagevoorstel indienen
 router.post('/', authMiddleware, async (req, res) => {
   const { bedrijf, sector, mentor, mentorEmail, docent, startDatum, eindDatum, omschrijving } = req.body;
-  const student_id = req.user.id;
 
   if (!bedrijf || !mentor || !mentorEmail || !startDatum || !eindDatum || !omschrijving) {
     return res.status(400).json({ error: 'Verplichte velden ontbreken' });
   }
 
   try {
+    const student_id = await getStudentId(req.user.id);
+    if (!student_id) {
+      return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
+    }
+
     // Bedrijf aanmaken of ophalen
     let [bedrijfRows] = await db.query('SELECT id FROM bedrijf WHERE naam = ?', [bedrijf]);
     let bedrijf_id;
