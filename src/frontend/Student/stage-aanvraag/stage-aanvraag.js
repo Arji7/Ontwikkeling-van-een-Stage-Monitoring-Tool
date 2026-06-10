@@ -60,18 +60,28 @@ form.addEventListener("submit", function (event) {
 
   console.log("Stagevoorstel klaar om te versturen:", data);
 
-  // TODO (backend van Ayoub/Farouk): eerst POST naar de server, en pas bij
-  // succes doorsturen. Bijvoorbeeld:
-  // fetch("/api/stages", {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(data),
-  // }).then(() => {
-  //   window.location.href = "../voorstel.ingediend/voorstel.ingediend.html";
-  // });
+  
+  const token = localStorage.getItem('token');
 
-  // Voorlopig (zonder backend): meteen doorsturen naar het bevestigingsscherm
-  window.location.href = "../voorstel.ingediend/voorstel.ingediend.html";
+  fetch('http://localhost:3000/api/stages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+    },
+    body: JSON.stringify(data),
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(result) {
+    if (result.error) {
+      alert(result.error);
+    } else {
+      window.location.href = "../voorstel.ingediend/voorstel.ingediend.html";
+    }
+  })
+  .catch(function() {
+    alert('Geen verbinding met de server. Staat de backend aan?');
+  });
 });
 
 function showError(id, message) {
