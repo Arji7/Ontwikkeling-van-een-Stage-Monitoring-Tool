@@ -5,9 +5,9 @@
  */
 function getRolFromURL() {
   const params = new URLSearchParams(window.location.search);
-  return params.get('rol') || 'stagementor';
+  return params.get('rol') || 'gebruiker';
 }
- 
+
 /**
  * Pas de role badge aan op basis van de URL parameter.
  */
@@ -34,7 +34,7 @@ function setRoleBadge() {
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
- 
+
 /**
  * Verwerk het formulier.
  * In productie: vervang de fetch() call met het echte API endpoint.
@@ -45,12 +45,12 @@ async function handleSubmit() {
   const submitBtn  = document.getElementById('submitBtn');
   const successMsg = document.getElementById('successMessage');
   const email      = emailInput.value.trim();
- 
+
   // Reset vorige foutmeldingen
   emailError.textContent = '';
   emailInput.classList.remove('error');
   successMsg.style.display = 'none';
- 
+
   // Validatie
   if (!email) {
     emailError.textContent = 'Vul je e-mailadres in.';
@@ -65,21 +65,21 @@ async function handleSubmit() {
     emailInput.focus();
     return;
   }
- 
+
   // Knop uitschakelen tijdens verwerking
   submitBtn.disabled = true;
   submitBtn.textContent = 'Verzenden...';
- 
+
   try {
     // TODO: vervang de URL hieronder met jullie echte
     // backend endpoint zodra Ayoub / Farouk dit klaar
     // heeft. Verwachte payload: { email, rol }
-const response = await fetch('/api/auth/wachtwoord-vergeten', {
+    const response = await fetch('/api/auth/wachtwoord-vergeten', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, rol: getRolFromURL() }),
     });
- 
+
     if (response.ok) {
       successMsg.style.display = 'block';
       emailInput.value = '';
@@ -88,7 +88,7 @@ const response = await fetch('/api/auth/wachtwoord-vergeten', {
       emailError.textContent = data.message || 'Er is iets misgegaan. Probeer opnieuw.';
       emailInput.classList.add('error');
     }
- 
+
   } catch (err) {
     // Netwerk- of serverfout
     // Tijdelijk: toon succes voor demo / frontend-only testen
@@ -100,13 +100,13 @@ const response = await fetch('/api/auth/wachtwoord-vergeten', {
     submitBtn.textContent = 'Resetlink versturen';
   }
 }
- 
+
 /**
  * Sta versturen toe via Enter-toets.
  */
 document.addEventListener('DOMContentLoaded', () => {
   setRoleBadge();
- 
+
   const emailInput = document.getElementById('email');
   if (emailInput) {
     emailInput.addEventListener('keydown', (e) => {
