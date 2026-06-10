@@ -17,9 +17,9 @@ async function getStudentId(gebruikerId) {
 
 // POST /api/stages — stagevoorstel indienen
 router.post('/', authMiddleware, async (req, res) => {
-  const { bedrijf, sector, mentor, mentorEmail, docent, startDatum, eindDatum, omschrijving } = req.body;
+  const { bedrijf, sector, mentor, mentorEmail, docent_id, startDatum, eindDatum, omschrijving } = req.body;
 
-  if (!bedrijf || !mentor || !mentorEmail || !startDatum || !eindDatum || !omschrijving) {
+  if (!bedrijf || !mentor || !mentorEmail || !docent_id || !startDatum || !eindDatum || !omschrijving) {
     return res.status(400).json({ error: 'Verplichte velden ontbreken' });
   }
 
@@ -44,9 +44,9 @@ router.post('/', authMiddleware, async (req, res) => {
 
     // Stage aanmaken
     const [stage] = await db.query(
-      `INSERT INTO stage (student_id, bedrijf_id, omschrijving, startdatum, einddatum, status)
-       VALUES (?, ?, ?, ?, ?, 'ingediend')`,
-      [student_id, bedrijf_id, omschrijving, startDatum, eindDatum]
+      `INSERT INTO stage (student_id, bedrijf_id, docent_id, omschrijving, startdatum, einddatum, contact_naam, contact_email, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'ingediend')`,
+      [student_id, bedrijf_id, docent_id, omschrijving, startDatum, eindDatum, mentor, mentorEmail]
     );
 
     // Geschiedenis opslaan
