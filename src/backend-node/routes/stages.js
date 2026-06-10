@@ -4,6 +4,17 @@ const router  = express.Router();
 const db      = require('../db');
 const { authMiddleware } = require('../middleware/authMiddelware');
 
+
+// Hulpfunctie: gebruiker_id omzetten naar student_id
+async function getStudentId(gebruikerId) {
+  const [rijen] = await db.query(
+    'SELECT id FROM student WHERE gebruiker_id = ?',
+    [gebruikerId]
+  );
+  if (rijen.length === 0) return null;
+  return rijen[0].id;
+}
+
 // POST /api/stages — stagevoorstel indienen
 router.post('/', authMiddleware, async (req, res) => {
   const { bedrijf, sector, mentor, mentorEmail, docent, startDatum, eindDatum, omschrijving } = req.body;
@@ -53,3 +64,5 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+
