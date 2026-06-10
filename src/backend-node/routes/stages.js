@@ -63,6 +63,7 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/stages/mijn — alle stages van de ingelogde student
 router.get('/mijn', authMiddleware, async (req, res) => {
   try {
     const studentId = await getStudentId(req.user.id);
@@ -86,8 +87,6 @@ router.get('/mijn', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Serverfout.' });
   }
 });
-
-
 
 // GET /api/stages/:id — één specifieke stage ophalen
 router.get('/:id', authMiddleware, async (req, res) => {
