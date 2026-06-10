@@ -1,5 +1,4 @@
 const form = document.getElementById("voorstelForm");
-const successMessage = document.getElementById("successMessage");
 
 // Verplichte velden: id => foutmelding
 const requiredFields = {
@@ -46,7 +45,7 @@ form.addEventListener("submit", function (event) {
 
   if (!isValid) return;
 
-  // 4. Gegevens verzamelen
+  // 4. Alles geldig — gegevens verzamelen
   const data = {
     bedrijf: document.getElementById("bedrijf").value.trim(),
     sector: document.getElementById("sector").value.trim(),
@@ -61,17 +60,18 @@ form.addEventListener("submit", function (event) {
 
   console.log("Stagevoorstel klaar om te versturen:", data);
 
-  // TODO (backend van Ayoub/Farouk): hier later naar de server sturen, bv.:
+  // TODO (backend van Ayoub/Farouk): eerst POST naar de server, en pas bij
+  // succes doorsturen. Bijvoorbeeld:
   // fetch("/api/stages", {
   //   method: "POST",
   //   headers: { "Content-Type": "application/json" },
   //   body: JSON.stringify(data),
+  // }).then(() => {
+  //   window.location.href = "../voorstel.ingediend/voorstel.ingediend.html";
   // });
 
-  // Voorlopig: formulier verbergen + succesmelding tonen
-  form.style.display = "none";
-  successMessage.classList.add("is-visible");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  // Voorlopig (zonder backend): meteen doorsturen naar het bevestigingsscherm
+  window.location.href = "../voorstel.ingediend/voorstel.ingediend.html";
 });
 
 function showError(id, message) {
