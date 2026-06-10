@@ -5,21 +5,14 @@
 /* ---------- INSTELLINGEN (pas hier aan) ---------- */
 const CONFIG = {
   API_BASE_URL: "http://localhost:3000/api",
-  DEMO_MODE: true,
+  DEMO_MODE: false,
   DASHBOARD_BY_ROLE: {
-    student:   "../dashboard-student/index.html",
-    docent:    "../dashboard-docent/index.html",
-    admin:     "../dashboard-admin/index.html",
-    mentor:    "../dashboard-mentor/index.html",
-    commissie: "../dashboard-commissie/index.html",
+    student:      "../dashboard/index.html",
+    docent:       "../dashboard/index.html",
+    admin:        "../dashboard/index.html",
+    mentor:       "../dashboard/index.html",
+    commissielid: "../dashboard/index.html",
   },
-  DEMO_USERS: [
-    { email: "tom.aertssens@ehb.be", password: "demo123", role: "docent",    name: "Tom Aertssens" },
-    { email: "student@ehb.be",       password: "demo123", role: "student",   name: "Test Student" },
-    { email: "admin@ehb.be",         password: "demo123", role: "admin",     name: "Test Admin" },
-    { email: "mentor@bedrijf.be",    password: "demo123", role: "mentor",    name: "Test Mentor" },
-    { email: "commissie@ehb.be",     password: "demo123", role: "commissie", name: "Test Commissie" },
-  ],
 };
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -70,15 +63,21 @@ document.addEventListener("DOMContentLoaded", function () {
   async function apiLogin(email, password) {
     let response;
     try {
-      response = await fetch(CONFIG.API_BASE_URL + "/login", {
+      response = await fetch(CONFIG.API_BASE_URL + "/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, password: password }),
+        body: JSON.stringify({ email: email, wachtwoord: password }),
       });
     } catch (e) { throw new Error("Geen verbinding met de server. Staat de backend aan?"); }
-    if (!response.ok) throw new Error("E-mailadres of wachtwoord is onjuist.");
+
     const data = await response.json();
-    return { email: email, role: data.role, name: data.name || email, token: data.token || null };
+    if (!response.ok) throw new Error(data.error || "E-mailadres of wachtwoord is onjuist.");
+
+    localStorage.setItem("token", data.token);
+
+    const rollen = data.gebruiker.rollen || [];
+    const rol = rollen[0] || "student";
+    return { email: data.gebruiker.email, role: rol, name: data.gebruiker.voornaam + " " + data.gebruiker.achternaam, token: data.token };
   }
 
   async function demoLogin(email, password) {
