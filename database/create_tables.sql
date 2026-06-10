@@ -124,6 +124,10 @@ CREATE TABLE stage (
   einddatum       DATE,
   totaal_weken    INT     NOT NULL DEFAULT 14,
   uren_per_week   INT     NOT NULL DEFAULT 38,
+  contact_naam    VARCHAR(200),
+  contact_email   VARCHAR(150),
+  contact_functie VARCHAR(100),
+  contact_telefoon VARCHAR(50),
   status          ENUM(
                     'concept',
                     'ingediend',
