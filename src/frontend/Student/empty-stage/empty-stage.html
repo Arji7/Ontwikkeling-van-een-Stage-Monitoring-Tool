@@ -22,15 +22,26 @@
 
     <main class="content">
       <header class="page-header">
-        <h1 class="page-title">Welkom terug, Lamine</h1>
+        <h1 class="page-title">Welkom terug, <span id="userName">...</span></h1>
         <p class="page-subtitle">Stagejaar 2025-2026</p>
       </header>
 
-      <div class="empty-state">
+      <div id="emptyState" class="empty-state" style="display:none;">
         <div class="empty-icon">📋</div>
         <h2 class="empty-title">Nog geen stagevoorstel ingediend</h2>
         <p class="empty-text">Begin met het indienen van je stagevoorstel om het proces te starten.</p>
-       <a href="../stage-aanvraag/stage-aanvraag.html" class="btn-primary">+ Nieuw stagevoorstel indienen</a>
+        <a href="../stage-aanvraag/stage-aanvraag.html" class="btn-primary">+ Nieuw stagevoorstel indienen</a>
+      </div>
+
+      <div id="stageInfo" class="stage-info" style="display:none;">
+        <h2 class="stage-info-title">📌 Jouw stagevoorstel</h2>
+        <p><strong>Bedrijf:</strong> <span id="stageBedrijf"></span></p>
+        <p><strong>Sector:</strong> <span id="stageSector"></span></p>
+        <p><strong>Periode:</strong> <span id="stagePeriode"></span></p>
+        <p><strong>Status:</strong> <span id="stageStatus"></span></p>
+        <p><strong>Omschrijving:</strong></p>
+        <p id="stageOmschrijving"></p>
+      </div>
     </main>
   </div>
 
