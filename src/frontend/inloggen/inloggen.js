@@ -15,6 +15,7 @@ const CONFIG = {
   },
 };
 
+
 document.addEventListener("DOMContentLoaded", function () {
   const form          = document.getElementById("loginForm");
   const emailInput    = document.getElementById("email");
