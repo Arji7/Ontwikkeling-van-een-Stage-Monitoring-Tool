@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wachtwoord vergeten - StageMonitorage</title>
+  <link rel="stylesheet" href="wachtwoord-vergeten.css" />
+</head>
+
+<body class="page-reset">
+
+  <!-- Topbalk -->
+  <header class="topbar">
+    <span class="topbar-title">StageMonitorage — Wachtwoord vergeten</span>
+  </header>
+
+  <!-- Pagina inhoud -->
+  <main class="page-wrapper">
+
+    <div class="card">
+
+      <!-- Card header -->
+      <div class="card-header">
+        <h1 class="brand-title">StageMonitorage</h1>
+        <p class="brand-subtitle">Erasmushogeschool Brussel</p>
+        <span class="role-badge" id="roleBadge">Gebruiker</span>
+      </div>
+
+      <!-- Terug link -->
+      <a href="../inloggen/inloggen.html" class="back-link">← Terug naar aanmelden</a>
+
+      <!-- Formulier -->
+      <h2 class="form-title">Wachtwoord vergeten?</h2>
+      <p class="form-description">
+        Vul je e-mailadres in. We sturen je een link om een nieuw wachtwoord in te stellen.
+      </p>
+
+      <div class="form-group">
+        <label for="email" class="form-label">E-mailadres</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          placeholder="naam@ehb.be"
+          autocomplete="email"
+          aria-describedby="emailError"
+        />
+        <p class="input-error" id="emailError" aria-live="polite"></p>
+      </div>
+
+      <button class="btn-primary" id="submitBtn" onclick="handleSubmit()">
+        Resetlink versturen
+      </button>
+
+      <!-- Succes bericht (verborgen) -->
+      <div class="success-message" id="successMessage" style="display:none;">
+        ✅ Resetlink verstuurd! Controleer je inbox.
+      </div>
+
+      <p class="hint-text">
+        Je ontvangt de resetlink binnen 1 minuut op je e-mailadres.
+      </p>
+
+    </div>
+  </main>
+
+  <script src="wachtwoord-vergeten.js"></script>
+</body>
+</html>

@@ -13,7 +13,7 @@ overeenkomsten, wekelijkse logboeken en evaluaties op basis van
 editeerbare competenties. Wendbaarheid is een kernvereiste.
 
 ## Tech Stack
-- **Frontend:** Js, HTML, CSS
+- **Frontend:** JS, HTML, CSS
 - **Backend:** node.js,express.js
 - **Database:** MySQL,
 
