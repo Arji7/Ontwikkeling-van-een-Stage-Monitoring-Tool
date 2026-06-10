@@ -1,0 +1,112 @@
+:root {
+  --sidebar-bg: #828d9e;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.18);
+  --sidebar-text: #eef1f5;
+  --sidebar-brand: #c7d0dd;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-soft: #e8f0ff;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --text: #1f2937;
+  --text-muted: #9aa3af;
+  --heading: #1f2d4e;
+  --field-border: #d1d5db;
+  --info-bg: #eaf1ff;
+  --info-text: #1e40af;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: #ffffff;
+}
+
+.app { display: flex; min-height: 100vh; }
+
+/* Zijbalk (zelfde als empty-stage) */
+.sidebar { width: 210px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; padding: 22px 0; }
+.sidebar-brand { font-size: 18px; font-weight: 600; color: var(--sidebar-brand); padding: 6px 22px 26px; }
+.sidebar-nav { display: flex; flex-direction: column; }
+.nav-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 22px; color: var(--sidebar-text); text-decoration: none; font-size: 14px; }
+.nav-item:hover { background: rgba(255, 255, 255, 0.10); }
+.nav-item.active { background: var(--sidebar-active-bg); font-weight: 500; }
+.nav-item.locked { opacity: 0.65; cursor: not-allowed; }
+.lock { font-size: 12px; }
+.sidebar-logout { margin-top: auto; padding: 12px 22px; color: var(--sidebar-text); text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.sidebar-logout:hover { text-decoration: underline; }
+
+/* Hoofdinhoud */
+.content { flex: 1; padding: 26px 44px 40px; }
+.form-wrap { max-width: 880px; }
+
+.breadcrumb { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+
+/* Kop met cirkel-icoon */
+.form-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+.head-circle { width: 22px; height: 22px; border: 2px solid #c7ccd6; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.form-head h1 { font-size: 20px; font-weight: 700; color: var(--heading); }
+.form-head p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* Info-box "Belangrijk" */
+.info-box { background: var(--info-bg); color: var(--info-text); border-radius: 8px; padding: 12px 16px; margin-bottom: 26px; font-size: 13px; line-height: 1.5; }
+.info-box strong { display: block; margin-bottom: 2px; }
+
+/* Secties + velden */
+.section-title { font-size: 14px; font-weight: 700; color: var(--text); margin: 22px 0 14px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; }
+.field { display: flex; flex-direction: column; margin-bottom: 16px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+.req { color: var(--danger); }
+
+.field input, .field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field textarea { resize: vertical; min-height: 96px; }
+.field input:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.field input.error, .field textarea.error { border-color: var(--danger); }
+.field-error { font-size: 12px; color: var(--danger); margin-top: 5px; min-height: 14px; }
+
+/* Voettekst met knoppen */
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; }
+.btn {
+  border: none; border-radius: 6px; padding: 11px 20px;
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+  transition: background-color 0.15s ease;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: var(--danger-hover); }
+
+/* Succesmelding na indienen */
+.success-message {
+  display: none;
+  background: #e6f4ea; color: #2e7d32; border: 1px solid #a5d6a7;
+  border-radius: 8px; padding: 14px 16px; font-size: 14px; margin-bottom: 20px;
+}
+.success-message.is-visible { display: block; }
+
+/* Responsief */
+@media (max-width: 720px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .content { padding: 22px 20px 32px; }
+  .form-actions { flex-direction: column-reverse; }
+  .btn { width: 100%; justify-content: center; }
+}
