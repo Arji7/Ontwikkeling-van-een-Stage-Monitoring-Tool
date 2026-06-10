@@ -7,7 +7,7 @@ const CONFIG = {
   API_BASE_URL: "http://localhost:3001/api",
   DEMO_MODE: false,
   DASHBOARD_BY_ROLE: {
-    student:      "../dashboard/index.html",
+    student:      "../Student/empty-stage/empty-stage.html",
     docent:       "../dashboard/index.html",
     admin:        "../dashboard/index.html",
     mentor:       "../dashboard/index.html",
