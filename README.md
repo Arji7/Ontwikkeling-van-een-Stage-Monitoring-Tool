@@ -13,7 +13,7 @@ overeenkomsten, wekelijkse logboeken en evaluaties op basis van
 editeerbare competenties. Wendbaarheid is een kernvereiste.
 
 ## Tech Stack
-- **Frontend:** React, HTML, CSS
+- **Frontend:** Js, HTML, CSS
 - **Backend:** node.js,express.js
 - **Database:** MySQL,
 
@@ -36,7 +36,7 @@ editeerbare competenties. Wendbaarheid is een kernvereiste.
 
 ## 🗄️ Database
 Het ERD schema is beschikbaar via dbdiagram.io:
-🔗 [Bekijk het ERD schema] https://dbdiagram.io/d/69f0b34cc6a36f9c1ba734a9 ← link hier invullen
+🔗 [Bekijk het ERD schema]   https://dbdiagram.io/d/69f0b34cc6a36f9c1ba734a9 
 
 ---
 
