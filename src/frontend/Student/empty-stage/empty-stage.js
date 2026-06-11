@@ -31,9 +31,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("stageBedrijf").textContent      = stage.bedrijf_naam || "—";
     document.getElementById("stageSector").textContent       = stage.sector || "—";
     document.getElementById("stagePeriode").textContent      = formatDate(stage.startdatum) + " → " + formatDate(stage.einddatum);
-    document.getElementById("stageStatus").textContent       = stage.status;
+    document.getElementById("stageStatus").textContent       = humanStatus(stage.status);
     document.getElementById("stageOmschrijving").textContent = stage.omschrijving || "";
     document.getElementById("stageInfo").style.display = "block";
+
+    // Feedback van commissie tonen (als die er is)
+    if (stage.laatste_opmerking) {
+      document.getElementById("feedbackTekst").textContent = stage.laatste_opmerking;
+      document.getElementById("feedbackBox").style.display = "block";
+    }
+
+    // "Aanpassen" knop tonen als status = aanpassingen_vereist
+    if (stage.status === "aanpassingen_vereist") {
+      const btn = document.getElementById("aanpassenBtn");
+      btn.href = "../stage-aanvraag/stage-aanvraag.html?id=" + stage.id;
+      document.getElementById("aanpassenWrap").style.display = "block";
+    }
 
   } catch (err) {
     console.error("Fout bij ophalen stages:", err);
@@ -44,4 +57,19 @@ document.addEventListener("DOMContentLoaded", async function () {
 function formatDate(d) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("nl-BE");
+}
+
+function humanStatus(s) {
+  const map = {
+    "concept":              "Concept",
+    "ingediend":            "Ingediend, wachten op goedkeuring",
+    "in_beoordeling":       "In behandeling",
+    "goedgekeurd":          "✅ Goedgekeurd",
+    "aanpassingen_vereist": "✏️ Aanpassingen vereist",
+    "afgekeurd":            "❌ Afgekeurd",
+    "wacht_op_overeenkomst":"Wacht op overeenkomst",
+    "actief":               "Stage loopt",
+    "afgerond":             "Afgerond",
+  };
+  return map[s] || s;
 }
