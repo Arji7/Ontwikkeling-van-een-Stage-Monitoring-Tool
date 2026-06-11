@@ -2,7 +2,7 @@
 const express = require('express');
 const router  = express.Router();
 const db      = require('../db');
-const { authMiddleware } = require('../middleware/authMiddelware');
+const { authMiddleware, hasRole } = require('../middleware/authMiddelware');
 
 
 // Hulpfunctie: gebruiker_id omzetten naar student_id
@@ -114,6 +114,35 @@ router.get('/:id', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Serverfout.' });
   }
 });
+
+// =============================================
+// COMMISSIE / ADMIN ROUTES
+// =============================================
+
+// GET /api/stages — alle stages ophalen (voor commissie/admin)
+router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT s.*,
+              b.naam        AS bedrijf_naam,
+              b.sector,
+              g.voornaam    AS student_voornaam,
+              g.achternaam  AS student_achternaam,
+              g.email       AS student_email
+       FROM stage s
+       LEFT JOIN bedrijf  b  ON b.id  = s.bedrijf_id
+       LEFT JOIN student  st ON st.id = s.student_id
+       LEFT JOIN gebruiker g ON g.id  = st.gebruiker_id
+       ORDER BY s.aangemaakt_op DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Stages ophalen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+
 
 module.exports = router;
 
