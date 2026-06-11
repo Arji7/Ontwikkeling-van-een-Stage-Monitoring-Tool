@@ -40,27 +40,48 @@ function setupEventListeners() {
     });
 }
 
-// ========== FETCH STUDENTS VAN DATABASE ==========
+// ========== FETCH STAGES VAN DATABASE ==========
 async function loadStudents() {
     showLoading(true);
     hideError();
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showError('Niet ingelogd. Log opnieuw in.');
+        showLoading(false);
+        return;
+    }
+
     try {
-        const response = await fetch('http://localhost:3000/api/students');
+        const response = await fetch('http://localhost:3000/api/stages', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        allStudents = await response.json();
-        console.log('Students geladen:', allStudents);
+        const stages = await response.json();
+
+        // Backend velden omzetten naar wat de UI verwacht
+        allStudents = stages.map(s => ({
+            id:         s.id,
+            naam:       (s.student_voornaam || '') + ' ' + (s.student_achternaam || ''),
+            email:      s.student_email || '',
+            bedrijf:    s.bedrijf_naam   || '-',
+            startdatum: s.startdatum,
+            einddatum:  s.einddatum,
+            status:     s.status,
+        }));
+
+        console.log('Stages geladen:', allStudents);
 
         filterAndDisplayStudents();
         showLoading(false);
 
     } catch (error) {
         console.error('Error:', error);
-        showError('Kon studenten niet laden. Zorg dat je server draait op http://localhost:3000');
+        showError('Kon stages niet laden. Zorg dat je server draait op http://localhost:3000');
         showLoading(false);
     }
 }
@@ -161,9 +182,10 @@ function viewStudent(studentId) {
 // ========== HELPER FUNCTIONS ==========
 function getStatusText(status) {
     const statusMap = {
-        'in-afwachting': 'In afwachting',
-        'goedgekeurd': 'Goedgekeurd',
-        'afgewezen': 'Afgewezen'
+        'ingediend':            'In afwachting',
+        'goedgekeurd':          'Goedgekeurd',
+        'afgekeurd':            'Afgewezen',
+        'aanpassingen_vereist': 'Aanpassingen vereist'
     };
     return statusMap[status] || status;
 }
