@@ -92,13 +92,28 @@ router.get('/mijn', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/stages/:id — één specifieke stage ophalen
+// GET /api/stages/:id — één specifieke stage ophalen (met alle JOINs voor admin/commissie)
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT s.*, b.naam AS bedrijf_naam, b.sector
+      `SELECT s.*,
+              b.naam        AS bedrijf_naam,
+              b.sector,
+              sg.voornaam   AS student_voornaam,
+              sg.achternaam AS student_achternaam,
+              sg.email      AS student_email,
+              o.naam        AS opleiding_naam,
+              aj.naam       AS academiejaar_naam,
+              dg.voornaam   AS docent_voornaam,
+              dg.achternaam AS docent_achternaam
        FROM stage s
-       LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
+       LEFT JOIN bedrijf      b  ON b.id  = s.bedrijf_id
+       LEFT JOIN student      st ON st.id = s.student_id
+       LEFT JOIN gebruiker    sg ON sg.id = st.gebruiker_id
+       LEFT JOIN opleiding    o  ON o.id  = st.opleiding_id
+       LEFT JOIN academiejaar aj ON aj.id = s.academiejaar_id
+       LEFT JOIN docent       d  ON d.id  = s.docent_id
+       LEFT JOIN gebruiker    dg ON dg.id = d.gebruiker_id
        WHERE s.id = ?`,
       [req.params.id]
     );
