@@ -166,6 +166,20 @@ function vulPaginaIn(d) {
   // Geschiedenis
   txt("histIngediend",   `${naam} · ${formatDateTime(d.aangemaakt_op)}`);
   txt("histBehandeling", `Automatisch · ${formatDateTime(d.aangemaakt_op)}`);
+
+  // Voorselecteren huidige docent in dropdown
+  if (d.docent_id) {
+    const select = document.getElementById("docentSelect");
+    if (select) {
+      const tryen = setInterval(() => {
+        if (select.querySelector(`option[value="${d.docent_id}"]`)) {
+          select.value = d.docent_id;
+          clearInterval(tryen);
+        }
+      }, 100);
+      setTimeout(() => clearInterval(tryen), 5000);
+    }
+  }
 }
 
 // ────────────────────────────────────────────────────────────
@@ -192,6 +206,7 @@ function initBeslissing() {
 
     const stageId  = getStageIdFromUrl();
     const feedback = document.getElementById("feedbackText")?.value?.trim() || "";
+    const docentId = document.getElementById("docentSelect")?.value || null;
     const beslissing = BESLISSING_MAP[gekozen];
 
     if (!stageId || !beslissing) { alert("Iets ging mis. Herlaad de pagina."); return; }
@@ -200,7 +215,7 @@ function initBeslissing() {
       const res = await fetch(`${API_BASE_URL}/stages/${stageId}/beslissing`, {
         method:  "POST",
         headers: authHeaders(),
-        body:    JSON.stringify({ beslissing, opmerking: feedback }),
+        body:    JSON.stringify({ beslissing, opmerking: feedback, docent_id: docentId || null }),
       });
 
       const data = await res.json();
@@ -210,8 +225,7 @@ function initBeslissing() {
         return;
       }
 
-      alert(`✅ Beslissing "${beslissing}" succesvol opgeslagen.`);
-      laadStage(); // ververs gegevens
+      window.location.href = "commissie.bevestiging.html?type=" + beslissing;
 
     } catch (err) {
       console.error("Beslissing versturen fout:", err);
@@ -223,7 +237,30 @@ function initBeslissing() {
 // ────────────────────────────────────────────────────────────
 // START
 // ────────────────────────────────────────────────────────────
+async function laadDocenten() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/gebruikers/docenten`, {
+      headers: authHeaders(),
+    });
+    if (!res.ok) return;
+    const docenten = await res.json();
+
+    const select = document.getElementById("docentSelect");
+    if (!select) return;
+
+    docenten.forEach(d => {
+      const opt = document.createElement("option");
+      opt.value = d.docent_id;
+      opt.textContent = `${d.voornaam} ${d.achternaam}`;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Docenten ophalen fout:", err);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   laadStage();
+  laadDocenten();
   initBeslissing();
 });
