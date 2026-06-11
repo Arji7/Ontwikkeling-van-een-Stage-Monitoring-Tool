@@ -225,8 +225,7 @@ function initBeslissing() {
         return;
       }
 
-      alert(`✅ Beslissing "${beslissing}" succesvol opgeslagen.`);
-      laadStage(); // ververs gegevens
+      toonBevestiging(beslissing);
 
     } catch (err) {
       console.error("Beslissing versturen fout:", err);
@@ -238,6 +237,49 @@ function initBeslissing() {
 // ────────────────────────────────────────────────────────────
 // START
 // ────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// BEVESTIGINGSMODAL
+// ────────────────────────────────────────────────────────────
+function toonBevestiging(beslissing) {
+  const overlay = document.getElementById("bevestigingOverlay");
+  const icoon   = document.getElementById("bevestigingIcoon");
+  const titel   = document.getElementById("bevestigingTitel");
+  const tekst   = document.getElementById("bevestigingTekst");
+
+  const config = {
+    goedgekeurd: {
+      icoon: "✅",
+      titel: "Stage goedgekeurd",
+      tekst: "Het stagevoorstel is goedgekeurd. De student is op de hoogte gebracht.",
+    },
+    afgekeurd: {
+      icoon: "❌",
+      titel: "Stage afgekeurd",
+      tekst: "Het stagevoorstel is afgekeurd. De student is op de hoogte gebracht.",
+    },
+    aanpassingen_vereist: {
+      icoon: "✏️",
+      titel: "Aanpassingen aangevraagd",
+      tekst: "De student wordt verzocht om aanpassingen door te voeren.",
+    },
+  };
+
+  const c = config[beslissing] || config.goedgekeurd;
+  icoon.textContent = c.icoon;
+  titel.textContent = c.titel;
+  tekst.textContent = c.tekst;
+
+  overlay.style.display = "flex";
+
+  document.getElementById("btnBlijven").onclick = function () {
+    overlay.style.display = "none";
+    laadStage(); // ververs data op huidige pagina
+  };
+  document.getElementById("btnTerug").onclick = function () {
+    window.location.href = "../../inloggen/inloggen.html";
+  };
+}
+
 async function laadDocenten() {
   try {
     const res = await fetch(`${API_BASE_URL}/gebruikers/docenten`, {

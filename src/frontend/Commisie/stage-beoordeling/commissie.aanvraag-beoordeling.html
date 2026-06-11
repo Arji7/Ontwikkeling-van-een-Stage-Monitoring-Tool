@@ -249,6 +249,21 @@
     </main>
   </div>
 
+  <!-- ===== BEVESTIGINGSMODAL ===== -->
+  <div id="bevestigingOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:40px; max-width:480px; width:90%; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+      <div id="bevestigingIcoon" style="font-size:64px; margin-bottom:16px;">✅</div>
+      <h2 id="bevestigingTitel" style="margin:0 0 12px 0; color:#1a1a2e;">Beslissing verstuurd</h2>
+      <p id="bevestigingTekst" style="margin:0 0 24px 0; color:#555; line-height:1.5;">
+        De beslissing is succesvol opgeslagen en de student is op de hoogte gebracht.
+      </p>
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button id="btnBlijven" style="padding:12px 24px; border:1px solid #ccc; background:#fff; border-radius:8px; cursor:pointer; font-size:14px;">Op deze pagina blijven</button>
+        <button id="btnTerug" style="padding:12px 24px; border:none; background:#2563eb; color:#fff; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">← Terug naar dashboard</button>
+      </div>
+    </div>
+  </div>
+
   <script src="commissie.aanvraag-beoordeling.js"></script>
 </body>
 </html>
