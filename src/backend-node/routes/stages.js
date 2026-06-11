@@ -145,12 +145,17 @@ router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, re
 // POST /api/stages/:id/beslissing — stage goedkeuren / afkeuren / aanpassingen vereisen
 router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'), async (req, res) => {
   const stage_id = req.params.id;
-  const { beslissing, opmerking } = req.body;
+  const { beslissing, opmerking, docent_id } = req.body;
   const commissielid_id = req.user.id;
 
   const geldigeBeslissingen = ['goedgekeurd', 'afgekeurd', 'aanpassingen_vereist'];
   if (!geldigeBeslissingen.includes(beslissing)) {
     return res.status(400).json({ error: 'Ongeldige beslissing.' });
+  }
+
+  // Bij goedkeuring is een docent verplicht
+  if (beslissing === 'goedgekeurd' && !docent_id) {
+    return res.status(400).json({ error: 'Bij goedkeuring moet een docent gekozen worden.' });
   }
 
   try {
@@ -166,10 +171,18 @@ router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'),
       [stage_id, commissielid_id, beslissing, opmerking || null]
     );
 
-    await db.query(
-      'UPDATE stage SET status = ? WHERE id = ?',
-      [beslissing, stage_id]
-    );
+    // Bij goedkeuring ook de docent toewijzen
+    if (beslissing === 'goedgekeurd') {
+      await db.query(
+        'UPDATE stage SET status = ?, docent_id = ? WHERE id = ?',
+        [beslissing, docent_id, stage_id]
+      );
+    } else {
+      await db.query(
+        'UPDATE stage SET status = ? WHERE id = ?',
+        [beslissing, stage_id]
+      );
+    }
 
     await db.query(
       `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
