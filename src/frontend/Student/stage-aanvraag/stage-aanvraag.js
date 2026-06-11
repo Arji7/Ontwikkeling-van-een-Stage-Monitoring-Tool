@@ -1,28 +1,11 @@
 const form = document.getElementById("voorstelForm");
 
-// Docenten ophalen en in dropdown zetten
-const tokenForDocenten = localStorage.getItem('token');
-fetch('http://localhost:3000/api/gebruikers/docenten', {
-  headers: { 'Authorization': 'Bearer ' + tokenForDocenten }
-})
-.then(function(res) { return res.json(); })
-.then(function(docenten) {
-  const select = document.getElementById('docent');
-  docenten.forEach(function(d) {
-    const option = document.createElement('option');
-    option.value = d.docent_id;
-    option.textContent = d.voornaam + ' ' + d.achternaam;
-    select.appendChild(option);
-  });
-});
-
 // Verplichte velden: id => foutmelding
 const requiredFields = {
   bedrijf: "Naam bedrijf is verplicht.",
   sector: "Sector is verplicht.",
   mentor: "Stagementor is verplicht.",
   mentorEmail: "E-mail mentor is verplicht.",
-  docent: "Begeleidende docent is verplicht.",
   startDatum: "Startdatum is verplicht.",
   eindDatum: "Einddatum is verplicht.",
   omschrijving: "Omschrijving is verplicht.",
@@ -67,7 +50,6 @@ form.addEventListener("submit", function (event) {
     sector: document.getElementById("sector").value.trim(),
     mentor: document.getElementById("mentor").value.trim(),
     mentorEmail: email.value.trim(),
-    docent_id: document.getElementById("docent").value,
     startDatum: start,
     eindDatum: eind,
     omschrijving: document.getElementById("omschrijving").value.trim(),
