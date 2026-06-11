@@ -8,8 +8,6 @@ const loadingSpinner = document.getElementById('loadingSpinner');
 const errorMessage = document.getElementById('errorMessage');
 const searchInput = document.getElementById('searchInput');
 const filterButtons = document.querySelectorAll('.filter-btn');
-const sidebarToggle = document.querySelector('.sidebar-toggle');
-const sidebar = document.querySelector('.sidebar');
 
 // ========== INITIALISATIE ==========
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,10 +32,6 @@ function setupEventListeners() {
         });
     });
 
-    // Sidebar toggle op mobile
-    sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
 }
 
 // ========== FETCH STAGES VAN DATABASE ==========
@@ -167,16 +161,8 @@ function createStudentCard(student) {
 }
 
 // ========== VIEW STUDENT DETAIL ==========
-function viewStudent(studentId) {
-    const student = allStudents.find(s => s.id === studentId);
-
-    if (student) {
-        // Opslaan in sessionStorage
-        sessionStorage.setItem('selectedStudent', JSON.stringify(student));
-
-        // Navigeren naar detail pagina
-        window.location.href = '../stage-beoordeling/commissie.aanvraag.html';
-    }
+function viewStudent(stageId) {
+    window.location.href = '../stage-beoordeling/commissie.aanvraag-beoordeling.html?id=' + stageId;
 }
 
 // ========== HELPER FUNCTIONS ==========
