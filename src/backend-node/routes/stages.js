@@ -53,7 +53,7 @@ router.post('/', authMiddleware, async (req, res) => {
     await db.query(
       `INSERT INTO stage_geschiedenis (stage_id, nieuwe_status, gewijzigd_door)
        VALUES (?, 'ingediend', ?)`,
-      [stage.insertId, student_id]
+      [stage.insertId, req.user.id]
     );
 
     res.status(201).json({
