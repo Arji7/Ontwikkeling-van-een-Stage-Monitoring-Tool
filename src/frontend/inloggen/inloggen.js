@@ -9,9 +9,9 @@ const CONFIG = {
   DASHBOARD_BY_ROLE: {
     student:      "../Student/empty-stage/empty-stage.html",
     docent:       "../Student/empty-stage/empty-stage.html",
-    admin:        "../Commisie/stage-beoordeling/commissie.aanvraag-beoordeling.html?id=4",
+    admin:        "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
     mentor:       "../Student/empty-stage/empty-stage.html",
-    commissielid: "../Commisie/stage-beoordeling/commissie.aanvraag-beoordeling.html?id=4",
+    commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
   },
   // Prioriteit bij meerdere rollen (hoogste eerst)
   ROL_PRIORITEIT: ["admin", "commissielid", "docent", "mentor", "student"],
