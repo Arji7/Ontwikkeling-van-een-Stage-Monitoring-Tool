@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3001/api";
+const API_BASE_URL = "http://localhost:3000/api";
 
 document.addEventListener("DOMContentLoaded", async function () {
 
@@ -26,14 +26,35 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // Toon de meest recente stage
-    const stage = stages[0];
+    // Toon meest relevante stage:
+    //   1. Met openstaande actie (aanpassingen_vereist / afgekeurd)
+    //   2. Anders: de meest recente
+    const PRIORITEIT = ["aanpassingen_vereist", "afgekeurd", "goedgekeurd", "ingediend", "in_beoordeling", "concept"];
+    const stage = stages.slice().sort(function (a, b) {
+      const pa = PRIORITEIT.indexOf(a.status);
+      const pb = PRIORITEIT.indexOf(b.status);
+      if (pa !== pb) return pa - pb;
+      return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
+    })[0];
     document.getElementById("stageBedrijf").textContent      = stage.bedrijf_naam || "—";
     document.getElementById("stageSector").textContent       = stage.sector || "—";
     document.getElementById("stagePeriode").textContent      = formatDate(stage.startdatum) + " → " + formatDate(stage.einddatum);
-    document.getElementById("stageStatus").textContent       = stage.status;
+    document.getElementById("stageStatus").textContent       = humanStatus(stage.status);
     document.getElementById("stageOmschrijving").textContent = stage.omschrijving || "";
     document.getElementById("stageInfo").style.display = "block";
+
+    // Feedback van commissie tonen (als die er is)
+    if (stage.laatste_opmerking) {
+      document.getElementById("feedbackTekst").textContent = stage.laatste_opmerking;
+      document.getElementById("feedbackBox").style.display = "block";
+    }
+
+    // "Aanpassen" knop tonen als status = aanpassingen_vereist
+    if (stage.status === "aanpassingen_vereist") {
+      const btn = document.getElementById("aanpassenBtn");
+      btn.href = "../stage-aanvraag/stage-aanvraag.html?id=" + stage.id;
+      document.getElementById("aanpassenWrap").style.display = "block";
+    }
 
   } catch (err) {
     console.error("Fout bij ophalen stages:", err);
@@ -44,4 +65,19 @@ document.addEventListener("DOMContentLoaded", async function () {
 function formatDate(d) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("nl-BE");
+}
+
+function humanStatus(s) {
+  const map = {
+    "concept":              "Concept",
+    "ingediend":            "Ingediend, wachten op goedkeuring",
+    "in_beoordeling":       "In behandeling",
+    "goedgekeurd":          "✅ Goedgekeurd",
+    "aanpassingen_vereist": "✏️ Aanpassingen vereist",
+    "afgekeurd":            "❌ Afgekeurd",
+    "wacht_op_overeenkomst":"Wacht op overeenkomst",
+    "actief":               "Stage loopt",
+    "afgerond":             "Afgerond",
+  };
+  return map[s] || s;
 }

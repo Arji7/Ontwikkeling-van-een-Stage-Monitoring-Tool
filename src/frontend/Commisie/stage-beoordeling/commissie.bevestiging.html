@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beslissing verstuurd – StageMonitor</title>
+  <link rel="stylesheet" href="commissie.aanvraag.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f4f6fa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bevestiging-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 60px 50px;
+      max-width: 560px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+    .bevestiging-icoon {
+      font-size: 88px;
+      margin-bottom: 24px;
+      line-height: 1;
+    }
+    .bevestiging-titel {
+      font-size: 28px;
+      margin: 0 0 16px 0;
+      color: #1a1a2e;
+    }
+    .bevestiging-tekst {
+      font-size: 15px;
+      color: #555;
+      line-height: 1.6;
+      margin: 0 0 36px 0;
+    }
+    .bevestiging-knoppen {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .bev-btn {
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      border: none;
+    }
+    .bev-btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+    .bev-btn-secondary {
+      background: #fff;
+      color: #1a1a2e;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bevestiging-card">
+    <div class="bevestiging-icoon" id="bevIcoon">✅</div>
+    <h1 class="bevestiging-titel" id="bevTitel">Beslissing verstuurd</h1>
+    <p class="bevestiging-tekst" id="bevTekst">
+      De beslissing is succesvol opgeslagen en de student is op de hoogte gebracht.
+    </p>
+    <div class="bevestiging-knoppen">
+      <a href="../../inloggen/inloggen.html" class="bev-btn bev-btn-secondary">⎋ Uitloggen</a>
+      <a href="commissie.aanvraag-beoordeling.html?id=4" class="bev-btn bev-btn-primary" id="bevTerug">← Terug naar dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    // Lees beslissing-type uit URL (?type=goedgekeurd)
+    const type = new URLSearchParams(window.location.search).get("type") || "goedgekeurd";
+
+    const config = {
+      goedgekeurd: {
+        icoon: "✅",
+        titel: "Stage goedgekeurd",
+        tekst: "Het stagevoorstel is goedgekeurd. De student is op de hoogte gebracht en kan verder met de volgende stap.",
+      },
+      afgekeurd: {
+        icoon: "❌",
+        titel: "Stage afgekeurd",
+        tekst: "Het stagevoorstel is afgekeurd. De student is op de hoogte gebracht via het dashboard.",
+      },
+      aanpassingen_vereist: {
+        icoon: "✏️",
+        titel: "Aanpassingen aangevraagd",
+        tekst: "De student wordt verzocht om aanpassingen door te voeren en het voorstel opnieuw in te dienen.",
+      },
+    };
+
+    const c = config[type] || config.goedgekeurd;
+    document.getElementById("bevIcoon").textContent = c.icoon;
+    document.getElementById("bevTitel").textContent = c.titel;
+    document.getElementById("bevTekst").textContent = c.tekst;
+  </script>
+
+</body>
+</html>

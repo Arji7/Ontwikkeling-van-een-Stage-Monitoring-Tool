@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aanvragen Overzicht - Stagecommissie</title>
+    <link rel="stylesheet" href="aanvragen.overzicht.css">
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <span class="nav-group-label">Stagecommissie</span>
+        <a href="./aanvragen.overzicht.html" class="nav-item active">Aanvragen</a>
+        <a href="#" class="nav-item">Lopende stages</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-role-label">Actieve rollen: <strong>Administratie + Stagecommissie</strong></div>
+        <div class="sidebar-user">
+          <div class="user-avatar">EV</div>
+          <div class="user-info">
+            <span class="user-name">Els Verheyen</span>
+            <span class="user-role">Administratie · Voorzitter commissie</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <header class="page-header">
+                <h1>Stageaanvragen</h1>
+                <p>Beheer en beoordeel alle inkomende stageaanvragen</p>
+            </header>
+
+            <!-- FILTERS & ZOEK -->
+            <section class="controls">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="🔍 Zoek student of bedrijf..."
+                    >
+                </div>
+
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="alle">
+                        Alle
+                    </button>
+                    <button class="filter-btn" data-filter="ingediend">
+                        In afwachting
+                    </button>
+                    <button class="filter-btn" data-filter="goedgekeurd">
+                        Goedgekeurd
+                    </button>
+                    <button class="filter-btn" data-filter="afgekeurd">
+                        Afgewezen
+                    </button>
+                </div>
+            </section>
+
+            <!-- STUDENTS GRID -->
+            <section class="students-grid">
+                <div id="studentsContainer" class="grid">
+                    <!-- Students worden hier ingeladen via JS -->
+                </div>
+            </section>
+
+            <!-- LOADING & ERROR STATES -->
+            <div id="loadingSpinner" class="loading">
+                <div class="spinner"></div>
+                <p>Studenten laden...</p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+        </main>
+    </div>
+
+    <script src="aanvragen.overzicht.js"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 const express = require('express');
 const router  = express.Router();
 const db      = require('../db');
-const { authMiddleware } = require('../middleware/authMiddelware');
+const { authMiddleware, hasRole } = require('../middleware/authMiddelware');
 
 
 // Hulpfunctie: gebruiker_id omzetten naar student_id
@@ -53,7 +53,7 @@ router.post('/', authMiddleware, async (req, res) => {
     await db.query(
       `INSERT INTO stage_geschiedenis (stage_id, nieuwe_status, gewijzigd_door)
        VALUES (?, 'ingediend', ?)`,
-      [stage.insertId, student_id]
+      [stage.insertId, req.user.id]
     );
 
     res.status(201).json({
@@ -76,7 +76,19 @@ router.get('/mijn', authMiddleware, async (req, res) => {
     }
 
     const [rows] = await db.query(
-      `SELECT s.*, b.naam AS bedrijf_naam, b.sector
+      `SELECT s.*,
+              b.naam AS bedrijf_naam,
+              b.sector,
+              (SELECT bs.opmerking
+                 FROM beslissing bs
+                WHERE bs.stage_id = s.id
+                ORDER BY bs.datum DESC
+                LIMIT 1) AS laatste_opmerking,
+              (SELECT bs.beslissing
+                 FROM beslissing bs
+                WHERE bs.stage_id = s.id
+                ORDER BY bs.datum DESC
+                LIMIT 1) AS laatste_beslissing
        FROM stage s
        LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
        WHERE s.student_id = ?
@@ -92,13 +104,28 @@ router.get('/mijn', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/stages/:id — één specifieke stage ophalen
+// GET /api/stages/:id — één specifieke stage ophalen (met alle JOINs voor admin/commissie)
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT s.*, b.naam AS bedrijf_naam, b.sector
+      `SELECT s.*,
+              b.naam        AS bedrijf_naam,
+              b.sector,
+              sg.voornaam   AS student_voornaam,
+              sg.achternaam AS student_achternaam,
+              sg.email      AS student_email,
+              o.naam        AS opleiding_naam,
+              aj.naam       AS academiejaar_naam,
+              dg.voornaam   AS docent_voornaam,
+              dg.achternaam AS docent_achternaam
        FROM stage s
-       LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
+       LEFT JOIN bedrijf      b  ON b.id  = s.bedrijf_id
+       LEFT JOIN student      st ON st.id = s.student_id
+       LEFT JOIN gebruiker    sg ON sg.id = st.gebruiker_id
+       LEFT JOIN opleiding    o  ON o.id  = st.opleiding_id
+       LEFT JOIN academiejaar aj ON aj.id = s.academiejaar_id
+       LEFT JOIN docent       d  ON d.id  = s.docent_id
+       LEFT JOIN gebruiker    dg ON dg.id = d.gebruiker_id
        WHERE s.id = ?`,
       [req.params.id]
     );
@@ -111,6 +138,167 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error('Stage ophalen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// PUT /api/stages/:id — student past zijn stagevoorstel aan en dient opnieuw in
+router.put('/:id', authMiddleware, async (req, res) => {
+  const stage_id = req.params.id;
+  const { bedrijf, sector, mentor, mentorEmail, startDatum, eindDatum, omschrijving } = req.body;
+
+  if (!bedrijf || !mentor || !mentorEmail || !startDatum || !eindDatum || !omschrijving) {
+    return res.status(400).json({ error: 'Verplichte velden ontbreken' });
+  }
+
+  try {
+    const student_id = await getStudentId(req.user.id);
+    if (!student_id) {
+      return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
+    }
+
+    // Check eigenaarschap + huidige status
+    const [stageRows] = await db.query(
+      'SELECT student_id, status FROM stage WHERE id = ?',
+      [stage_id]
+    );
+    if (stageRows.length === 0) {
+      return res.status(404).json({ error: 'Stage niet gevonden.' });
+    }
+    if (stageRows[0].student_id !== student_id) {
+      return res.status(403).json({ error: 'Deze stage is niet van jou.' });
+    }
+    const oudeStatus = stageRows[0].status;
+    const mogenAanpassen = ['concept', 'aanpassingen_vereist'];
+    if (!mogenAanpassen.includes(oudeStatus)) {
+      return res.status(400).json({ error: 'Aanpassen niet toegelaten — status is "' + oudeStatus + '".' });
+    }
+
+    // Bedrijf aanmaken of ophalen
+    let [bedrijfRows] = await db.query('SELECT id FROM bedrijf WHERE naam = ?', [bedrijf]);
+    let bedrijf_id;
+    if (bedrijfRows.length === 0) {
+      const [result] = await db.query(
+        'INSERT INTO bedrijf (naam, sector) VALUES (?, ?)',
+        [bedrijf, sector || null]
+      );
+      bedrijf_id = result.insertId;
+    } else {
+      bedrijf_id = bedrijfRows[0].id;
+    }
+
+    // Stage updaten — status terug naar "ingediend"
+    await db.query(
+      `UPDATE stage
+          SET bedrijf_id    = ?,
+              omschrijving  = ?,
+              startdatum    = ?,
+              einddatum     = ?,
+              contact_naam  = ?,
+              contact_email = ?,
+              status        = 'ingediend'
+        WHERE id = ?`,
+      [bedrijf_id, omschrijving, startDatum, eindDatum, mentor, mentorEmail, stage_id]
+    );
+
+    // Geschiedenis bijhouden
+    await db.query(
+      `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
+       VALUES (?, ?, 'ingediend', 'Student heeft voorstel aangepast en opnieuw ingediend', ?)`,
+      [stage_id, oudeStatus, req.user.id]
+    );
+
+    res.json({ message: 'Stagevoorstel succesvol aangepast en opnieuw ingediend', stage_id: Number(stage_id) });
+
+  } catch (err) {
+    console.error('Stage updaten fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// =============================================
+// COMMISSIE / ADMIN ROUTES
+// =============================================
+
+// GET /api/stages — alle stages ophalen (voor commissie/admin)
+router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT s.*,
+              b.naam        AS bedrijf_naam,
+              b.sector,
+              g.voornaam    AS student_voornaam,
+              g.achternaam  AS student_achternaam,
+              g.email       AS student_email
+       FROM stage s
+       LEFT JOIN bedrijf  b  ON b.id  = s.bedrijf_id
+       LEFT JOIN student  st ON st.id = s.student_id
+       LEFT JOIN gebruiker g ON g.id  = st.gebruiker_id
+       ORDER BY s.aangemaakt_op DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Stages ophalen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// POST /api/stages/:id/beslissing — stage goedkeuren / afkeuren / aanpassingen vereisen
+router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'), async (req, res) => {
+  const stage_id = req.params.id;
+  const { beslissing, opmerking, docent_id } = req.body;
+  const commissielid_id = req.user.id;
+
+  const geldigeBeslissingen = ['goedgekeurd', 'afgekeurd', 'aanpassingen_vereist'];
+  if (!geldigeBeslissingen.includes(beslissing)) {
+    return res.status(400).json({ error: 'Ongeldige beslissing.' });
+  }
+
+  // Bij goedkeuring is een docent verplicht
+  if (beslissing === 'goedgekeurd' && !docent_id) {
+    return res.status(400).json({ error: 'Bij goedkeuring moet een docent gekozen worden.' });
+  }
+
+  try {
+    const [stageRows] = await db.query('SELECT status FROM stage WHERE id = ?', [stage_id]);
+    if (stageRows.length === 0) {
+      return res.status(404).json({ error: 'Stage niet gevonden.' });
+    }
+    const oudeStatus = stageRows[0].status;
+
+    await db.query(
+      `INSERT INTO beslissing (stage_id, commissielid_id, beslissing, opmerking)
+       VALUES (?, ?, ?, ?)`,
+      [stage_id, commissielid_id, beslissing, opmerking || null]
+    );
+
+    // Bij goedkeuring ook de docent toewijzen
+    if (beslissing === 'goedgekeurd') {
+      await db.query(
+        'UPDATE stage SET status = ?, docent_id = ? WHERE id = ?',
+        [beslissing, docent_id, stage_id]
+      );
+    } else {
+      await db.query(
+        'UPDATE stage SET status = ? WHERE id = ?',
+        [beslissing, stage_id]
+      );
+    }
+
+    await db.query(
+      `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
+       VALUES (?, ?, ?, ?, ?)`,
+      [stage_id, oudeStatus, beslissing, opmerking || null, commissielid_id]
+    );
+
+    res.json({
+      message: 'Beslissing succesvol opgeslagen.',
+      beslissing,
+      stage_id: Number(stage_id)
+    });
+
+  } catch (err) {
+    console.error('Beslissing opslaan fout:', err);
     res.status(500).json({ error: 'Serverfout.' });
   }
 });

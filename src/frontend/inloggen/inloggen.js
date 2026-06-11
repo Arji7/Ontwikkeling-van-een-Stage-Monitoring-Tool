@@ -8,11 +8,13 @@ const CONFIG = {
   DEMO_MODE: false,
   DASHBOARD_BY_ROLE: {
     student:      "../Student/empty-stage/empty-stage.html",
-    docent:       "../dashboard/index.html",
-    admin:        "../dashboard/index.html",
-    mentor:       "../dashboard/index.html",
-    commissielid: "../dashboard/index.html",
+    docent:       "../Student/empty-stage/empty-stage.html",
+    admin:        "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
+    mentor:       "../Student/empty-stage/empty-stage.html",
+    commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
   },
+  // Prioriteit bij meerdere rollen (hoogste eerst)
+  ROL_PRIORITEIT: ["admin", "commissielid", "docent", "mentor", "student"],
 };
 
 
@@ -77,7 +79,8 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("token", data.token);
 
     const rollen = data.gebruiker.rollen || [];
-    const rol = rollen[0] || "student";
+    // Kies hoogste rol uit de prioriteitslijst
+    const rol = CONFIG.ROL_PRIORITEIT.find(function (r) { return rollen.includes(r); }) || "student";
     return { email: data.gebruiker.email, role: rol, name: data.gebruiker.voornaam + " " + data.gebruiker.achternaam, token: data.token };
   }
 
