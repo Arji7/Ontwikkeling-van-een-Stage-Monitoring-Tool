@@ -105,6 +105,21 @@ body {
 
 /* Responsief */
 @media (max-width: 720px) {
+  /* Zijbalk wordt een balk bovenaan */
+  .app { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 10px 16px;
+  }
+  .sidebar-brand { padding: 0 16px 0 0; }
+  .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
+  .nav-item { padding: 8px 12px; }
+  .sidebar-logout { margin-top: 0; margin-left: auto; padding: 8px 12px; }
+
+  /* Formulier op smal scherm */
   .grid-2 { grid-template-columns: 1fr; }
   .content { padding: 22px 20px 32px; }
   .form-actions { flex-direction: column-reverse; }

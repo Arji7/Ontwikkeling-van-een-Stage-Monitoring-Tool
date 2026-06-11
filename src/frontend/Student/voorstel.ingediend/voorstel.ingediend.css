@@ -77,6 +77,21 @@ body {
 
 /* Responsief */
 @media (max-width: 720px) {
+  /* Zijbalk wordt een balk bovenaan */
+  .app { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 10px 16px;
+  }
+  .sidebar-brand { padding: 0 16px 0 0; }
+  .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
+  .nav-item { padding: 8px 12px; }
+  .sidebar-logout { margin-top: 0; margin-left: auto; padding: 8px 12px; }
+
+  /* Inhoud op smal scherm */
   .content { padding: 24px 20px; }
   .confirm { margin-top: 40px; }
   .confirm-actions { flex-direction: column; }

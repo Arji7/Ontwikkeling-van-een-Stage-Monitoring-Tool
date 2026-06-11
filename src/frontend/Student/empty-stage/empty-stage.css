@@ -7,7 +7,8 @@
   --primary-hover: #1d4ed8;
   --text: #1f2937;
   --text-muted: #9aa3af;
-  --border: #eaecef;
+  --heading: #1f2d4e;
+  --border: #e5e7eb;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,61 +22,27 @@ body {
 .app { display: flex; min-height: 100vh; }
 
 /* Zijbalk */
-.sidebar {
-  width: 210px;
-  background: var(--sidebar-bg);
-  color: var(--sidebar-text);
-  display: flex;
-  flex-direction: column;
-  padding: 22px 0;
-}
-.sidebar-brand {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--sidebar-brand);
-  padding: 6px 22px 26px;
-}
+.sidebar { width: 210px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; padding: 22px 0; }
+.sidebar-brand { font-size: 18px; font-weight: 600; color: var(--sidebar-brand); padding: 6px 22px 26px; }
 .sidebar-nav { display: flex; flex-direction: column; }
-.nav-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 11px 22px;
-  color: var(--sidebar-text);
-  text-decoration: none;
-  font-size: 14px;
-}
+.nav-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 22px; color: var(--sidebar-text); text-decoration: none; font-size: 14px; }
 .nav-item:hover { background: rgba(255, 255, 255, 0.10); }
 .nav-item.active { background: var(--sidebar-active-bg); font-weight: 500; }
 .nav-item.locked { opacity: 0.65; cursor: not-allowed; }
 .lock { font-size: 12px; }
-.sidebar-logout {
-  margin-top: auto;
-  padding: 12px 22px;
-  color: var(--sidebar-text);
-  text-decoration: none;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
+.sidebar-logout { margin-top: auto; padding: 12px 22px; color: var(--sidebar-text); text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
 .sidebar-logout:hover { text-decoration: underline; }
 
 /* Hoofdinhoud */
 .content { flex: 1; padding: 34px 44px; }
 .page-header { border-bottom: 1px solid var(--border); padding-bottom: 18px; }
-.page-title { font-size: 24px; font-weight: 600; }
+.page-title { font-size: 24px; font-weight: 600; color: var(--heading); }
 .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
 /* Empty state */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin-top: 110px;
-}
+.empty-state { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 90px; }
 .empty-icon { font-size: 42px; margin-bottom: 18px; }
-.empty-title { font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+.empty-title { font-size: 16px; font-weight: 600; color: var(--heading); margin-bottom: 8px; }
 .empty-text { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
 
 .btn-primary {
@@ -90,3 +57,38 @@ body {
   cursor: pointer;
 }
 .btn-primary:hover { background: var(--primary-hover); }
+
+/* Ingediend stagevoorstel (info-blok) */
+.stage-info {
+  max-width: 640px;
+  margin-top: 24px;
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+}
+.stage-info-title { font-size: 16px; font-weight: 600; color: var(--heading); margin-bottom: 14px; }
+.stage-info p { font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
+.stage-info strong { color: var(--heading); }
+#stageOmschrijving { color: var(--text-muted); }
+
+/* ---------- Mobiel: zijbalk wordt een balk bovenaan ---------- */
+@media (max-width: 720px) {
+  .app { flex-direction: column; }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 10px 16px;
+  }
+  .sidebar-brand { padding: 0 16px 0 0; }
+  .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
+  .nav-item { padding: 8px 12px; }
+  .sidebar-logout { margin-top: 0; margin-left: auto; padding: 8px 12px; }
+
+  .content { padding: 20px 16px; }
+  .empty-state { margin-top: 50px; }
+  .stage-info { padding: 16px 18px; }
+}
