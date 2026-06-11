@@ -6,7 +6,7 @@
 //          (gebruiker moet rol 'admin' of 'commissielid' hebben)
 // ============================================================
 
-const API_BASE_URL = "http://localhost:3001/api";
+const API_BASE_URL = "http://localhost:3000/api";
 
 // UI-beslissing → backend-enum
 const BESLISSING_MAP = {
@@ -172,14 +172,18 @@ function vulPaginaIn(d) {
 // BESLISSING VERSTUREN
 // ────────────────────────────────────────────────────────────
 function initBeslissing() {
-  const opties = document.querySelectorAll(".beslissing-option[data-value]");
-  let gekozen  = null;
+  const opties      = document.querySelectorAll(".beslissing-option[data-value]");
+  const feedbackEl  = document.querySelector(".feedback-wrap");
+  let gekozen       = null;
 
   opties.forEach(opt => {
     opt.addEventListener("click", () => {
       opties.forEach(o => o.classList.remove("selected"));
       opt.classList.add("selected");
       gekozen = opt.dataset.value;
+
+      // Schuif feedback-blok onder de gekozen optie
+      if (feedbackEl) opt.insertAdjacentElement("afterend", feedbackEl);
     });
   });
 
