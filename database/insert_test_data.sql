@@ -12,3 +12,8 @@ SELECT id, '2024001' FROM gebruiker WHERE email = 'student@ehb.be'
 -- Docent profiel aanmaken 
 INSERT INTO docent (gebruiker_id)
 SELECT id FROM gebruiker WHERE email = 'docent@ehb.be';
+--docent profiel koppelen aan rol commissielid
+INSERT INTO gebruiker_rol (gebruiker_id, rol_id)
+SELECT g.id, r.id
+FROM gebruiker g, rol r
+WHERE g.email = 'docent@ehb.be' AND r.naam = 'commissielid';
