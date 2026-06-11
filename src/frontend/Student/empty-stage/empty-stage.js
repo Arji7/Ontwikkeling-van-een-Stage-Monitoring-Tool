@@ -26,8 +26,16 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // Toon de meest recente stage
-    const stage = stages[0];
+    // Toon meest relevante stage:
+    //   1. Met openstaande actie (aanpassingen_vereist / afgekeurd)
+    //   2. Anders: de meest recente
+    const PRIORITEIT = ["aanpassingen_vereist", "afgekeurd", "goedgekeurd", "ingediend", "in_beoordeling", "concept"];
+    const stage = stages.slice().sort(function (a, b) {
+      const pa = PRIORITEIT.indexOf(a.status);
+      const pb = PRIORITEIT.indexOf(b.status);
+      if (pa !== pb) return pa - pb;
+      return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
+    })[0];
     document.getElementById("stageBedrijf").textContent      = stage.bedrijf_naam || "—";
     document.getElementById("stageSector").textContent       = stage.sector || "—";
     document.getElementById("stagePeriode").textContent      = formatDate(stage.startdatum) + " → " + formatDate(stage.einddatum);
