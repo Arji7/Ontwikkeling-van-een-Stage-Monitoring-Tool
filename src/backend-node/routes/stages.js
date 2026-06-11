@@ -142,7 +142,52 @@ router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, re
   }
 });
 
+// POST /api/stages/:id/beslissing — stage goedkeuren / afkeuren / aanpassingen vereisen
+router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'), async (req, res) => {
+  const stage_id = req.params.id;
+  const { beslissing, opmerking } = req.body;
+  const commissielid_id = req.user.id;
 
+  const geldigeBeslissingen = ['goedgekeurd', 'afgekeurd', 'aanpassingen_vereist'];
+  if (!geldigeBeslissingen.includes(beslissing)) {
+    return res.status(400).json({ error: 'Ongeldige beslissing.' });
+  }
+
+  try {
+    const [stageRows] = await db.query('SELECT status FROM stage WHERE id = ?', [stage_id]);
+    if (stageRows.length === 0) {
+      return res.status(404).json({ error: 'Stage niet gevonden.' });
+    }
+    const oudeStatus = stageRows[0].status;
+
+    await db.query(
+      `INSERT INTO beslissing (stage_id, commissielid_id, beslissing, opmerking)
+       VALUES (?, ?, ?, ?)`,
+      [stage_id, commissielid_id, beslissing, opmerking || null]
+    );
+
+    await db.query(
+      'UPDATE stage SET status = ? WHERE id = ?',
+      [beslissing, stage_id]
+    );
+
+    await db.query(
+      `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
+       VALUES (?, ?, ?, ?, ?)`,
+      [stage_id, oudeStatus, beslissing, opmerking || null, commissielid_id]
+    );
+
+    res.json({
+      message: 'Beslissing succesvol opgeslagen.',
+      beslissing,
+      stage_id: Number(stage_id)
+    });
+
+  } catch (err) {
+    console.error('Beslissing opslaan fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
 
 module.exports = router;
 
