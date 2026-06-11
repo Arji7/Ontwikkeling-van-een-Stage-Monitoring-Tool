@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stage goedgekeurd - StageMonitorage</title>
+  <link rel="stylesheet" href="stage-goedgekeurd.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item active">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock-icon">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock-icon">🔒</span></span>
+      </nav>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">
+        ⎋ Uitloggen
+      </a>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <h1 class="page-title">Welkom terug, <span id="studentNaam">...</span></h1>
+        <p class="page-subtitle">Stagejaar 2025-2026</p>
+      </header>
+
+      <!-- Groot groen vinkje -->
+      <div class="big-icon-wrap">
+        <div class="big-icon big-icon--success">✓</div>
+      </div>
+
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step">
+          <div class="step-circle step-done">✓</div>
+          <span class="step-label">Ingediend</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-circle step-done">✓</div>
+          <span class="step-label">In beoordeling</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-circle step-done">✓</div>
+          <span class="step-label">Beslissing</span>
+        </div>
+      </div>
+
+      <!-- Titel -->
+      <h2 class="result-title">Je stagevoorstel is goedgekeurd! 🎉</h2>
+      <p class="result-text">
+        De stagecommissie heeft je voorstel bij <strong id="bedrijfNaam">...</strong> goedgekeurd.
+        Je kan nu de volgende stap zetten: het opladen van je ondertekende stageovereenkomst.
+      </p>
+
+      <!-- Info tabel -->
+      <div class="info-table">
+        <div class="info-row">
+          <span class="info-label">Bedrijf</span>
+          <span class="info-value" id="tabelBedrijf">...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Goedgekeurd op</span>
+          <span class="info-value" id="goedgekeurdOp">...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Door</span>
+          <span class="info-value" id="goedgekeurdDoor">Stagecommissie EhB</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-value status-success">✓ Goedgekeurd</span>
+        </div>
+      </div>
+
+      <!-- Opmerking commissie -->
+      <div class="remark-box" id="remarkWrap" style="display:none;">
+        <div class="remark-header">
+          <span class="remark-icon">💬</span>
+          <span class="remark-title">Opmerking van de commissie</span>
+        </div>
+        <p class="remark-text" id="remarkTekst"></p>
+      </div>
+
+      <!-- Volgende stap -->
+      <div class="next-box">
+        <div class="next-header">
+          <span class="next-icon">📋</span>
+          <span class="next-title">Volgende stap</span>
+        </div>
+        <p class="next-text">
+          Laad je ondertekende stageovereenkomst op. Dit is verplicht voor je verzekering en moet
+          gebeuren voor je stage officieel kan starten.
+        </p>
+      </div>
+
+      <!-- Knoppen -->
+      <div class="actions">
+        <a href="../empty-stage/empty-stage.html" class="btn btn-outline">Naar dashboard</a>
+        <a href="#" class="btn btn-success">→ Stageovereenkomst ondertekenen</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="stage-goedgekeurd.js"></script>
+</body>
+</html>

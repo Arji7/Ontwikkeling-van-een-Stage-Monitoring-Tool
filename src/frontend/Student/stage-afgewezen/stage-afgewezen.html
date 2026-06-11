@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stage niet aanvaard - StageMonitorage</title>
+  <link rel="stylesheet" href="stage-afgewezen.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item active">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock-icon">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock-icon">🔒</span></span>
+      </nav>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">
+        ⎋ Uitloggen
+      </a>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <div>
+          <h1 class="page-title">Welkom terug, <span id="studentNaam">...</span></h1>
+          <p class="page-subtitle">Stagejaar 2025-2026</p>
+        </div>
+      </header>
+
+      <!-- Groot rood X-icoon -->
+      <div class="big-icon-wrap">
+        <div class="big-icon big-icon--danger">✕</div>
+      </div>
+
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step">
+          <div class="step-circle step-done">✓</div>
+          <span class="step-label">Ingediend</span>
+        </div>
+        <div class="step-line step-line--done"></div>
+        <div class="step">
+          <div class="step-circle step-done">✓</div>
+          <span class="step-label">In beoordeling</span>
+        </div>
+        <div class="step-line step-line--done"></div>
+        <div class="step">
+          <div class="step-circle step-danger">3</div>
+          <span class="step-label">Beslissing</span>
+        </div>
+      </div>
+
+      <!-- Titel -->
+      <h2 class="result-title">Je stagevoorstel is niet aanvaard</h2>
+      <p class="result-text">
+        De stagecommissie heeft je voorstel bij <strong id="bedrijfNaam">...</strong> helaas afgekeurd.
+        Lees hieronder de motivatie. Je kan een nieuw voorstel indienen bij een ander bedrijf of met een aangepaste opdracht.
+      </p>
+
+      <!-- Feedback box -->
+      <div class="feedback-box feedback-box--danger">
+        <div class="feedback-meta">
+          <span class="feedback-meta-title">Motivatie van de stagecommissie</span>
+          <span id="feedbackAuteur"></span>
+          <span id="feedbackDatum"></span>
+        </div>
+        <p class="feedback-quote" id="feedbackTekst">Er is geen motivatie opgegeven.</p>
+      </div>
+
+      <!-- Info tabel -->
+      <div class="info-table">
+        <div class="info-row">
+          <span class="info-label">Voorgesteld bedrijf</span>
+          <span class="info-value" id="tabelBedrijf">...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Ingediend op</span>
+          <span class="info-value" id="ingediendOp">...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Afgekeurd op</span>
+          <span class="info-value" id="afgekeurdOp">...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-value status-danger">✕ Afgekeurd</span>
+        </div>
+      </div>
+
+      <!-- Tip box -->
+      <div class="tip-box">
+        <span class="tip-icon">💡</span>
+        <div>
+          <p class="tip-title">Tip voor je nieuwe voorstel</p>
+          <p class="tip-text">Bekijk de lijst van erkende bedrijven in het systeem en kies een opdracht die aansluit bij ontwikkeling (programmeren, software, data). Twijfel je? Contacteer je begeleidende docent.</p>
+        </div>
+      </div>
+
+      <!-- Knoppen -->
+      <div class="actions">
+        <a href="../empty-stage/empty-stage.html" class="btn btn-danger">Terug naar dashboard</a>
+        <a href="../stage-aanvraag/stage-aanvraag.html" class="btn btn-primary">+ Nieuw stagevoorstel indienen</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="stage-afgewezen.js"></script>
+</body>
+</html>
