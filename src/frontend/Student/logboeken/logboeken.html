@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mijn logboeken – StageMonitor</title>
+  <link rel="stylesheet" href="logboeken.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Mijn stage</a>
+        <a href="logboeken.html" class="nav-item active">Logboeken</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">Uitloggen</a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="content">
+      <div class="breadcrumb">Logboeken</div>
+      <h1 class="page-title">Mijn logboeken</h1>
+      <p class="page-subtitle" id="pageSubtitle">Wekelijkse logboeken van je stage</p>
+
+      <!-- Stat cards -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-card-label">Ingediend</div>
+          <div class="stat-card-value" id="statIngediend">0/14</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Goedgekeurd</div>
+          <div class="stat-card-value green" id="statGoedgekeurd">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Wacht op mentor</div>
+          <div class="stat-card-value orange" id="statWacht">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Nog in te dienen</div>
+          <div class="stat-card-value" id="statNog">14</div>
+        </div>
+      </div>
+
+      <!-- Deadline banner (hidden by default) -->
+      <div class="deadline-banner" id="deadlineBanner" style="display:none;">
+        <span id="deadlineText"></span>
+        <a href="logboek-form.html" class="btn btn-primary btn-sm" id="deadlineBtn">+ Logboek week 1</a>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs" id="filterTabs" style="display:none;">
+        <button class="filter-tab active" data-filter="alle">Alle (<span id="filterAlle">0</span>)</button>
+        <button class="filter-tab" data-filter="goedgekeurd">Goedgekeurd (<span id="filterGoedgekeurd">0</span>)</button>
+        <button class="filter-tab" data-filter="wacht">Wacht (<span id="filterWacht">0</span>)</button>
+      </div>
+
+      <!-- Logboek list -->
+      <div class="logboek-list" id="logboekList"></div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-icon">📖</div>
+        <div class="empty-title">Je hebt nog geen logboeken ingediend</div>
+        <div class="empty-text">Elke week vul je een logboek in met je uitgevoerde taken, reflectie en aan welke competenties je werkte. Je mentor tekent het af en je docent leest mee.</div>
+        <a href="logboek-form.html?week=1" class="btn btn-primary" id="emptyBtn">+ Logboek week 1 invullen</a>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination" style="display:none;"></div>
+    </main>
+  </div>
+
+  <script src="logboeken.js"></script>
+</body>
+</html>

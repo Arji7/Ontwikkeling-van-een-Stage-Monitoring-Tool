@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logboek ingediend – StageMonitor</title>
+  <link rel="stylesheet" href="logboeken.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Mijn stage</a>
+        <a href="logboeken.html" class="nav-item active">Logboeken</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">Uitloggen</a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="content">
+      <div class="breadcrumb">
+        <a href="logboeken.html">Logboeken</a> › <span id="bcrWeek">Week 1</span> › Ingediend
+      </div>
+      <h1 class="page-title">Logboek ingediend</h1>
+
+      <div class="bevestiging-wrap">
+        <div class="bevestiging-icon">✓</div>
+        <div class="bevestiging-title" id="bevTitel">Logboek week 1 succesvol ingediend!</div>
+        <div class="bevestiging-text">
+          Je logboek is verstuurd naar je stagementor en je begeleidende docent.
+          Je krijgt een melding zodra je mentor het heeft afgetekend.
+        </div>
+
+        <!-- Samenvatting -->
+        <table class="summary-table">
+          <tr><td>Week</td><td id="sumWeek">Week 1</td></tr>
+          <tr><td>Werkuren</td><td id="sumUren">0 uur</td></tr>
+          <tr><td>Competenties</td><td id="sumComps">—</td></tr>
+          <tr><td>Ingediend op</td><td id="sumDatum">—</td></tr>
+          <tr><td>Status</td><td id="sumStatus">Wacht op aftekening mentor</td></tr>
+        </table>
+
+        <!-- Wat gebeurt er nu? -->
+        <div class="info-box">
+          <div class="info-box-title">Wat gebeurt er nu?</div>
+          <div class="info-step">
+            <span class="info-step-num">1</span>
+            <span>Je mentor bekijkt je logboek en tekent het af</span>
+          </div>
+          <div class="info-step">
+            <span class="info-step-num">2</span>
+            <span>Je docent leest mee en kan feedback geven</span>
+          </div>
+          <div class="info-step">
+            <span class="info-step-num">3</span>
+            <span>Je krijgt een melding zodra het is afgetekend</span>
+          </div>
+        </div>
+
+        <!-- Knoppen -->
+        <div class="bevestiging-actions">
+          <a href="#" class="btn btn-secondary" id="btnBekijk">Bekijk ingediend logboek</a>
+          <a href="logboeken.html" class="btn btn-primary">Terug naar logboeken</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var week = params.get("week") || "1";
+    var uren = params.get("uren") || "0";
+    var comps = params.get("comps") || "—";
+
+    document.getElementById("bcrWeek").textContent = "Week " + week;
+    document.getElementById("bevTitel").textContent = "Logboek week " + week + " succesvol ingediend!";
+    document.getElementById("sumWeek").textContent = "Week " + week;
+    document.getElementById("sumUren").textContent = uren + " uur";
+    document.getElementById("sumComps").textContent = decodeURIComponent(comps);
+
+    var nu = new Date();
+    document.getElementById("sumDatum").textContent =
+      nu.getDate() + " " +
+      ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"][nu.getMonth()] +
+      " " + nu.getFullYear() + " · " +
+      String(nu.getHours()).padStart(2,"0") + ":" + String(nu.getMinutes()).padStart(2,"0");
+
+    document.getElementById("btnBekijk").href = "logboeken.html";
+  </script>
+</body>
+</html>

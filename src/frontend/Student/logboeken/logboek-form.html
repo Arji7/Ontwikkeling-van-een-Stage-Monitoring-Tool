@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logboek invullen – StageMonitor</title>
+  <link rel="stylesheet" href="logboeken.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Mijn stage</a>
+        <a href="logboeken.html" class="nav-item active">Logboeken</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">Uitloggen</a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="content">
+      <div class="breadcrumb">
+        <a href="logboeken.html">Logboeken</a> › <span id="breadcrumbText">Nieuw logboek</span>
+      </div>
+      <h1 class="page-title" id="formTitle">Logboek week 1</h1>
+      <p class="page-subtitle" id="formSubtitle">Week van … t.e.m. …</p>
+
+      <div class="form-card">
+        <!-- Dagelijkse registratie -->
+        <div class="section-label">Dagelijkse registratie <span class="required">*</span></div>
+        <div class="section-sublabel">— vul elke dag je uren en taken in</div>
+
+        <div class="day-tabs" id="dayTabs">
+          <div class="day-tab active" data-dag="0">
+            <span class="day-tab-name">Ma</span>
+            <span class="day-tab-hours">—</span>
+            <span class="day-tab-dot"></span>
+          </div>
+          <div class="day-tab" data-dag="1">
+            <span class="day-tab-name">Di</span>
+            <span class="day-tab-hours">—</span>
+            <span class="day-tab-dot"></span>
+          </div>
+          <div class="day-tab" data-dag="2">
+            <span class="day-tab-name">Woe</span>
+            <span class="day-tab-hours">—</span>
+            <span class="day-tab-dot"></span>
+          </div>
+          <div class="day-tab" data-dag="3">
+            <span class="day-tab-name">Do</span>
+            <span class="day-tab-hours">—</span>
+            <span class="day-tab-dot"></span>
+          </div>
+          <div class="day-tab" data-dag="4">
+            <span class="day-tab-name">Vr</span>
+            <span class="day-tab-hours">—</span>
+            <span class="day-tab-dot"></span>
+          </div>
+        </div>
+
+        <!-- Day form -->
+        <div class="day-form" id="dayForm">
+          <div class="day-form-title" id="dayFormTitle">Maandag</div>
+          <div class="day-form-row">
+            <div>
+              <label>Uren gewerkt</label><br/>
+              <input type="number" class="input-uren" id="dagUren" min="0" max="24" step="0.5" value="" placeholder="0" />
+            </div>
+            <div style="flex:1;">
+              <label>Uitgevoerde taken</label><br/>
+              <input type="text" class="input-taken" id="dagTaken" placeholder="Bijv. API endpoints getest, standup gehad..." />
+            </div>
+          </div>
+          <div class="afwezig-row">
+            <label class="afwezig-label">
+              <input type="checkbox" id="dagAfwezig" /> Afwezig (ziek / verlof)
+            </label>
+            <button class="btn-dag-opslaan" id="btnDagOpslaan">Dag opslaan</button>
+          </div>
+        </div>
+
+        <!-- Week uren -->
+        <div class="section-label">Aantal werkuren deze week <span class="required">*</span></div>
+        <div class="uren-row">
+          <input type="text" class="input-week-uren" id="weekUren" readonly value="0 uur" />
+          <span class="section-sublabel">Automatisch berekend uit dagelijkse registratie</span>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-bar-wrap" id="progressWrap">
+          <span>Totaal ingevulde uren deze week</span>
+          <div class="bar"><div class="bar-fill" id="progressFill" style="width:0%"></div></div>
+          <span id="progressText">0u / ~38u verwacht</span>
+        </div>
+      </div>
+
+      <!-- Weekoverzicht -->
+      <div class="form-card">
+        <div class="textarea-row">
+          <div class="textarea-group">
+            <label>Uitgevoerde taken <span class="required">*</span> <span style="font-weight:400;color:#9ca3af;">— weekoverzicht</span></label>
+            <textarea id="weekTaken" placeholder="Beschrijf de taken die je deze week hebt uitgevoerd..."></textarea>
+          </div>
+          <div class="textarea-group">
+            <label>Leerpunten/eventuele problemen</label>
+            <textarea id="weekReflectie" placeholder="Beschrijf je reflectie en eventuele problemen..."></textarea>
+          </div>
+        </div>
+
+        <!-- Competenties -->
+        <div class="competenties-section">
+          <div class="competenties-title">Aan welke competenties heb je deze week gewerkt? <span class="required">*</span></div>
+          <div class="competenties-desc">Selecteer een of meerdere competenties. Dit helpt je docent en mentor om je groei per competentie te volgen doorheen de stage. De competenties komen uit de centraal beheerde lijst.</div>
+          <div class="competenties-wrap" id="competentiesWrap">
+            <button type="button" class="comp-toggle" data-comp="Technische vaardigheden">Technische vaardigheden</button>
+            <button type="button" class="comp-toggle" data-comp="Professionele houding">Professionele houding</button>
+            <button type="button" class="comp-toggle" data-comp="Probleemoplossend vermogen">Probleemoplossend vermogen</button>
+            <button type="button" class="comp-toggle" data-comp="Communicatie en samenwerking">Communicatie en samenwerking</button>
+            <button type="button" class="comp-toggle" data-comp="Zelfstandigheid en initiatief">Zelfstandigheid en initiatief</button>
+            <button type="button" class="comp-toggle" data-comp="Innovatie en creativiteit">Innovatie en creativiteit</button>
+            <button type="button" class="comp-toggle" data-comp="Reflectie en groei">Reflectie en groei</button>
+          </div>
+        </div>
+
+        <!-- File upload -->
+        <div class="upload-section">
+          <div class="upload-label">Bestanden toevoegen (optioneel)</div>
+          <div class="upload-area">Klik om screenshots, diagrammen of documenten toe te voegen</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <a href="logboeken.html" class="btn btn-secondary" id="btnTerug">Terug</a>
+        <button class="btn btn-primary" id="btnIndienen" style="display:none;">Indienen</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="logboek-form.js"></script>
+</body>
+</html>
