@@ -36,6 +36,7 @@
         <p class="page-subtitle">Stagejaar 2025-2026</p>
       </header>
 
+      <!-- Geen stage -->
       <div id="emptyState" class="empty-state" style="display:none;">
         <div class="empty-icon">📋</div>
         <h2 class="empty-title">Nog geen stagevoorstel ingediend</h2>
@@ -43,22 +44,70 @@
         <a href="../stage-aanvraag/stage-aanvraag.html" class="btn-primary">+ Nieuw stagevoorstel indienen</a>
       </div>
 
-      <div id="stageInfo" class="stage-info" style="display:none;">
-        <h2 class="stage-info-title">📌 Jouw stagevoorstel</h2>
-        <p><strong>Bedrijf:</strong> <span id="stageBedrijf"></span></p>
-        <p><strong>Sector:</strong> <span id="stageSector"></span></p>
-        <p><strong>Periode:</strong> <span id="stagePeriode"></span></p>
-        <p><strong>Status:</strong> <span id="stageStatus"></span></p>
-        <p><strong>Omschrijving:</strong></p>
-        <p id="stageOmschrijving"></p>
+      <!-- Stage in behandeling / ingediend -->
+      <div id="wachtBeoordeling" class="wacht-wrap" style="display:none;">
 
-        <div id="feedbackBox" style="display:none; margin-top:20px; padding:15px; border-radius:8px; background:#fff3cd; border-left:4px solid #ffa500;">
-          <strong>💬 Feedback van de commissie:</strong>
-          <p id="feedbackTekst" style="margin:8px 0 0 0;"></p>
+        <div class="alert-banner alert-pending">
+          <span class="alert-icon">⏳</span>
+          <div>
+            <p class="alert-title">Stagevoorstel in beoordeling</p>
+            <p class="alert-text" id="alertText">Je voorstel werd ingediend. De stagecommissie bekijkt het momenteel.</p>
+          </div>
         </div>
 
-        <div id="aanpassenWrap" style="display:none; margin-top:20px;">
-          <a id="aanpassenBtn" href="#" class="btn-primary">✏️ Voorstel aanpassen</a>
+        <p class="section-label">Status van je aanvraag</p>
+
+        <div class="stepper">
+          <div class="step">
+            <div class="step-circle step-done">✓</div>
+            <span class="step-label">Ingediend</span>
+          </div>
+          <div class="step-line step-line--done"></div>
+          <div class="step">
+            <div class="step-circle step-active">●</div>
+            <span class="step-label step-label--active">In beoordeling</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-circle">3</div>
+            <span class="step-label">Beslissing</span>
+          </div>
+        </div>
+
+        <div class="info-table">
+          <div class="info-row">
+            <span class="info-label">Bedrijf</span>
+            <span class="info-value" id="tabelBedrijf">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Opdracht</span>
+            <span class="info-value" id="tabelOpdracht">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Periode</span>
+            <span class="info-value" id="tabelPeriode">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ingediend op</span>
+            <span class="info-value" id="tabelIngediend">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Status</span>
+            <span class="info-value status-pending">⏱ Wacht op goedkeuring</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Verwachte beslissing</span>
+            <span class="info-value">Binnen 3-5 werkdagen</span>
+          </div>
+        </div>
+
+        <div class="info-box-blue">
+          <span class="info-bullet">●</span>
+          <p>Je kan je voorstel niet wijzigen zolang het in beoordeling is. Je ontvangt een melding zodra er een beslissing is.</p>
+        </div>
+
+        <div class="actions-right">
+          <a href="../stage-aanvraag/stage-aanvraag.html" class="btn btn-outline" id="bekijkBtn">Bekijk mijn voorstel</a>
         </div>
       </div>
     </main>

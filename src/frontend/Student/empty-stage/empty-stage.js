@@ -36,25 +36,21 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (pa !== pb) return pa - pb;
       return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
     })[0];
-    document.getElementById("stageBedrijf").textContent      = stage.bedrijf_naam || "—";
-    document.getElementById("stageSector").textContent       = stage.sector || "—";
-    document.getElementById("stagePeriode").textContent      = formatDate(stage.startdatum) + " → " + formatDate(stage.einddatum);
-    document.getElementById("stageStatus").textContent       = humanStatus(stage.status);
-    document.getElementById("stageOmschrijving").textContent = stage.omschrijving || "";
-    document.getElementById("stageInfo").style.display = "block";
+    // Status pagina's worden door inloggen.js afgehandeld voor goedgekeurd/afgekeurd/aanpassingen
+    // Hier: dashboard tonen voor "ingediend" of "in_beoordeling"
+    document.getElementById("tabelBedrijf").textContent  = stage.bedrijf_naam || "—";
+    document.getElementById("tabelOpdracht").textContent = stage.omschrijving || "—";
+    document.getElementById("tabelPeriode").textContent  = formatDate(stage.startdatum) + " — " + formatDate(stage.einddatum);
+    document.getElementById("tabelIngediend").textContent = formatDateLong(stage.aangemaakt_op);
+    document.getElementById("alertText").textContent =
+      "Je voorstel bij " + (stage.bedrijf_naam || "—") +
+      " werd ingediend op " + formatDateLong(stage.aangemaakt_op) +
+      ". De stagecommissie bekijkt het momenteel.";
+    document.getElementById("wachtBeoordeling").style.display = "block";
 
-    // Feedback van commissie tonen (als die er is)
-    if (stage.laatste_opmerking) {
-      document.getElementById("feedbackTekst").textContent = stage.laatste_opmerking;
-      document.getElementById("feedbackBox").style.display = "block";
-    }
-
-    // "Aanpassen" knop tonen als status = aanpassingen_vereist
-    if (stage.status === "aanpassingen_vereist") {
-      const btn = document.getElementById("aanpassenBtn");
-      btn.href = "../stage-aanvraag/stage-aanvraag.html?id=" + stage.id;
-      document.getElementById("aanpassenWrap").style.display = "block";
-    }
+    // Knop "Bekijk mijn voorstel" → stuurt naar het formulier in readonly mode
+    var bekijkBtn = document.getElementById("bekijkBtn");
+    if (bekijkBtn) bekijkBtn.href = "../stage-aanvraag/stage-aanvraag.html?id=" + stage.id;
 
   } catch (err) {
     console.error("Fout bij ophalen stages:", err);
@@ -64,7 +60,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 function formatDate(d) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("nl-BE");
+  var date = new Date(d);
+  return String(date.getDate()).padStart(2, "0") + "/" +
+    String(date.getMonth() + 1).padStart(2, "0") + "/" +
+    date.getFullYear();
+}
+
+function formatDateLong(d) {
+  if (!d) return "—";
+  var date = new Date(d);
+  var maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+  return date.getDate() + " " + maanden[date.getMonth()] + " " + date.getFullYear();
 }
 
 function humanStatus(s) {
