@@ -140,7 +140,7 @@ function renderList() {
         '<span class="week-badge-label">Week</span>' +
       '</div>' +
       '<div class="logboek-info">' +
-        '<div class="logboek-title">' + (logboek.titel || ("Week " + logboek.week_nummer)) + '</div>' +
+        '<div class="logboek-title">Week ' + logboek.week_nummer + '</div>' +
         '<div class="logboek-desc">' + (logboek.uitgevoerde_taken || "").substring(0, 80) + '</div>' +
         '<div class="logboek-meta">' +
           '<span>' + datumRange + '</span>' +
