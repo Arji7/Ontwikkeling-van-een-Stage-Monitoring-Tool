@@ -11,15 +11,34 @@
 
     <!-- Sidebar -->
     <aside class="sidebar">
+<<<<<<< Updated upstream
       <div class="sidebar-brand">StageMonitorage</div>
       <nav class="sidebar-nav">
         <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
         <a href="../empty-stage/empty-stage.html" class="nav-item">Mijn stage</a>
+=======
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../stage-aanvraag/stage-aanvraag.html" class="nav-item">Mijn stage</a>
+>>>>>>> Stashed changes
         <a href="logboeken.html" class="nav-item active">Logboeken</a>
         <a href="#" class="nav-item">Evaluaties</a>
       </nav>
       <div class="sidebar-footer">
+<<<<<<< Updated upstream
         <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">Uitloggen</a>
+=======
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+>>>>>>> Stashed changes
       </div>
     </aside>
 
@@ -93,6 +112,18 @@
       String(nu.getHours()).padStart(2,"0") + ":" + String(nu.getMinutes()).padStart(2,"0");
 
     document.getElementById("btnBekijk").href = "logboeken.html";
+<<<<<<< Updated upstream
+=======
+
+    (function () {
+      var u = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+    })();
+>>>>>>> Stashed changes
   </script>
 </body>
 </html>
