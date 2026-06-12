@@ -1,7 +1,7 @@
 var API_BASE_URL = "http://localhost:3000/api";
 var allLogboeken = [];
 var currentFilter = "alle";
-var TOTAAL_WEKEN = 14;
+var TOTAAL_WEKEN = 14;   // fallback, wordt overschreven door /mijn/overzicht
 
 document.addEventListener("DOMContentLoaded", function () {
   var token = localStorage.getItem("token");
@@ -11,12 +11,28 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   var user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+  laadOverzicht();
   laadLogboeken();
   setupFilters();
 });
 
 function authHeaders() {
   return { "Authorization": "Bearer " + localStorage.getItem("token") };
+}
+
+async function laadOverzicht() {
+  try {
+    var res = await fetch(API_BASE_URL + "/logboeken/mijn/overzicht", { headers: authHeaders() });
+    if (!res.ok) return;
+    var data = await res.json();
+    if (data.aantal_weken && data.aantal_weken > 0) {
+      TOTAAL_WEKEN = data.aantal_weken;
+      // Stats opnieuw renderen als logboeken al geladen zijn
+      if (allLogboeken.length >= 0) updateStats();
+    }
+  } catch (err) {
+    console.error("Overzicht ophalen fout:", err);
+  }
 }
 
 async function laadLogboeken() {

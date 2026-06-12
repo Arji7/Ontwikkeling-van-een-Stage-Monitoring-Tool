@@ -54,6 +54,52 @@ router.get('/mijn', authMiddleware, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────────────────
+// GET /api/logboeken/mijn/overzicht — stage info + aantal weken berekenen
+// Gebruikt door het dashboard om de "Nog in te dienen" teller te tonen.
+// ────────────────────────────────────────────────────────────
+router.get('/mijn/overzicht', authMiddleware, async (req, res) => {
+  try {
+    const studentId = await getStudentId(req.user.id);
+    if (!studentId) return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
+
+    // Haal goedgekeurde / actieve stage op
+    const [rijen] = await db.query(
+      `SELECT s.id AS stage_id, s.startdatum, s.einddatum, s.status, b.naam AS bedrijf_naam
+       FROM stage s
+       LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
+       WHERE s.student_id = ? AND s.status IN ('goedgekeurd','actief')
+       ORDER BY s.aangemaakt_op DESC
+       LIMIT 1`,
+      [studentId]
+    );
+
+    if (rijen.length === 0) {
+      return res.json({ stage_id: null, aantal_weken: 0 });
+    }
+
+    const stage = rijen[0];
+
+    // Bereken aantal weken: ceil((einddatum - startdatum) / 7 dagen) — partiële weken tellen mee
+    const start = new Date(stage.startdatum);
+    const eind  = new Date(stage.einddatum);
+    const dagen = Math.floor((eind - start) / (1000 * 60 * 60 * 24)) + 1;
+    const aantal_weken = Math.ceil(dagen / 7);
+
+    res.json({
+      stage_id:      stage.stage_id,
+      bedrijf_naam:  stage.bedrijf_naam,
+      startdatum:    stage.startdatum,
+      einddatum:     stage.einddatum,
+      status:        stage.status,
+      aantal_weken
+    });
+  } catch (err) {
+    console.error('Overzicht ophalen fout:', err);
+    res.status(500).json({ error: 'Interne serverfout' });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
 // GET /api/logboeken/stage/:stageId — logboeken voor een stage (docent/admin/commissie)
 // ────────────────────────────────────────────────────────────
 router.get('/stage/:stageId', authMiddleware, async (req, res) => {
