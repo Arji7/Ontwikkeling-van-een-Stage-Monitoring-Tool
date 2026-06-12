@@ -420,12 +420,6 @@ function updateUI() {
   var totaal = berekenTotaalUren();
   document.getElementById("weekUren").value = totaal + " uur";
 
-  // Progress bar — verwachte uren proportioneel met aantal werkdagen
-  var verwachtDezeWeek = Math.round((VERWACHTE_UREN / 5) * aantalDagenDezeWeek);
-  var pct = Math.min(100, Math.round((totaal / verwachtDezeWeek) * 100));
-  document.getElementById("progressFill").style.width = pct + "%";
-  document.getElementById("progressText").textContent = totaal + "u / ~" + verwachtDezeWeek + "u verwacht";
-
   // Indienen knop tonen ENKEL als je op de laatste dag van de werkweek staat
   // en niet in readonly mode bent
   var isLaatsteDag = activeDag === (aantalDagenDezeWeek - 1);
