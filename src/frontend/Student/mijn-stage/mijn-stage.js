@@ -30,6 +30,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     })[0];
 
     // Als niet goedgekeurd: redirect naar passende pagina
+    if (stage.status === "aanpassingen_vereist") {
+      window.location.href = "../stage-aanpassen/stage-aanpassen.html";
+      return;
+    }
     if (stage.status !== "goedgekeurd" && stage.status !== "actief" && stage.status !== "wacht_op_overeenkomst") {
       window.location.href = "../stage-aanvraag/stage-aanvraag.html?id=" + stage.id;
       return;

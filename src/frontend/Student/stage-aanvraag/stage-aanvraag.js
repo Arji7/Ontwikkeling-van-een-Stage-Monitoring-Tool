@@ -44,11 +44,27 @@ async function laadStage() {
     document.getElementById("eindDatum").value    = (d.einddatum  || "").substring(0,10);
     document.getElementById("omschrijving").value = d.omschrijving || "";
 
-    // Visuele indicator
-    const submitBtn = form.querySelector("button[type=submit]");
-    if (submitBtn) submitBtn.textContent = "Opnieuw indienen";
     const h1 = document.querySelector(".form-head h1");
-    if (h1) h1.textContent = "Stagevoorstel aanpassen";
+    const submitBtn = form.querySelector("button[type=submit]");
+
+    // Status bepaalt of het bewerkbaar is
+    const editable = ["concept", "aanpassingen_vereist"].includes(d.status);
+
+    if (editable) {
+      if (h1) h1.textContent = "Stagevoorstel aanpassen";
+      if (submitBtn) submitBtn.textContent = "Opnieuw indienen";
+    } else {
+      // Readonly modus — alleen bekijken
+      if (h1) h1.textContent = "Mijn stagevoorstel";
+      if (submitBtn) submitBtn.style.display = "none";
+      // Velden vergrendelen
+      form.querySelectorAll("input, textarea").forEach(function (el) {
+        el.disabled = true;
+      });
+      // Subtitle aanpassen
+      const sub = document.querySelector(".form-head p");
+      if (sub) sub.textContent = "Je voorstel is ingediend en kan niet meer worden aangepast tot de stagecommissie een beslissing heeft genomen.";
+    }
 
   } catch (err) {
     console.error("Stage laden fout:", err);
