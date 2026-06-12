@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (pa !== pb) return pa - pb;
       return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
     })[0];
+
     document.getElementById("stageBedrijf").textContent      = stage.bedrijf_naam || "—";
     document.getElementById("stageSector").textContent       = stage.sector || "—";
     document.getElementById("stagePeriode").textContent      = formatDate(stage.startdatum) + " → " + formatDate(stage.einddatum);
