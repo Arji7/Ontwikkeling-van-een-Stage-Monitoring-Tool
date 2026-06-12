@@ -72,7 +72,7 @@ function renderCompetenties() {
     btn.className = "comp-toggle";
     btn.setAttribute("data-id", comp.id);
     btn.textContent = comp.naam;
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", async function () {
       if (isReadonly) return;
       var idx = geselecteerdeComps.indexOf(comp.id);
       if (idx === -1) {
@@ -84,6 +84,8 @@ function renderCompetenties() {
         btn.classList.remove("selected");
         btn.textContent = comp.naam;
       }
+      // Auto-save concept zodat selectie behouden blijft bij terugkeren
+      await bewaarConcept();
     });
     wrap.appendChild(btn);
   });
@@ -136,7 +138,8 @@ async function bewaarConcept() {
     datum_tot: datumTot,
     uitgevoerde_taken: document.getElementById("weekTaken").value.trim() || "",
     leerpunten: document.getElementById("weekReflectie").value.trim() || "",
-    dagen: dagen
+    dagen: dagen,
+    competenties: geselecteerdeComps
   };
 
   try {
@@ -260,12 +263,21 @@ async function laadBestaandLogboek(id) {
     document.getElementById("formSubtitle").textContent =
       "Week van " + formatDateLong(new Date(datumVan)) + " t.e.m. " + formatDateLong(new Date(datumTot));
 
-    // Dagen invullen
+    // Aantal werkdagen deze week berekenen uit datumVan/datumTot
+    var startDate = new Date(datumVan);
+    var eindDate = new Date(datumTot);
+    aantalDagenDezeWeek = Math.floor((eindDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    if (aantalDagenDezeWeek < 1) aantalDagenDezeWeek = 1;
+    if (aantalDagenDezeWeek > 5) aantalDagenDezeWeek = 5;
+    verbergExtraDagen();
+
+    // Dagen invullen — dagIndex op basis van datum-verschil met datumVan,
+    // niet op getDay() (werkt anders niet als startdatum geen maandag is)
     if (data.dagen && data.dagen.length > 0) {
       data.dagen.forEach(function (dag) {
         var d = new Date(dag.datum);
-        var dagIndex = d.getDay() - 1; // 0=ma, 1=di, ...
-        if (dagIndex >= 0 && dagIndex < 5) {
+        var dagIndex = Math.round((d - startDate) / (1000 * 60 * 60 * 24));
+        if (dagIndex >= 0 && dagIndex < aantalDagenDezeWeek) {
           dagenData[dagIndex] = {
             uren: parseFloat(dag.uren_gewerkt) || 0,
             taken: dag.uitgevoerde_taken || "",
