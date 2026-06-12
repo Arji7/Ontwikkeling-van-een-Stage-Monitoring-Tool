@@ -156,5 +156,23 @@ body {
 .actions-right { display: flex; justify-content: flex-end; }
 .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; display: inline-block; }
 .btn-outline { background: #fff; color: #374151; border: 1px solid #d1d5db; }
-.btn-outline:hover { background: #f9fafb;
-}
+.btn-outline:hover { background: #f9fafb; }
+
+/* Banner-status varianten */
+.alert-success { background: #dcfce7; border: 1px solid #bbf7d0; }
+.alert-success .alert-title, .alert-success .alert-text { color: #15803d; }
+
+.alert-danger { background: #fee2e2; border: 1px solid #fecaca; }
+.alert-danger .alert-title, .alert-danger .alert-text { color: #991b1b; }
+
+.alert-warning { background: #fef3c7; border: 1px solid #fde68a; }
+.alert-warning .alert-title, .alert-warning .alert-text { color: #92400e; }
+
+/* Knop in banner */
+.btn-banner { padding: 8px 16px; font-size: 13px; background: #fff; color: #1a1a2e; border: 1px solid #d1d5db; font-weight: 600; border-radius: 6px; text-decoration: none; white-space: nowrap; }
+.btn-banner:hover { background: #f9fafb; }
+
+/* Stepper extra states */
+.step-circle.step-danger { background: #ef4444; color: #fff; }
+.step-circle.step-warning { background: #f59e0b; color: #fff; }
+

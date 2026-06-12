@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aanpassingen vereist - StageMonitorage</title>
+  <link rel="stylesheet" href="stage-aanpassingen.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item active">Mijn stage</a>
+        <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
+        <span class="nav-item locked">Evaluaties <span class="lock-icon">🔒</span></span>
+      </nav>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">
+        ⎋ Uitloggen
+      </a>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <h1 class="page-title">Welkom terug, <span id="studentNaam">...</span></h1>
+        <p class="page-subtitle">Stagejaar 2025-2026</p>
+      </header>
+
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step">
+          <div class="step-circle step-done">✓</div>
+          <span class="step-label">Ingediend</span>
+        </div>
+        <div class="step-line step-line--done"></div>
+        <div class="step">
+          <div class="step-circle step-done">✓</div>
+          <span class="step-label">In beoordeling</span>
+        </div>
+        <div class="step-line step-line--done"></div>
+        <div class="step">
+          <div class="step-circle step-warning">3</div>
+          <span class="step-label step-label--active">Beslissing</span>
+        </div>
+      </div>
+
+      <!-- Waarschuwingsbanner -->
+      <div class="alert-banner">
+        <span class="alert-icon">⚠</span>
+        <div>
+          <p class="alert-title">Aanpassingen vereist op je stagevoorstel</p>
+          <p class="alert-text">De stagecommissie heeft feedback achtergelaten. Pas je voorstel aan en dien het opnieuw in.</p>
+        </div>
+      </div>
+
+      <!-- Feedback box -->
+      <div class="feedback-box">
+        <div class="feedback-meta">
+          <span class="feedback-meta-title">Feedback van</span>
+          <span id="feedbackAuteur">de stagecommissie</span>
+          <span id="feedbackDatum"></span>
+        </div>
+        <p class="feedback-quote" id="feedbackTekst">Er is geen feedback opgegeven.</p>
+      </div>
+
+      <!-- Info tabel -->
+      <div class="info-table">
+        <div class="info-row">
+          <span class="info-label">Voorstel bij</span>
+          <span class="info-value" id="tabelBedrijf">...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Ingediend op</span>
+          <span class="info-value" id="ingediendOp">...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Feedback ontvangen</span>
+          <span class="info-value" id="feedbackOntvangen">...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-value status-warning">Aanpassingen vereist</span>
+        </div>
+      </div>
+
+      <!-- Knop -->
+      <div class="actions">
+        <a href="../stage-aanvraag/stage-aanvraag.html" id="aanpassenBtn" class="btn btn-warning">Voorstel aanpassen</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="stage-aanpassingen.js"></script>
+</body>
+</html>

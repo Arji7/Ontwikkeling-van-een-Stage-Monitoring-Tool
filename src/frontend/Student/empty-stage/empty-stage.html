@@ -14,7 +14,7 @@
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
       <nav class="sidebar-nav">
         <a href="empty-stage.html" class="nav-item active">Dashboard</a>
-        <a href="../stage-aanvraag/stage-aanvraag.html" class="nav-item">Mijn stage</a>
+        <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
         <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
         <a href="#" class="nav-item">Evaluaties</a>
       </nav>
@@ -47,12 +47,13 @@
       <!-- Stage in behandeling / ingediend -->
       <div id="wachtBeoordeling" class="wacht-wrap" style="display:none;">
 
-        <div class="alert-banner alert-pending">
-          <span class="alert-icon">⏳</span>
-          <div>
-            <p class="alert-title">Stagevoorstel in beoordeling</p>
+        <div class="alert-banner" id="statusBanner">
+          <span class="alert-icon" id="alertIcon">⏳</span>
+          <div style="flex:1;">
+            <p class="alert-title" id="alertTitle">Stagevoorstel in beoordeling</p>
             <p class="alert-text" id="alertText">Je voorstel werd ingediend. De stagecommissie bekijkt het momenteel.</p>
           </div>
+          <a href="#" id="statusBtn" class="btn btn-banner" style="display:none;">Bekijk detail →</a>
         </div>
 
         <p class="section-label">Status van je aanvraag</p>

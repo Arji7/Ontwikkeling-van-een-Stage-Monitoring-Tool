@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mijn stage - StageMonitor</title>
+  <link rel="stylesheet" href="mijn-stage.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="mijn-stage.html" class="nav-item active">Mijn stage</a>
+        <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="breadcrumb">Mijn stage</div>
+      <h1 class="page-title">Mijn stage</h1>
+      <p class="page-subtitle"><span id="bedrijfNaam">—</span> · alle onderdelen van je stage op één plek</p>
+
+      <!-- Info tabel -->
+      <div class="info-table">
+        <div class="info-row">
+          <span class="info-label">Bedrijf</span>
+          <span class="info-value" id="tabelBedrijf">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Stagementor</span>
+          <span class="info-value" id="tabelMentor">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Begeleidende docent</span>
+          <span class="info-value" id="tabelDocent">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Periode</span>
+          <span class="info-value" id="tabelPeriode">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-value status-success" id="tabelStatus">Goedgekeurd</span>
+        </div>
+      </div>
+
+      <!-- Onderdelen -->
+      <h2 class="section-title">Onderdelen van je stage</h2>
+
+      <div class="cards-list">
+
+        <!-- Stagevoorstel -->
+        <a href="#" class="onderdeel-card" id="kaartVoorstel">
+          <div class="card-icon icon-green">📋</div>
+          <div class="card-info">
+            <div class="card-title">Stagevoorstel</div>
+            <div class="card-subtitle" id="voorstelSub">Goedgekeurd</div>
+          </div>
+          <span class="card-badge badge-green">✓ Goedgekeurd</span>
+          <span class="card-arrow">›</span>
+        </a>
+
+        <!-- Stageovereenkomst -->
+        <a href="#" class="onderdeel-card highlighted">
+          <div class="card-icon icon-yellow">📄</div>
+          <div class="card-info">
+            <div class="card-title">Stageovereenkomst</div>
+            <div class="card-subtitle">Nog niet opgeladen — vereist voor verzekering</div>
+          </div>
+          <span class="card-badge badge-orange">Actie nodig</span>
+          <span class="card-arrow">›</span>
+        </a>
+
+        <!-- Logboeken -->
+        <a href="../logboeken/logboeken.html" class="onderdeel-card">
+          <div class="card-icon icon-blue">📝</div>
+          <div class="card-info">
+            <div class="card-title">Wekelijkse logboeken</div>
+            <div class="card-subtitle">Beschikbaar zodra je stage gestart is</div>
+          </div>
+          <span class="card-badge badge-gray">Nog niet actief</span>
+          <span class="card-arrow">›</span>
+        </a>
+
+        <!-- Evaluaties -->
+        <a href="#" class="onderdeel-card">
+          <div class="card-icon icon-yellow">⭐</div>
+          <div class="card-info">
+            <div class="card-title">Evaluaties</div>
+            <div class="card-subtitle">Tussentijds en eindbeoordeling</div>
+          </div>
+          <span class="card-badge badge-gray">Nog niet actief</span>
+          <span class="card-arrow">›</span>
+        </a>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="mijn-stage.js"></script>
+  <script>
+    (function () {
+      var u = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+    })();
+  </script>
+</body>
+</html>
