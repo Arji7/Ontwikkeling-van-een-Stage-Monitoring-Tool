@@ -17,6 +17,7 @@ var bestaandLogboekId = null;
 var weekNummer = 1;
 var datumVan = null;
 var datumTot = null;
+var aantalDagenDezeWeek = 5;   // standaard 5; minder bij laatste week van stage
 
 document.addEventListener("DOMContentLoaded", function () {
   var token = localStorage.getItem("token");
@@ -50,24 +51,67 @@ function authHeaders() {
 }
 
 // ── Nieuw logboek setup ──
-function initNieuwLogboek(week) {
+async function initNieuwLogboek(week) {
   weekNummer = week;
   document.getElementById("formTitle").textContent = "Logboek week " + week;
   document.getElementById("breadcrumbText").textContent = "Nieuw logboek";
 
-  // Bereken week datums (schatting: start van stage + (week-1)*7 dagen)
-  var vandaag = new Date();
-  var maandag = new Date(vandaag);
-  maandag.setDate(maandag.getDate() - maandag.getDay() + 1);
-  var vrijdag = new Date(maandag);
-  vrijdag.setDate(vrijdag.getDate() + 4);
+  // Stage info ophalen om week-datums correct te berekenen
+  try {
+    var res = await fetch(API_BASE_URL + "/logboeken/mijn/overzicht", { headers: authHeaders() });
+    if (!res.ok) throw new Error("kon overzicht niet ophalen");
+    var overzicht = await res.json();
 
-  datumVan = formatISO(maandag);
-  datumTot = formatISO(vrijdag);
-  document.getElementById("formSubtitle").textContent =
-    "Week van " + formatDateLong(maandag) + " t.e.m. " + formatDateLong(vrijdag);
+    if (!overzicht.startdatum) {
+      alert("Geen goedgekeurde stage gevonden.");
+      window.location.href = "logboeken.html";
+      return;
+    }
+
+    // Week N start op stage_startdatum + (week - 1) * 7 dagen
+    var maandag = new Date(overzicht.startdatum);
+    maandag.setDate(maandag.getDate() + (week - 1) * 7);
+    var vrijdag = new Date(maandag);
+    vrijdag.setDate(vrijdag.getDate() + 4);
+
+    // Als de einddatum van de stage vóór vrijdag valt → laatste week, minder dagen
+    var einddatum = new Date(overzicht.einddatum);
+    if (vrijdag > einddatum) {
+      vrijdag = new Date(einddatum);
+    }
+
+    datumVan = formatISO(maandag);
+    datumTot = formatISO(vrijdag);
+
+    // Aantal werkdagen deze week berekenen
+    var verschilMs = vrijdag - maandag;
+    aantalDagenDezeWeek = Math.floor(verschilMs / (1000 * 60 * 60 * 24)) + 1;
+    if (aantalDagenDezeWeek < 1) aantalDagenDezeWeek = 1;
+    if (aantalDagenDezeWeek > 5) aantalDagenDezeWeek = 5;
+
+    document.getElementById("formSubtitle").textContent =
+      "Week van " + formatDateLong(maandag) + " t.e.m. " + formatDateLong(vrijdag);
+
+    // Verberg dag-tabs die buiten deze week vallen
+    verbergExtraDagen();
+
+  } catch (err) {
+    console.error("Stage info ophalen fout:", err);
+    document.getElementById("formSubtitle").textContent = "Kon stage info niet laden.";
+  }
 
   updateUI();
+}
+
+// Verberg dag-tabs voorbij `aantalDagenDezeWeek`
+function verbergExtraDagen() {
+  for (var i = 0; i < 5; i++) {
+    var tab = document.querySelector('.day-tab[data-dag="' + i + '"]');
+    if (!tab) continue;
+    tab.style.display = i < aantalDagenDezeWeek ? "" : "none";
+  }
+  // Als active tab nu verborgen is → reset naar eerste dag
+  if (activeDag >= aantalDagenDezeWeek) activeDag = 0;
 }
 
 // ── Bestaand logboek laden ──
@@ -341,7 +385,12 @@ function updateUI() {
 
 function berekenTotaalUren() {
   var totaal = 0;
-  dagenData.forEach(function (d) { totaal += d.uren || 0; });
+  // Alleen opgeslagen dagen tellen mee in het totaal.
+  // Tab-click slaat tijdelijk op in memory, maar `saved` wordt pas true
+  // na klikken op "Opslaan dag".
+  dagenData.forEach(function (d) {
+    if (d.saved) totaal += d.uren || 0;
+  });
   return totaal;
 }
 
