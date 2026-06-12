@@ -3,7 +3,7 @@ var allLogboeken = [];
 var currentFilter = "alle";
 var TOTAAL_WEKEN = 14;   // fallback, wordt overschreven door /mijn/overzicht
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   var token = localStorage.getItem("token");
   if (!token) {
     window.location.href = "../../inloggen/inloggen.html";
@@ -11,8 +11,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   var user = JSON.parse(localStorage.getItem("currentUser") || "{}");
-  laadOverzicht();
-  laadLogboeken();
+  // Eerst overzicht laden (zet TOTAAL_WEKEN), DAARNA logboeken
+  // zodat updateStats altijd met correcte data werkt
+  await laadOverzicht();
+  await laadLogboeken();
   setupFilters();
 });
 
@@ -27,8 +29,6 @@ async function laadOverzicht() {
     var data = await res.json();
     if (data.aantal_weken && data.aantal_weken > 0) {
       TOTAAL_WEKEN = data.aantal_weken;
-      // Stats opnieuw renderen als logboeken al geladen zijn
-      if (allLogboeken.length >= 0) updateStats();
     }
   } catch (err) {
     console.error("Overzicht ophalen fout:", err);
@@ -72,15 +72,17 @@ function updateStats() {
     ? Math.max.apply(null, allLogboeken.map(function (l) { return l.week_nummer; })) + 1
     : 1;
 
-  // Deadline banner
+  // Deadline banner — alleen tonen als er nog een volgende week is
+  var banner = document.getElementById("deadlineBanner");
   if (volgendeWeek <= TOTAAL_WEKEN) {
-    var banner = document.getElementById("deadlineBanner");
     var btn = document.getElementById("deadlineBtn");
     btn.textContent = "+ Logboek week " + volgendeWeek;
     btn.href = "logboek-form.html?week=" + volgendeWeek;
     document.getElementById("deadlineText").textContent =
       "Volgende logboek (week " + volgendeWeek + ") staat klaar om in te vullen.";
     banner.style.display = "flex";
+  } else {
+    banner.style.display = "none";
   }
 
   // Empty state button
