@@ -27,16 +27,22 @@ body {
 .app { display: flex; min-height: 100vh; }
 
 /* Zijbalk (zelfde als empty-stage) */
-.sidebar { width: 210px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; padding: 22px 0; }
-.sidebar-brand { font-size: 18px; font-weight: 600; color: var(--sidebar-brand); padding: 6px 22px 26px; }
-.sidebar-nav { display: flex; flex-direction: column; }
-.nav-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 22px; color: var(--sidebar-text); text-decoration: none; font-size: 14px; }
-.nav-item:hover { background: rgba(255, 255, 255, 0.10); }
-.nav-item.active { background: var(--sidebar-active-bg); font-weight: 500; }
-.nav-item.locked { opacity: 0.65; cursor: not-allowed; }
-.lock { font-size: 12px; }
-.sidebar-logout { margin-top: auto; padding: 12px 22px; color: var(--sidebar-text); text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
-.sidebar-logout:hover { text-decoration: underline; }
+.sidebar { width: 210px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; padding: 22px 0 0; flex-shrink: 0; }
+.sidebar-brand { font-size: 18px; font-weight: 700; color: #fff; padding: 0 22px 4px; }
+.sidebar-subbrand { font-size: 11px; color: var(--sidebar-brand); padding: 0 22px 22px; opacity: 0.8; }
+.nav-group-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.45); padding: 14px 22px 5px; font-weight: 600; }
+.sidebar-nav { display: flex; flex-direction: column; flex: 1; }
+.nav-item { display: flex; align-items: center; padding: 10px 22px; color: var(--sidebar-text); text-decoration: none; font-size: 14px; transition: background 0.12s; }
+.nav-item:hover { background: rgba(255,255,255,0.10); }
+.nav-item.active { background: var(--sidebar-active-bg); font-weight: 600; color: #fff; }
+.sidebar-footer { padding: 16px 0 0; border-top: 1px solid rgba(255,255,255,0.12); margin-top: auto; }
+.sidebar-user { display: flex; align-items: center; gap: 10px; padding: 10px 22px; background: rgba(0,0,0,0.12); }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #4b5563; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.user-info { display: flex; flex-direction: column; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: 10px; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-logout { display: block; padding: 9px 22px; color: #f87171; text-decoration: none; font-size: 12px; font-weight: 500; }
+.sidebar-logout:hover { background: rgba(239,68,68,0.12); }
 
 /* Hoofdinhoud */
 .content { flex: 1; padding: 26px 44px 40px; }

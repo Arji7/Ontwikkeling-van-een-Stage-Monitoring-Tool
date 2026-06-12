@@ -14,18 +14,16 @@
       <div class="sidebar-brand">StageMonitor</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
       <nav class="sidebar-nav">
-        <span class="nav-group-label">Stagecommissie</span>
         <a href="#" class="nav-item active">Aanvragen</a>
         <a href="#" class="nav-item">Lopende stages</a>
         <a href="#" class="nav-item">Evaluaties</a>
       
       <div class="sidebar-footer">
-        <div class="sidebar-role-label">Actieve rollen: <strong>Administratie + Stagecommissie</strong></div>
         <div class="sidebar-user">
-          <div class="user-avatar">EV</div>
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
           <div class="user-info">
-            <span class="user-name">Els Verheyen</span>
-            <span class="user-role">Administratie · Voorzitter commissie</span>
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Stagecommissie</span>
           </div>
         </div>
         <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
@@ -242,5 +240,15 @@
   </div>
 
   <script src="commissie.aanvraag-beoordeling.js"></script>
+  <script>
+    (function () {
+      var u = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Commissielid";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+    })();
+  </script>
 </body>
 </html>
