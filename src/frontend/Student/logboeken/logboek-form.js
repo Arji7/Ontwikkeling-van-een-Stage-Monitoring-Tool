@@ -240,6 +240,18 @@ function setupIndienen() {
   document.getElementById("btnIndienen").addEventListener("click", async function () {
     saveDagToMemory();
 
+    // Mag pas indienen vanaf de laatste werkdag van deze week
+    if (datumTot) {
+      var vandaag = new Date();
+      vandaag.setHours(0, 0, 0, 0);
+      var laatsteWerkdag = new Date(datumTot);
+      laatsteWerkdag.setHours(0, 0, 0, 0);
+      if (vandaag < laatsteWerkdag) {
+        alert("Je kan dit logboek pas indienen vanaf " + formatDateLong(laatsteWerkdag) + " (einde werkweek).");
+        return;
+      }
+    }
+
     var weekTaken = document.getElementById("weekTaken").value.trim();
     if (!weekTaken) {
       alert("Vul de uitgevoerde taken (weekoverzicht) in.");
@@ -250,10 +262,10 @@ function setupIndienen() {
       return;
     }
 
-    // Bouw dagen array
+    // Bouw dagen array — alleen de werkdagen van deze week
     var dagen = [];
     var startDate = datumVan ? new Date(datumVan) : new Date();
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < aantalDagenDezeWeek; i++) {
       var dagDate = new Date(startDate);
       dagDate.setDate(dagDate.getDate() + i);
       dagen.push({
@@ -371,10 +383,11 @@ function updateUI() {
   var totaal = berekenTotaalUren();
   document.getElementById("weekUren").value = totaal + " uur";
 
-  // Progress bar
-  var pct = Math.min(100, Math.round((totaal / VERWACHTE_UREN) * 100));
+  // Progress bar — verwachte uren proportioneel met aantal werkdagen
+  var verwachtDezeWeek = Math.round((VERWACHTE_UREN / 5) * aantalDagenDezeWeek);
+  var pct = Math.min(100, Math.round((totaal / verwachtDezeWeek) * 100));
   document.getElementById("progressFill").style.width = pct + "%";
-  document.getElementById("progressText").textContent = totaal + "u / ~" + VERWACHTE_UREN + "u verwacht";
+  document.getElementById("progressText").textContent = totaal + "u / ~" + verwachtDezeWeek + "u verwacht";
 
   // Indienen knop tonen als minstens 1 dag opgeslagen en niet readonly
   var dagenOpgeslagen = dagenData.filter(function (d) { return d.saved; }).length;
