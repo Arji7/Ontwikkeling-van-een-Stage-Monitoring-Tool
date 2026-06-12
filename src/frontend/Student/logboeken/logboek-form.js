@@ -32,11 +32,18 @@ document.addEventListener("DOMContentLoaded", function () {
   bestaandLogboekId = params.get("id");
   weekNummer = parseInt(params.get("week")) || 1;
 
-  laadCompetenties().then(function () {
+  laadCompetenties().then(async function () {
     if (bestaandLogboekId) {
       laadBestaandLogboek(bestaandLogboekId);
     } else {
-      initNieuwLogboek(weekNummer);
+      // Check of een concept voor deze week al bestaat
+      var existingId = await zoekConceptVoorWeek(weekNummer);
+      if (existingId) {
+        bestaandLogboekId = existingId;
+        laadBestaandLogboek(existingId);
+      } else {
+        initNieuwLogboek(weekNummer);
+      }
     }
   });
 
@@ -87,6 +94,84 @@ function authHeaders() {
     "Content-Type": "application/json",
     "Authorization": "Bearer " + localStorage.getItem("token")
   };
+}
+
+// Zoek of er al een logboek bestaat voor deze week
+async function zoekConceptVoorWeek(week) {
+  try {
+    var res = await fetch(API_BASE_URL + "/logboeken/mijn", { headers: authHeaders() });
+    if (!res.ok) return null;
+    var lijst = await res.json();
+    var match = lijst.find(function (l) { return l.week_nummer === week; });
+    return match ? match.id : null;
+  } catch (err) {
+    console.error("Concept zoeken fout:", err);
+    return null;
+  }
+}
+
+// Sla logboek op (of update) als concept in backend
+async function bewaarConcept() {
+  if (!datumVan || !datumTot) return;
+
+  // Bouw dagen array
+  var dagen = [];
+  var startDate = new Date(datumVan);
+  for (var i = 0; i < aantalDagenDezeWeek; i++) {
+    var dagDate = new Date(startDate);
+    dagDate.setDate(dagDate.getDate() + i);
+    dagen.push({
+      datum: formatISO(dagDate),
+      uren_gewerkt: dagenData[i].uren,
+      uitgevoerde_taken: dagenData[i].taken,
+      is_afwezig: dagenData[i].afwezig,
+      afwezig_reden: dagenData[i].afwezig ? "verlof" : null
+    });
+  }
+
+  var body = {
+    week_nummer: weekNummer,
+    titel: "Week " + weekNummer,
+    datum_van: datumVan,
+    datum_tot: datumTot,
+    uitgevoerde_taken: document.getElementById("weekTaken").value.trim() || "",
+    leerpunten: document.getElementById("weekReflectie").value.trim() || "",
+    dagen: dagen
+  };
+
+  try {
+    var url, method;
+    if (bestaandLogboekId) {
+      url = API_BASE_URL + "/logboeken/" + bestaandLogboekId;
+      method = "PUT";
+    } else {
+      url = API_BASE_URL + "/logboeken";
+      method = "POST";
+    }
+
+    var res = await fetch(url, {
+      method: method,
+      headers: authHeaders(),
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      var err = await res.json();
+      console.error("Concept opslaan fout:", err.error);
+      return;
+    }
+
+    var data = await res.json();
+
+    // Eerste save → onthoud ID en update URL
+    if (!bestaandLogboekId && data.id) {
+      bestaandLogboekId = data.id;
+      var newUrl = window.location.pathname + "?id=" + bestaandLogboekId;
+      window.history.replaceState({}, "", newUrl);
+    }
+  } catch (err) {
+    console.error("Concept opslaan fout:", err);
+  }
 }
 
 // ── Nieuw logboek setup ──
@@ -252,13 +337,16 @@ function saveDagToMemory() {
 }
 
 function setupDagOpslaan() {
-  document.getElementById("btnDagOpslaan").addEventListener("click", function () {
+  document.getElementById("btnDagOpslaan").addEventListener("click", async function () {
     saveDagToMemory();
     dagenData[activeDag].saved = true;
     updateUI();
 
+    // Auto-save als concept naar backend (zodat data behouden blijft)
+    await bewaarConcept();
+
     // Ga naar volgende dag als die er is
-    if (activeDag < 4) {
+    if (activeDag < aantalDagenDezeWeek - 1) {
       activeDag++;
       updateUI();
     }
