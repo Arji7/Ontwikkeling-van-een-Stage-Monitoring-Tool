@@ -40,16 +40,6 @@ body {
 
 a { text-decoration: none; }
 
-/* ---- Topbalk ---- */
-.topbar {
-  background-color: #0d1117;
-  color: #58a6ff;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  border-bottom: 2px solid var(--color-primary);
-}
-
 /* ---- Layout ---- */
 .layout {
   display: flex;
