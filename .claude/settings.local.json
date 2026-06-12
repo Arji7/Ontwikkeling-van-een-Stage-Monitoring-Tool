@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(/Applications/XAMPP/xamppfiles/bin/mysql -u root -P 3306 -h 127.0.0.1 stage_monitor -e \"SELECT s.id, s.status, b.naam as bedrijf FROM stage s LEFT JOIN bedrijf b ON b.id = s.bedrijf_id;\")",
-      "Bash(/Applications/XAMPP/xamppfiles/bin/mysql -u root -P 3306 -h 127.0.0.1 stage_monitor -e \"SELECT g.email, r.naam as rol FROM gebruiker g JOIN gebruiker_rol gr ON gr.gebruiker_id = g.id JOIN rol r ON r.id = gr.rol_id WHERE g.email = 'docent@ehb.be';\")",
-      "Bash(/Applications/XAMPP/xamppfiles/bin/mysql -u root -P 3306 -h 127.0.0.1 stage_monitor -e \"SELECT d.id AS docent_id, g.voornaam, g.achternaam FROM docent d JOIN gebruiker g ON g.id = d.gebruiker_id;\")"
-    ]
-  }
-}
