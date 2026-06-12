@@ -11,7 +11,8 @@ var dagenData = [
   { uren: 0, taken: "", afwezig: false, reden: null, saved: false },
   { uren: 0, taken: "", afwezig: false, reden: null, saved: false }
 ];
-var geselecteerdeComps = [];
+var geselecteerdeComps = []; // array van competentie-id's
+var alleCompetenties = [];   // [{ id, naam, ... }]
 var isReadonly = false;
 var bestaandLogboekId = null;
 var weekNummer = 1;
@@ -31,17 +32,55 @@ document.addEventListener("DOMContentLoaded", function () {
   bestaandLogboekId = params.get("id");
   weekNummer = parseInt(params.get("week")) || 1;
 
-  if (bestaandLogboekId) {
-    laadBestaandLogboek(bestaandLogboekId);
-  } else {
-    initNieuwLogboek(weekNummer);
-  }
+  laadCompetenties().then(function () {
+    if (bestaandLogboekId) {
+      laadBestaandLogboek(bestaandLogboekId);
+    } else {
+      initNieuwLogboek(weekNummer);
+    }
+  });
 
   setupDayTabs();
   setupDagOpslaan();
-  setupCompetenties();
   setupIndienen();
 });
+
+async function laadCompetenties() {
+  try {
+    var res = await fetch(API_BASE_URL + "/competenties", { headers: authHeaders() });
+    if (!res.ok) return;
+    alleCompetenties = await res.json();
+    renderCompetenties();
+  } catch (err) {
+    console.error("Competenties ophalen fout:", err);
+  }
+}
+
+function renderCompetenties() {
+  var wrap = document.getElementById("competentiesWrap");
+  wrap.innerHTML = "";
+  alleCompetenties.forEach(function (comp) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "comp-toggle";
+    btn.setAttribute("data-id", comp.id);
+    btn.textContent = comp.naam;
+    btn.addEventListener("click", function () {
+      if (isReadonly) return;
+      var idx = geselecteerdeComps.indexOf(comp.id);
+      if (idx === -1) {
+        geselecteerdeComps.push(comp.id);
+        btn.classList.add("selected");
+        btn.textContent = "✓ " + comp.naam;
+      } else {
+        geselecteerdeComps.splice(idx, 1);
+        btn.classList.remove("selected");
+        btn.textContent = comp.naam;
+      }
+    });
+    wrap.appendChild(btn);
+  });
+}
 
 function authHeaders() {
   return {
@@ -157,6 +196,18 @@ async function laadBestaandLogboek(id) {
     document.getElementById("weekTaken").value = data.uitgevoerde_taken || "";
     document.getElementById("weekReflectie").value = data.leerpunten || "";
 
+    // Geselecteerde competenties markeren
+    if (Array.isArray(data.competenties)) {
+      data.competenties.forEach(function (comp) {
+        geselecteerdeComps.push(comp.id);
+        var btn = document.querySelector('.comp-toggle[data-id="' + comp.id + '"]');
+        if (btn) {
+          btn.classList.add("selected");
+          btn.textContent = "✓ " + comp.naam;
+        }
+      });
+    }
+
     // Readonly mode
     if (isReadonly) {
       document.getElementById("dayForm").querySelectorAll("input, textarea, button").forEach(function (el) {
@@ -214,27 +265,6 @@ function setupDagOpslaan() {
   });
 }
 
-// ── Competenties ──
-function setupCompetenties() {
-  var btns = document.querySelectorAll(".comp-toggle");
-  btns.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      if (isReadonly) return;
-      var comp = btn.getAttribute("data-comp");
-      var idx = geselecteerdeComps.indexOf(comp);
-      if (idx === -1) {
-        geselecteerdeComps.push(comp);
-        btn.classList.add("selected");
-        btn.textContent = "✓ " + comp;
-      } else {
-        geselecteerdeComps.splice(idx, 1);
-        btn.classList.remove("selected");
-        btn.textContent = comp;
-      }
-    });
-  });
-}
-
 // ── Indienen ──
 function setupIndienen() {
   document.getElementById("btnIndienen").addEventListener("click", async function () {
@@ -272,7 +302,8 @@ function setupIndienen() {
       datum_tot: datumTot,
       uitgevoerde_taken: weekTaken,
       leerpunten: document.getElementById("weekReflectie").value.trim(),
-      dagen: dagen
+      dagen: dagen,
+      competenties: geselecteerdeComps
     };
 
     try {
@@ -311,9 +342,15 @@ function setupIndienen() {
         return;
       }
 
+      // Vertaal id's naar namen voor het bevestigingsscherm
+      var compNamen = geselecteerdeComps.map(function (id) {
+        var c = alleCompetenties.find(function (x) { return x.id === id; });
+        return c ? c.naam : "";
+      }).filter(function (n) { return n; }).join(", ");
+
       window.location.href = "logboek-bevestiging.html?week=" + weekNummer +
         "&uren=" + berekenTotaalUren() +
-        "&comps=" + encodeURIComponent(geselecteerdeComps.join(", "));
+        "&comps=" + encodeURIComponent(compNamen);
 
     } catch (err) {
       console.error("Indienen fout:", err);

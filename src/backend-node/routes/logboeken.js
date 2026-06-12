@@ -145,7 +145,16 @@ router.get('/:id', authMiddleware, async (req, res) => {
       [logboek.id]
     );
 
-    res.json({ ...logboek, dagen, reacties });
+    const [competenties] = await db.query(
+      `SELECT c.id, c.naam
+       FROM logboek_competentie lc
+       JOIN competentie c ON c.id = lc.competentie_id
+       WHERE lc.logboek_id = ?
+       ORDER BY c.volgorde ASC`,
+      [logboek.id]
+    );
+
+    res.json({ ...logboek, dagen, reacties, competenties });
   } catch (err) {
     console.error('Logboek detail fout:', err);
     res.status(500).json({ error: 'Interne serverfout' });
@@ -156,7 +165,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // POST /api/logboeken — nieuw logboek aanmaken (student)
 // ────────────────────────────────────────────────────────────
 router.post('/', authMiddleware, async (req, res) => {
-  const { week_nummer, titel, datum_van, datum_tot, uitgevoerde_taken, leerpunten, dagen } = req.body;
+  const { week_nummer, titel, datum_van, datum_tot, uitgevoerde_taken, leerpunten, dagen, competenties } = req.body;
 
   if (!week_nummer || !datum_van || !datum_tot) {
     return res.status(400).json({ error: 'week_nummer, datum_van en datum_tot zijn verplicht.' });
@@ -197,6 +206,16 @@ router.post('/', authMiddleware, async (req, res) => {
       }
     }
 
+    // Competenties koppelen
+    if (Array.isArray(competenties) && competenties.length > 0) {
+      for (const compId of competenties) {
+        await db.query(
+          'INSERT INTO logboek_competentie (logboek_id, competentie_id) VALUES (?, ?)',
+          [logboekId, compId]
+        );
+      }
+    }
+
     res.status(201).json({ message: 'Logboek aangemaakt', id: logboekId });
   } catch (err) {
     console.error('Logboek aanmaken fout:', err);
@@ -208,7 +227,7 @@ router.post('/', authMiddleware, async (req, res) => {
 // PUT /api/logboeken/:id — logboek bewerken (student, alleen als concept)
 // ────────────────────────────────────────────────────────────
 router.put('/:id', authMiddleware, async (req, res) => {
-  const { titel, uitgevoerde_taken, leerpunten, dagen } = req.body;
+  const { titel, uitgevoerde_taken, leerpunten, dagen, competenties } = req.body;
 
   try {
     const studentId = await getStudentId(req.user.id);
@@ -243,6 +262,17 @@ router.put('/:id', authMiddleware, async (req, res) => {
           `INSERT INTO logboek_dag (logboek_id, datum, uren_gewerkt, uitgevoerde_taken, is_afwezig, afwezig_reden)
            VALUES (?, ?, ?, ?, ?, ?)`,
           [req.params.id, dag.datum, dag.uren_gewerkt || 0, dag.uitgevoerde_taken || '', dag.is_afwezig || false, dag.afwezig_reden || null]
+        );
+      }
+    }
+
+    // Competenties vervangen als meegegeven
+    if (Array.isArray(competenties)) {
+      await db.query('DELETE FROM logboek_competentie WHERE logboek_id = ?', [req.params.id]);
+      for (const compId of competenties) {
+        await db.query(
+          'INSERT INTO logboek_competentie (logboek_id, competentie_id) VALUES (?, ?)',
+          [req.params.id, compId]
         );
       }
     }
