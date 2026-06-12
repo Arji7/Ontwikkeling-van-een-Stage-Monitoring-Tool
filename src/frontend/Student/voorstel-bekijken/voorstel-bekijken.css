@@ -181,3 +181,7 @@ body {
   .page-actions { flex-direction: column-reverse; gap: 10px; }
   .btn { width: 100%; justify-content: center; }
 }
+@media (max-width: 1280px) {
+  .content { padding-left: 32px; padding-right: 32px; }
+  .detail-card, .page-actions { max-width: 100%; }
+}
