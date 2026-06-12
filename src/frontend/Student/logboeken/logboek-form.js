@@ -426,10 +426,14 @@ function updateUI() {
   document.getElementById("progressFill").style.width = pct + "%";
   document.getElementById("progressText").textContent = totaal + "u / ~" + verwachtDezeWeek + "u verwacht";
 
-  // Indienen knop tonen als minstens 1 dag opgeslagen en niet readonly
-  var dagenOpgeslagen = dagenData.filter(function (d) { return d.saved; }).length;
-  if (dagenOpgeslagen > 0 && !isReadonly) {
-    document.getElementById("btnIndienen").style.display = "inline-flex";
+  // Indienen knop tonen ENKEL als je op de laatste dag van de werkweek staat
+  // en niet in readonly mode bent
+  var isLaatsteDag = activeDag === (aantalDagenDezeWeek - 1);
+  var indienenBtn = document.getElementById("btnIndienen");
+  if (isLaatsteDag && !isReadonly) {
+    indienenBtn.style.display = "inline-flex";
+  } else {
+    indienenBtn.style.display = "none";
   }
 }
 
