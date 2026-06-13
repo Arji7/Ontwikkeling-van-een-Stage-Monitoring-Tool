@@ -50,7 +50,127 @@ document.addEventListener("DOMContentLoaded", function () {
   setupDayTabs();
   setupDagOpslaan();
   setupIndienen();
+  setupBestandUpload();
 });
+
+// ── Bestand upload ──
+function setupBestandUpload() {
+  var input = document.getElementById("bestandInput");
+  if (!input) return;
+  input.addEventListener("change", async function (e) {
+    var files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Eerst zorgen dat we een logboek ID hebben
+    if (!bestaandLogboekId) {
+      await bewaarConcept();
+    }
+    if (!bestaandLogboekId) {
+      alert("Kon logboek niet aanmaken. Probeer eerst een dag op te slaan.");
+      input.value = "";
+      return;
+    }
+
+    for (var i = 0; i < files.length; i++) {
+      await uploadBestand(files[i]);
+    }
+
+    input.value = "";
+    await laadBestanden();
+  });
+}
+
+async function uploadBestand(file) {
+  var formData = new FormData();
+  formData.append("bestand", file);
+
+  try {
+    var res = await fetch(API_BASE_URL + "/logboeken/" + bestaandLogboekId + "/bestanden", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
+      body: formData
+    });
+    if (!res.ok) {
+      var err = await res.json();
+      alert("Upload fout: " + (err.error || "onbekend"));
+    }
+  } catch (err) {
+    console.error("Bestand upload fout:", err);
+    alert("Geen verbinding met server.");
+  }
+}
+
+async function laadBestanden() {
+  if (!bestaandLogboekId) return;
+  try {
+    var res = await fetch(API_BASE_URL + "/logboeken/" + bestaandLogboekId, { headers: authHeaders() });
+    if (!res.ok) return;
+    var data = await res.json();
+    renderBestanden(data.bestanden || []);
+  } catch (err) {
+    console.error("Bestanden ophalen fout:", err);
+  }
+}
+
+function renderBestanden(bestanden) {
+  var wrap = document.getElementById("bestandenLijst");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  bestanden.forEach(function (b) {
+    var row = document.createElement("div");
+    row.style.cssText = "display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; margin-bottom:6px; font-size:13px;";
+
+    var link = document.createElement("a");
+    link.href = "http://localhost:3000/uploads/logboeken/" + b.bestandsnaam;
+    link.target = "_blank";
+    link.textContent = "📎 " + (b.origineel_naam || b.bestandsnaam);
+    link.style.cssText = "color:#2563eb; text-decoration:none; flex:1;";
+
+    var size = document.createElement("span");
+    size.textContent = formatBestandsgrootte(b.bestandsgrootte);
+    size.style.cssText = "color:#9ca3af; margin-right:12px; font-size:12px;";
+
+    row.appendChild(link);
+    row.appendChild(size);
+
+    if (!isReadonly) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "✕";
+      btn.style.cssText = "background:none; border:none; color:#dc2626; cursor:pointer; font-size:16px;";
+      btn.onclick = async function () {
+        if (!confirm("Bestand verwijderen?")) return;
+        await verwijderBestand(b.id);
+        await laadBestanden();
+      };
+      row.appendChild(btn);
+    }
+
+    wrap.appendChild(row);
+  });
+}
+
+async function verwijderBestand(bestandId) {
+  try {
+    var res = await fetch(API_BASE_URL + "/logboeken/bestanden/" + bestandId, {
+      method: "DELETE",
+      headers: authHeaders()
+    });
+    if (!res.ok) {
+      var err = await res.json();
+      alert("Verwijderen mislukt: " + (err.error || "onbekend"));
+    }
+  } catch (err) {
+    console.error("Bestand verwijderen fout:", err);
+  }
+}
+
+function formatBestandsgrootte(bytes) {
+  if (!bytes) return "";
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
 
 async function laadCompetenties() {
   try {
@@ -303,6 +423,11 @@ async function laadBestaandLogboek(id) {
           btn.textContent = "✓ " + comp.naam;
         }
       });
+    }
+
+    // Bestanden tonen
+    if (Array.isArray(data.bestanden)) {
+      renderBestanden(data.bestanden);
     }
 
     // Readonly mode

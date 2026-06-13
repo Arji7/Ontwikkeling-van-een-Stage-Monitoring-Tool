@@ -127,7 +127,11 @@
         <!-- File upload -->
         <div class="upload-section">
           <div class="upload-label">Bestanden toevoegen (optioneel)</div>
-          <div class="upload-area">Klik om screenshots, diagrammen of documenten toe te voegen</div>
+          <input type="file" id="bestandInput" multiple style="display:none;" />
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('bestandInput').click()">
+            Klik om screenshots, diagrammen of documenten toe te voegen
+          </div>
+          <div id="bestandenLijst" style="margin-top: 12px;"></div>
         </div>
       </div>
 
