@@ -15,8 +15,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     const stages = await res.json();
 
     if (!Array.isArray(stages) || stages.length === 0) {
-      // Geen stage → terug naar dashboard
-      window.location.href = "../empty-stage/empty-stage.html";
+      // Geen stage → naar het aanvraag formulier
+      window.location.href = "../stage-aanvraag/stage-aanvraag.html";
       return;
     }
 
@@ -49,6 +49,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     } catch (e) {}
 
     vulPaginaIn(detail);
+    // Content pas tonen nu hij ingevuld is — voorkomt flits
+    document.getElementById("mainContent").style.visibility = "visible";
 
   } catch (err) {
     console.error("Fout bij ophalen stage:", err);
