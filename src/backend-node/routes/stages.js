@@ -79,16 +79,33 @@ router.get('/mijn', authMiddleware, async (req, res) => {
       `SELECT s.*,
               b.naam AS bedrijf_naam,
               b.sector,
+              s.aangemaakt_op AS ingediend_op,
               (SELECT bs.opmerking
                  FROM beslissing bs
                 WHERE bs.stage_id = s.id
                 ORDER BY bs.datum DESC
                 LIMIT 1) AS laatste_opmerking,
+              (SELECT bs.opmerking
+                 FROM beslissing bs
+                WHERE bs.stage_id = s.id
+                ORDER BY bs.datum DESC
+                LIMIT 1) AS feedback,
               (SELECT bs.beslissing
                  FROM beslissing bs
                 WHERE bs.stage_id = s.id
                 ORDER BY bs.datum DESC
-                LIMIT 1) AS laatste_beslissing
+                LIMIT 1) AS laatste_beslissing,
+              (SELECT bs.datum
+                 FROM beslissing bs
+                WHERE bs.stage_id = s.id
+                ORDER BY bs.datum DESC
+                LIMIT 1) AS beoordeeld_op,
+              (SELECT CONCAT(g.voornaam, ' ', g.achternaam)
+                 FROM beslissing bs
+                 JOIN gebruiker g ON g.id = bs.commissielid_id
+                WHERE bs.stage_id = s.id
+                ORDER BY bs.datum DESC
+                LIMIT 1) AS beoordeeld_door
        FROM stage s
        LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
        WHERE s.student_id = ?
