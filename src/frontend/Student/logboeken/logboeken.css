@@ -1,0 +1,256 @@
+/* ============================================================
+   Logboeken — Gedeelde stijlen
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f4f6fa; min-height: 100vh; }
+
+/* ── Layout ── */
+.app { display: flex; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar { width: 210px; background: #828d9e; color: #eef1f5; display: flex; flex-direction: column; padding: 22px 0 0; flex-shrink: 0; min-height: 100vh; }
+.sidebar-brand { font-size: 18px; font-weight: 700; color: #fff; padding: 0 22px 4px; }
+.sidebar-subbrand { font-size: 11px; color: #c7d0dd; padding: 0 22px 22px; opacity: 0.8; }
+.nav-group-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.45); padding: 14px 22px 5px; font-weight: 600; }
+.sidebar-nav { display: flex; flex-direction: column; flex: 1; }
+.nav-item { display: flex; align-items: center; padding: 10px 22px; color: #eef1f5; text-decoration: none; font-size: 14px; transition: background 0.12s; }
+.nav-item:hover { background: rgba(255,255,255,0.10); }
+.nav-item.active { background: rgba(255,255,255,0.18); font-weight: 600; color: #fff; border-left: none; }
+.sidebar-footer { padding: 16px 0 0; border-top: 1px solid rgba(255,255,255,0.12); margin-top: auto; }
+.sidebar-user { display: flex; align-items: center; gap: 10px; padding: 10px 22px; background: rgba(0,0,0,0.12); }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #4b5563; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.user-info { display: flex; flex-direction: column; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: 10px; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-logout { display: block; padding: 9px 22px; color: #f87171; text-decoration: none; font-size: 12px; font-weight: 500; margin-top: 0; }
+.sidebar-logout:hover { background: rgba(239,68,68,0.12); }
+
+/* ── Main content ── */
+.content { flex: 1; padding: 32px 40px; max-width: 1100px; }
+
+/* ── Breadcrumb ── */
+.breadcrumb { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+.breadcrumb a { color: #3b82f6; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+
+/* ── Page header ── */
+.page-title { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+.page-subtitle { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
+
+/* ── Stat cards ── */
+.stat-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px;
+}
+.stat-card {
+  background: #fff; border-radius: 10px; padding: 16px 20px;
+  border: 1px solid #e5e7eb;
+}
+.stat-card-label { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+.stat-card-value { font-size: 26px; font-weight: 800; color: #1a1a2e; }
+.stat-card-value.green { color: #16a34a; }
+.stat-card-value.orange { color: #d97706; }
+
+/* ── Deadline banner ── */
+.deadline-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fef3c7; border: 1px solid #fde68a; border-radius: 10px;
+  padding: 12px 20px; margin-bottom: 20px; font-size: 14px; color: #92400e;
+}
+
+/* ── Filter tabs ── */
+.filter-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+.filter-tab {
+  padding: 8px 16px; border-radius: 6px; border: 1px solid #e5e7eb;
+  background: #fff; font-size: 13px; font-weight: 500; color: #374151;
+  cursor: pointer; transition: all .15s;
+}
+.filter-tab:hover { background: #f3f4f6; }
+.filter-tab.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+
+/* ── Logboek card (overzicht lijst) ── */
+.logboek-list { display: flex; flex-direction: column; gap: 10px; }
+.logboek-card {
+  display: flex; align-items: center; gap: 16px;
+  background: #fff; border-radius: 12px; padding: 18px 20px;
+  border: 1px solid #e5e7eb; cursor: pointer; transition: box-shadow .15s;
+}
+.logboek-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.week-badge {
+  width: 50px; height: 50px; border-radius: 50%; background: #eff6ff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.week-badge-num { font-size: 18px; font-weight: 800; color: #3b82f6; line-height: 1; }
+.week-badge-label { font-size: 9px; color: #3b82f6; text-transform: uppercase; font-weight: 600; }
+.logboek-info { flex: 1; min-width: 0; }
+.logboek-title { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+.logboek-desc { font-size: 13px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.logboek-meta { font-size: 12px; color: #9ca3af; margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.comp-chip {
+  display: inline-block; padding: 2px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600; background: #dbeafe; color: #2563eb;
+}
+.logboek-status { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.status-badge {
+  padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  white-space: nowrap;
+}
+.status-badge.goedgekeurd { background: #dcfce7; color: #15803d; }
+.status-badge.ingediend { background: #fef3c7; color: #92400e; }
+.status-badge.wacht_op_mentor { background: #fef3c7; color: #92400e; }
+.status-badge.concept { background: #f1f5f9; color: #64748b; }
+.status-badge.dagen-invullen { background: #fef9c3; color: #a16207; }
+.logboek-arrow { color: #d1d5db; font-size: 18px; }
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center; padding: 80px 20px;
+}
+.empty-icon { font-size: 64px; margin-bottom: 16px; }
+.empty-title { font-size: 18px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
+.empty-text { font-size: 14px; color: #9ca3af; max-width: 400px; margin: 0 auto 24px; line-height: 1.6; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;
+  cursor: pointer; text-decoration: none; border: none; transition: all .15s;
+}
+.btn-primary { background: #3b82f6; color: #fff; }
+.btn-primary:hover { background: #2563eb; }
+.btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; }
+.btn-secondary:hover { background: #f9fafb; }
+.btn-sm { padding: 8px 18px; font-size: 13px; }
+
+/* ── Pagination ── */
+.pagination { text-align: center; padding: 20px; font-size: 13px; color: #6b7280; }
+.pagination a { color: #3b82f6; text-decoration: none; font-weight: 600; }
+
+/* ============================================================
+   Logboek FORM pagina
+   ============================================================ */
+.form-card {
+  background: #fff; border-radius: 14px; border: 1px solid #e5e7eb;
+  padding: 32px; margin-bottom: 24px;
+}
+
+/* ── Day tabs ── */
+.day-tabs {
+  display: flex; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;
+  margin-bottom: 20px;
+}
+.day-tab {
+  flex: 1; padding: 12px 8px; text-align: center; cursor: pointer;
+  border-right: 1px solid #e5e7eb; background: #fff; transition: all .15s;
+  position: relative;
+}
+.day-tab:last-child { border-right: none; }
+.day-tab:hover { background: #f9fafb; }
+.day-tab.active { background: #eff6ff; font-weight: 600; }
+.day-tab-name { font-size: 14px; color: #374151; display: block; }
+.day-tab-hours { font-size: 12px; color: #3b82f6; display: block; margin-top: 2px; }
+.day-tab-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #22c55e;
+  position: absolute; top: 6px; right: 6px; display: none;
+}
+.day-tab.filled .day-tab-dot { display: block; }
+
+/* ── Day form ── */
+.day-form { margin-bottom: 20px; }
+.day-form-title { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px; }
+.day-form-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.day-form-row label { font-size: 13px; color: #6b7280; font-weight: 500; }
+.input-uren {
+  width: 70px; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+  font-size: 14px; text-align: center;
+}
+.input-taken {
+  flex: 1; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;
+  font-size: 14px;
+}
+.afwezig-row { display: flex; align-items: center; justify-content: space-between; }
+.afwezig-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #6b7280; cursor: pointer; }
+.btn-dag-opslaan {
+  padding: 8px 20px; background: #3b82f6; color: #fff; border: none;
+  border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.btn-dag-opslaan:hover { background: #2563eb; }
+
+/* ── Week totals ── */
+.section-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+.section-label .required { color: #ef4444; }
+.section-sublabel { font-size: 12px; color: #9ca3af; margin-bottom: 8px; }
+
+.uren-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.input-week-uren {
+  width: 80px; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+  font-size: 14px; text-align: center; background: #f9fafb;
+}
+
+.progress-bar-wrap {
+  display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;
+  margin-bottom: 24px; font-size: 13px; color: #15803d;
+}
+.progress-bar-wrap .bar { flex: 1; height: 6px; background: #dcfce7; border-radius: 3px; }
+.progress-bar-wrap .bar-fill { height: 100%; background: #22c55e; border-radius: 3px; }
+
+/* ── Textareas ── */
+.textarea-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.textarea-group label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+.textarea-group textarea {
+  width: 100%; min-height: 120px; padding: 12px; border: 1px solid #d1d5db;
+  border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;
+}
+
+/* ── Competenties ── */
+.competenties-section { margin-bottom: 24px; }
+.competenties-title { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+.competenties-desc { font-size: 12px; color: #9ca3af; margin-bottom: 12px; line-height: 1.5; }
+.competenties-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.comp-toggle {
+  padding: 8px 16px; border-radius: 20px; border: 1px solid #d1d5db;
+  background: #fff; font-size: 13px; color: #374151; cursor: pointer; transition: all .15s;
+}
+.comp-toggle:hover { border-color: #93c5fd; }
+.comp-toggle.selected { background: #22c55e; color: #fff; border-color: #22c55e; }
+
+/* ── File upload ── */
+.upload-section { margin-bottom: 24px; }
+.upload-label { font-size: 14px; color: #6b7280; text-align: center; margin-bottom: 8px; }
+.upload-area {
+  border: 2px dashed #d1d5db; border-radius: 10px; padding: 32px;
+  text-align: center; color: #9ca3af; font-size: 13px; cursor: pointer;
+}
+.upload-area:hover { border-color: #93c5fd; background: #f8faff; }
+
+/* ── Form actions ── */
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; padding-top: 16px; }
+
+/* ============================================================
+   Bevestiging pagina
+   ============================================================ */
+.bevestiging-wrap { max-width: 600px; margin: 40px auto; text-align: center; }
+.bevestiging-icon { width: 72px; height: 72px; border-radius: 50%; background: #22c55e; color: #fff; font-size: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.bevestiging-title { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+.bevestiging-text { font-size: 14px; color: #6b7280; line-height: 1.6; margin-bottom: 28px; }
+
+.summary-table {
+  width: 100%; border-collapse: collapse; margin-bottom: 28px;
+  background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb;
+}
+.summary-table td { padding: 12px 20px; font-size: 14px; border-bottom: 1px solid #f3f4f6; }
+.summary-table td:first-child { color: #6b7280; font-weight: 500; text-align: left; }
+.summary-table td:last-child { color: #1a1a2e; font-weight: 600; text-align: right; }
+
+.info-box {
+  background: #eff6ff; border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 28px;
+}
+.info-box-title { font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 12px; }
+.info-step { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; color: #1e40af; }
+.info-step-num {
+  width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; color: #fff;
+  font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+.bevestiging-actions { display: flex; gap: 12px; justify-content: center; }
