@@ -1,7 +1,27 @@
 const express = require('express');
 const router  = express.Router();
+const multer  = require('multer');
+const path    = require('path');
+const fs      = require('fs');
 const db      = require('../db');
 const { authMiddleware, hasRole } = require('../middleware/authMiddelware');
+
+// Multer config voor logboek bestanden
+const uploadDir = path.join(__dirname, '..', 'uploads', 'logboeken');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const uniek = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniek + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+});
 
 // Hulpfunctie: gebruiker_id → student_id
 async function getStudentId(gebruikerId) {
@@ -154,7 +174,15 @@ router.get('/:id', authMiddleware, async (req, res) => {
       [logboek.id]
     );
 
-    res.json({ ...logboek, dagen, reacties, competenties });
+    const [bestanden] = await db.query(
+      `SELECT id, bestandsnaam, origineel_naam, mimetype, bestandsgrootte, geupload_op
+       FROM logboek_bestand
+       WHERE logboek_id = ?
+       ORDER BY geupload_op ASC`,
+      [logboek.id]
+    );
+
+    res.json({ ...logboek, dagen, reacties, competenties, bestanden });
   } catch (err) {
     console.error('Logboek detail fout:', err);
     res.status(500).json({ error: 'Interne serverfout' });
@@ -363,6 +391,66 @@ router.post('/:id/goedkeuren', authMiddleware, async (req, res) => {
     res.json({ message: 'Logboek goedgekeurd' });
   } catch (err) {
     console.error('Logboek goedkeuren fout:', err);
+    res.status(500).json({ error: 'Interne serverfout' });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
+// POST /api/logboeken/:id/bestanden — bestand uploaden naar logboek
+// ────────────────────────────────────────────────────────────
+router.post('/:id/bestanden', authMiddleware, upload.single('bestand'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Geen bestand ontvangen.' });
+  }
+
+  try {
+    // Check of logboek bestaat
+    const [logboeken] = await db.query('SELECT id FROM logboek WHERE id = ?', [req.params.id]);
+    if (logboeken.length === 0) {
+      fs.unlinkSync(req.file.path); // ruim het opgeslagen bestand op
+      return res.status(404).json({ error: 'Logboek niet gevonden' });
+    }
+
+    const [result] = await db.query(
+      `INSERT INTO logboek_bestand (logboek_id, bestandsnaam, origineel_naam, mimetype, bestandsgrootte)
+       VALUES (?, ?, ?, ?, ?)`,
+      [req.params.id, req.file.filename, req.file.originalname, req.file.mimetype, req.file.size]
+    );
+
+    res.status(201).json({
+      id: result.insertId,
+      bestandsnaam: req.file.filename,
+      origineel_naam: req.file.originalname,
+      mimetype: req.file.mimetype,
+      bestandsgrootte: req.file.size,
+      url: '/uploads/logboeken/' + req.file.filename
+    });
+  } catch (err) {
+    console.error('Bestand upload fout:', err);
+    if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    res.status(500).json({ error: 'Interne serverfout' });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
+// DELETE /api/logboeken/bestanden/:bestandId — bestand verwijderen
+// ────────────────────────────────────────────────────────────
+router.delete('/bestanden/:bestandId', authMiddleware, async (req, res) => {
+  try {
+    const [rijen] = await db.query(
+      'SELECT bestandsnaam FROM logboek_bestand WHERE id = ?',
+      [req.params.bestandId]
+    );
+    if (rijen.length === 0) return res.status(404).json({ error: 'Bestand niet gevonden' });
+
+    const filePath = path.join(uploadDir, rijen[0].bestandsnaam);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+    await db.query('DELETE FROM logboek_bestand WHERE id = ?', [req.params.bestandId]);
+
+    res.json({ message: 'Bestand verwijderd' });
+  } catch (err) {
+    console.error('Bestand verwijderen fout:', err);
     res.status(500).json({ error: 'Interne serverfout' });
   }
 });

@@ -321,6 +321,17 @@ CREATE TABLE logboek_reactie (
   FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
 );
 
+CREATE TABLE logboek_bestand (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  logboek_id      INT NOT NULL,
+  bestandsnaam    VARCHAR(255) NOT NULL,
+  origineel_naam  VARCHAR(255),
+  mimetype        VARCHAR(100),
+  bestandsgrootte INT,
+  geupload_op     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (logboek_id) REFERENCES logboek(id) ON DELETE CASCADE
+);
+
 -- =============================================
 -- EVALUATIES
 -- =============================================
