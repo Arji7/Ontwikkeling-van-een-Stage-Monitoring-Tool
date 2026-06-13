@@ -51,7 +51,14 @@ document.addEventListener("DOMContentLoaded", function () {
   setupDagOpslaan();
   setupIndienen();
   setupBestandUpload();
+  setupAfwezigToggle();
 });
+
+function setupAfwezigToggle() {
+  var checkbox = document.getElementById("dagAfwezig");
+  if (!checkbox) return;
+  checkbox.addEventListener("change", pasAfwezigToe);
+}
 
 // ── Bestand upload ──
 function setupBestandUpload() {
@@ -465,12 +472,31 @@ function setupDayTabs() {
 }
 
 function saveDagToMemory() {
-  var uren = parseFloat(document.getElementById("dagUren").value) || 0;
-  var taken = document.getElementById("dagTaken").value || "";
   var afwezig = document.getElementById("dagAfwezig").checked;
+  // Bij afwezig: uren en taken op 0/leeg zetten
+  var uren = afwezig ? 0 : (parseFloat(document.getElementById("dagUren").value) || 0);
+  var taken = afwezig ? "" : (document.getElementById("dagTaken").value || "");
   dagenData[activeDag].uren = uren;
   dagenData[activeDag].taken = taken;
   dagenData[activeDag].afwezig = afwezig;
+}
+
+// Uren en taken velden disablen/enablen op basis van afwezig
+function pasAfwezigToe() {
+  var afwezig = document.getElementById("dagAfwezig").checked;
+  var urenInput = document.getElementById("dagUren");
+  var takenInput = document.getElementById("dagTaken");
+  urenInput.disabled = afwezig;
+  takenInput.disabled = afwezig;
+  if (afwezig) {
+    urenInput.value = "";
+    takenInput.value = "";
+    urenInput.style.background = "#f3f4f6";
+    takenInput.style.background = "#f3f4f6";
+  } else {
+    urenInput.style.background = "";
+    takenInput.style.background = "";
+  }
 }
 
 function setupDagOpslaan() {
@@ -631,6 +657,8 @@ function updateUI() {
     takenInput.value = "";
     afwezigInput.checked = false;
   }
+  // Uren/taken (de)activeren op basis van afwezig
+  pasAfwezigToe();
 
   // Datum bij dag titel
   if (datumVan) {
