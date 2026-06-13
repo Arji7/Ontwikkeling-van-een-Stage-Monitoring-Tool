@@ -10,17 +10,24 @@
   <div class="app">
 
     <aside class="sidebar">
-      <div class="sidebar-brand">StageMonitorage</div>
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
       <nav class="sidebar-nav">
-        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
         <a href="#" class="nav-item active">Mijn stage</a>
-        <span class="nav-item locked">Logboeken <span class="lock-icon">🔒</span></span>
-        <span class="nav-item locked">Evaluaties <span class="lock-icon">🔒</span></span>
+        <a href="../../logboeken/logboeken.html" class="nav-item">Logboeken</a>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
       </nav>
-      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
-         onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">
-        ⎋ Uitloggen
-      </a>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
     </aside>
 
     <main class="content">
@@ -88,12 +95,23 @@
 
       <!-- Knop -->
       <div class="actions">
-        <a href="../stage-aanvraag/stage-aanvraag.html" id="aanpassenBtn" class="btn btn-warning">Voorstel aanpassen</a>
+        <a href="../../stage-aanvraag/stage-aanvraag.html" id="aanpassenBtn" class="btn btn-warning">Voorstel aanpassen</a>
       </div>
 
     </main>
   </div>
 
   <script src="stage-aanpassingen.js"></script>
+  <script src="../../sidebar-lock.js"></script>
+  <script>
+    (function () {
+      var u = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+    })();
+  </script>
 </body>
 </html>
