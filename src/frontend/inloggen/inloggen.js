@@ -70,9 +70,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
               })[0];
               const STATUS_REDIRECTS = {
-                "goedgekeurd":          "../Student/stage-goedgekeurd/stage-goedgekeurd.html",
-                "afgekeurd":            "../Student/stage-afgewezen/stage-afgewezen.html",
-                "aanpassingen_vereist": "../Student/stage-aanpassingen/stage-aanpassingen.html"
+                "goedgekeurd":          "../Student/stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html",
+                "afgekeurd":            "../Student/stage-beoordeling/stage-afgewezen/stage-afgewezen.html",
+                "aanpassingen_vereist": "../Student/stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html"
               };
               if (STATUS_REDIRECTS[stage.status]) {
                 window.location.href = STATUS_REDIRECTS[stage.status];

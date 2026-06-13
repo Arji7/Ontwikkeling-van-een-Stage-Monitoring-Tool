@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Als niet goedgekeurd: redirect naar passende pagina
     if (stage.status === "aanpassingen_vereist") {
-      window.location.href = "../stage-aanpassen/stage-aanpassen.html";
+      window.location.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
       return;
     }
     if (stage.status !== "goedgekeurd" && stage.status !== "actief" && stage.status !== "wacht_op_overeenkomst") {
@@ -87,7 +87,7 @@ function vulPaginaIn(d) {
   // Stagevoorstel kaart — link + datum
   const voorstelDatum = d.bijgewerkt_op || d.aangemaakt_op;
   document.getElementById("voorstelSub").textContent = "Goedgekeurd op " + formatLong(voorstelDatum);
-  document.getElementById("kaartVoorstel").href = "../stage-goedgekeurd/stage-goedgekeurd.html";
+  document.getElementById("kaartVoorstel").href = "../stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html";
 }
 
 function formatShort(d) {

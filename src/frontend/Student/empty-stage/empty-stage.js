@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       title.textContent = "Stagevoorstel goedgekeurd!";
       text.textContent = "Je voorstel bij " + bedrijf + " is goedgekeurd. Bekijk de details en de volgende stappen.";
       btn.textContent = "Bekijk goedkeuring →";
-      btn.href = "../stage-goedgekeurd/stage-goedgekeurd.html";
+      btn.href = "../stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html";
       btn.style.display = "inline-block";
       updateStepper("goedgekeurd");
     } else if (stage.status === "afgekeurd") {
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       title.textContent = "Stagevoorstel afgekeurd";
       text.textContent = "Je voorstel bij " + bedrijf + " is helaas afgekeurd. Bekijk de motivatie en dien een nieuw voorstel in.";
       btn.textContent = "Bekijk details →";
-      btn.href = "../stage-afgewezen/stage-afgewezen.html";
+      btn.href = "../stage-beoordeling/stage-afgewezen/stage-afgewezen.html";
       btn.style.display = "inline-block";
       updateStepper("afgekeurd");
     } else if (stage.status === "aanpassingen_vereist") {
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       title.textContent = "Aanpassingen vereist";
       text.textContent = "De stagecommissie vraagt aanpassingen op je voorstel bij " + bedrijf + ".";
       btn.textContent = "Pas aan →";
-      btn.href = "../stage-aanpassingen/stage-aanpassingen.html";
+      btn.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
       btn.style.display = "inline-block";
       updateStepper("aanpassingen");
     } else {

@@ -49,7 +49,7 @@ fetch(window.API_BASE + '/stages/mijn', {
 
     // Knop "Voorstel aanpassen" tonen
     const btn = document.getElementById('aanpassenBtn');
-    btn.href = '../stage-aanpassingen/stage-aanpassingen.html';
+    btn.href = '../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html';
     btn.style.display = 'inline-flex';
   }
 })
