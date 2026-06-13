@@ -37,6 +37,10 @@ body {
   flex-direction: column;
   padding: 22px 0 0;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 .sidebar-brand { font-size: 18px; font-weight: 700; color: #fff; padding: 0 22px 4px; }
 .sidebar-subbrand { font-size: 11px; color: var(--sidebar-brand); padding: 0 22px 22px; opacity: 0.8; }
