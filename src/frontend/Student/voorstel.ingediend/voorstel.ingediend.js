@@ -1,5 +1,5 @@
 // Laatste ingediende stage van de student ophalen en tonen
-const token = localStorage.getItem('token');
+const token = sessionStorage.getItem('token');
 
 fetch('http://localhost:3000/api/stages/mijn', {
   headers: { 'Authorization': 'Bearer ' + token }

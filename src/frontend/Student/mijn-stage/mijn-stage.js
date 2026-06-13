@@ -1,7 +1,7 @@
 const API_BASE_URL = "http://localhost:3000/api";
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   if (!token) {
     window.location.href = "../../inloggen/inloggen.html";
     return;
@@ -89,7 +89,7 @@ function vulPaginaIn(d) {
   // Stagevoorstel kaart — link + datum
   const voorstelDatum = d.bijgewerkt_op || d.aangemaakt_op;
   document.getElementById("voorstelSub").textContent = "Goedgekeurd op " + formatLong(voorstelDatum);
-  document.getElementById("kaartVoorstel").href = "../stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html";
+  document.getElementById("kaartVoorstel").href = "../voorstel-bekijken/voorstel-bekijken.html";
 }
 
 function formatShort(d) {

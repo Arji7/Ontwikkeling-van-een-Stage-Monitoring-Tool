@@ -21,7 +21,7 @@ var datumTot = null;
 var aantalDagenDezeWeek = 5;   // standaard 5; minder bij laatste week van stage
 
 document.addEventListener("DOMContentLoaded", function () {
-  var token = localStorage.getItem("token");
+  var token = sessionStorage.getItem("token");
   if (!token) {
     window.location.href = "../../inloggen/inloggen.html";
     return;
@@ -94,7 +94,7 @@ async function uploadBestand(file) {
   try {
     var res = await fetch(API_BASE_URL + "/logboeken/" + bestaandLogboekId + "/bestanden", {
       method: "POST",
-      headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
+      headers: { "Authorization": "Bearer " + sessionStorage.getItem("token") },
       body: formData
     });
     if (!res.ok) {
@@ -221,7 +221,7 @@ function renderCompetenties() {
 function authHeaders() {
   return {
     "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token")
+    "Authorization": "Bearer " + sessionStorage.getItem("token")
   };
 }
 

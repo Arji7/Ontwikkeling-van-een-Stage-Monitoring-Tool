@@ -61,7 +61,7 @@ function getStageIdFromUrl() {
 }
 
 function authHeaders() {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   return {
     "Content-Type":  "application/json",
     "Authorization": "Bearer " + token,
@@ -79,7 +79,7 @@ async function laadStage() {
     return;
   }
 
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   if (!token) {
     alert("Niet ingelogd. Je wordt doorgestuurd.");
     window.location.href = "../inloggen/inloggen.html";

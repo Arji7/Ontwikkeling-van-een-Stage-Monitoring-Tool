@@ -4,13 +4,13 @@ var currentFilter = "alle";
 var TOTAAL_WEKEN = 14;   // fallback, wordt overschreven door /mijn/overzicht
 
 document.addEventListener("DOMContentLoaded", async function () {
-  var token = localStorage.getItem("token");
+  var token = sessionStorage.getItem("token");
   if (!token) {
     window.location.href = "../../inloggen/inloggen.html";
     return;
   }
 
-  var user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+  var user = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
   // Eerst overzicht laden (zet TOTAAL_WEKEN), DAARNA logboeken
   // zodat updateStats altijd met correcte data werkt
   await laadOverzicht();
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 function authHeaders() {
-  return { "Authorization": "Bearer " + localStorage.getItem("token") };
+  return { "Authorization": "Bearer " + sessionStorage.getItem("token") };
 }
 
 async function laadOverzicht() {

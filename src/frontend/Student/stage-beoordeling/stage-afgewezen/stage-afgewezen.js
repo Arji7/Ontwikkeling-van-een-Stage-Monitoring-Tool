@@ -1,7 +1,7 @@
-const token = localStorage.getItem('token');
+const token = sessionStorage.getItem('token');
 
 // Studentnaam uit localStorage
-const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
 const naam = currentUser.voornaam || currentUser.naam || currentUser.name || '';
 if (naam) document.getElementById('studentNaam').textContent = naam;
 

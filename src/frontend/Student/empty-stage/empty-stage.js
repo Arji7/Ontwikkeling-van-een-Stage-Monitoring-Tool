@@ -3,11 +3,11 @@ const API_BASE_URL = "http://localhost:3000/api";
 document.addEventListener("DOMContentLoaded", async function () {
 
   // 1. Toon naam van ingelogde gebruiker
-  const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+  const user = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
   document.getElementById("userName").textContent = user.name || "Student";
 
   // 2. Token ophalen
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   if (!token) {
     window.location.href = "../../inloggen/inloggen.html";
     return;
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("wachtBeoordeling").style.display = "block";
 
     var bekijkBtn = document.getElementById("bekijkBtn");
-    if (bekijkBtn) bekijkBtn.href = "../stage-aanvraag/stage-aanvraag.html?id=" + stage.id;
+    if (bekijkBtn) bekijkBtn.href = "../voorstel-bekijken/voorstel-bekijken.html";
 
     // Banner per status configureren
     var banner = document.getElementById("statusBanner");
@@ -59,8 +59,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       icon.textContent = "✅";
       title.textContent = "Stagevoorstel goedgekeurd!";
       text.textContent = "Je voorstel bij " + bedrijf + " is goedgekeurd. Bekijk de details en de volgende stappen.";
-      btn.textContent = "Bekijk goedkeuring →";
-      btn.href = "../stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html";
+      btn.textContent = "Stageovereenkomst ondertekenen →";
+      btn.href = "../mijn-stage/mijn-stage.html";
       btn.style.display = "inline-block";
       updateStepper("goedgekeurd");
     } else if (stage.status === "afgekeurd") {

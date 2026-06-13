@@ -6,7 +6,7 @@
 // ============================================================
 
 (async function () {
-  var token = localStorage.getItem("token");
+  var token = sessionStorage.getItem("token");
   if (!token) return;
 
   try {

@@ -39,7 +39,7 @@ async function loadStudents() {
     showLoading(true);
     hideError();
 
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
         showError('Niet ingelogd. Log opnieuw in.');
         showLoading(false);

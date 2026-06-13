@@ -23,7 +23,7 @@ if (isEditMode) {
 }
 
 async function laadStage() {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   if (!token) return;
 
   try {
@@ -112,7 +112,7 @@ form.addEventListener("submit", function (event) {
     omschrijving: document.getElementById("omschrijving").value.trim(),
   };
 
-  const token  = localStorage.getItem("token");
+  const token  = sessionStorage.getItem("token");
   const url    = isEditMode ? `${API_BASE_URL}/stages/${stageId}` : `${API_BASE_URL}/stages`;
   const method = isEditMode ? "PUT" : "POST";
 

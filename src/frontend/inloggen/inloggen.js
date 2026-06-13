@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (rememberInput.checked) localStorage.setItem("rememberedEmail", email);
       else localStorage.removeItem("rememberedEmail");
 
-      localStorage.setItem("currentUser", JSON.stringify(user));
+      sessionStorage.setItem("currentUser", JSON.stringify(user));
 
       // Voor studenten: check de stage-status en stuur door naar juiste pagina
       if (user.role === "student") {
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "E-mailadres of wachtwoord is onjuist.");
 
-    localStorage.setItem("token", data.token);
+    sessionStorage.setItem("token", data.token);
 
     const rollen = data.gebruiker.rollen || [];
     // Kies hoogste rol uit de prioriteitslijst
