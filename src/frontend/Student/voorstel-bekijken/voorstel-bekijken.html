@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mijn stagevoorstel - StageMonitorage</title>
+  <link rel="stylesheet" href="voorstel-bekijken.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item active">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">
+        ⎋ Uitloggen
+      </a>
+    </aside>
+
+    <main class="content">
+
+      <p class="breadcrumb">Dashboard › Mijn stagevoorstel</p>
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Mijn stagevoorstel</h1>
+          <p class="page-sub">Ingediend bij de stagecommissie</p>
+        </div>
+        <span class="status-badge" id="statusBadge">...</span>
+      </div>
+
+      <!-- Feedback banner (alleen zichtbaar als status = aanpassingen_vereist) -->
+      <div class="feedback-banner" id="feedbackBanner" style="display:none;">
+        <div class="feedback-meta">
+          ⚠ Feedback van de stagecommissie
+          <span id="feedbackAuteur"></span>
+          <span id="feedbackDatum"></span>
+        </div>
+        <p class="feedback-quote" id="feedbackTekst"></p>
+      </div>
+
+      <div class="detail-card">
+
+        <div class="section">
+          <h2 class="section-title">Bedrijfsgegevens</h2>
+          <div class="field-grid">
+            <div class="field-row">
+              <span class="field-label">Naam bedrijf</span>
+              <span class="field-value" id="bedrijfNaam">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Sector</span>
+              <span class="field-value" id="sector">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Stagementor</span>
+              <span class="field-value" id="mentor">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">E-mail mentor</span>
+              <span class="field-value" id="mentorEmail">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+          <h2 class="section-title">Stagegegevens</h2>
+          <div class="field-grid">
+            <div class="field-row">
+              <span class="field-label">Startdatum</span>
+              <span class="field-value" id="startdatum">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Einddatum</span>
+              <span class="field-value" id="einddatum">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Ingediend op</span>
+              <span class="field-value" id="ingediendOp">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Status</span>
+              <span class="field-value" id="statusTekst">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+          <h2 class="section-title">Omschrijving opdracht</h2>
+          <p class="omschrijving-tekst" id="omschrijving">—</p>
+        </div>
+
+      </div>
+
+      <div class="page-actions">
+        <a href="../voorstel.ingediend/voorstel.ingediend.html" class="btn btn-outline">← Terug</a>
+        <a href="#" class="btn btn-primary" id="aanpassenBtn" style="display:none;">Voorstel aanpassen</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script src="voorstel-bekijken.js"></script>
+</body>
+</html>
