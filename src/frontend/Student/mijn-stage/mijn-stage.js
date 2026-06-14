@@ -90,6 +90,18 @@ function vulPaginaIn(d) {
   const voorstelDatum = d.bijgewerkt_op || d.aangemaakt_op;
   document.getElementById("voorstelSub").textContent = "Goedgekeurd op " + formatLong(voorstelDatum);
   document.getElementById("kaartVoorstel").href = "../voorstel-bekijken/voorstel-bekijken.html";
+
+  // Logboeken en evaluaties pas klikbaar als stage actief is
+  const isActief = d.status === "actief";
+  ["kaartLogboeken", "kaartEvaluaties"].forEach(function (id) {
+    const kaart = document.getElementById(id);
+    if (!kaart) return;
+    if (!isActief) {
+      kaart.style.opacity = "0.55";
+      kaart.style.cursor = "not-allowed";
+      kaart.style.pointerEvents = "none"; // blokkeert klikken
+    }
+  });
 }
 
 function formatShort(d) {
