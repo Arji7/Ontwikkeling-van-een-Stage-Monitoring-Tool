@@ -4,7 +4,7 @@ if (!token) {
   window.location.href = '../../inloggen/inloggen.html';
 }
 
-fetch('http://localhost:3000/api/stages/mijn', {
+fetch(API_BASE + '/stages/mijn', {
   headers: { 'Authorization': 'Bearer ' + token }
 })
 .then(function(res) { return res.json(); })

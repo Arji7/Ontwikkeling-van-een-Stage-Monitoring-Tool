@@ -1,7 +1,7 @@
 // Laatste ingediende stage van de student ophalen en tonen
 const token = sessionStorage.getItem('token');
 
-fetch('http://localhost:3000/api/stages/mijn', {
+fetch(API_BASE + '/stages/mijn', {
   headers: { 'Authorization': 'Bearer ' + token }
 })
 .then(function(res) { return res.json(); })

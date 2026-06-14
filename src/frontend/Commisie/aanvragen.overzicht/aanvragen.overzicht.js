@@ -47,7 +47,7 @@ async function loadStudents() {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/stages', {
+        const response = await fetch(API_BASE + '/stages', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
 

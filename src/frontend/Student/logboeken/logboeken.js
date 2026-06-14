@@ -1,4 +1,4 @@
-var API_BASE_URL = "http://localhost:3000/api";
+var API_BASE_URL = API_BASE;
 var allLogboeken = [];
 var currentFilter = "alle";
 var TOTAAL_WEKEN = 14;   // fallback, wordt overschreven door /mijn/overzicht

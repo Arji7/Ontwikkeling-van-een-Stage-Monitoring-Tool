@@ -5,7 +5,7 @@ const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
 const naam = currentUser.voornaam || currentUser.naam || currentUser.name || '';
 if (naam) document.getElementById('studentNaam').textContent = naam;
 
-fetch('http://localhost:3000/api/stages/mijn', {
+fetch(API_BASE + '/stages/mijn', {
   headers: { 'Authorization': 'Bearer ' + token }
 })
 .then(function(res) { return res.json(); })

@@ -6,7 +6,7 @@
 //          (gebruiker moet rol 'admin' of 'commissielid' hebben)
 // ============================================================
 
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = API_BASE;
 
 // UI-beslissing → backend-enum
 const BESLISSING_MAP = {

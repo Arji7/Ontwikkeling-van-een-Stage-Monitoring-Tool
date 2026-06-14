@@ -1,4 +1,4 @@
-var API_BASE_URL = "http://localhost:3000/api";
+var API_BASE_URL = API_BASE;
 var DAGEN_NAMEN = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag"];
 var VERWACHTE_UREN = 38;
 
@@ -128,7 +128,7 @@ function renderBestanden(bestanden) {
     row.style.cssText = "display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; margin-bottom:6px; font-size:13px;";
 
     var link = document.createElement("a");
-    link.href = "http://localhost:3000/uploads/logboeken/" + b.bestandsnaam;
+    link.href = UPLOADS_BASE + "/logboeken/" + b.bestandsnaam;
     link.target = "_blank";
     link.textContent = "📎 " + (b.origineel_naam || b.bestandsnaam);
     link.style.cssText = "color:#2563eb; text-decoration:none; flex:1;";

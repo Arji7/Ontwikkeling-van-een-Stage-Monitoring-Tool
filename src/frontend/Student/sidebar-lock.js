@@ -10,7 +10,7 @@
   if (!token) return;
 
   try {
-    var res = await fetch("http://localhost:3000/api/logboeken/mijn/overzicht", {
+    var res = await fetch(API_BASE + "/logboeken/mijn/overzicht", {
       headers: { "Authorization": "Bearer " + token }
     });
     if (!res.ok) return;

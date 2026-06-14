@@ -4,7 +4,7 @@
 
 /* ---------- INSTELLINGEN (pas hier aan) ---------- */
 const CONFIG = {
-  API_BASE_URL: "http://localhost:3000/api",
+  API_BASE_URL: API_BASE,
   DEMO_MODE: false,
   DASHBOARD_BY_ROLE: {
     student:      "../Student/empty-stage/empty-stage.html",
