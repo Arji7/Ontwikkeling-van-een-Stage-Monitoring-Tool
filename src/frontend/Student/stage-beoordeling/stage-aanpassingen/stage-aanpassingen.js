@@ -29,7 +29,7 @@ fetch('http://localhost:3000/api/stages/mijn', {
   // Zet stage-id op de aanpassen-knop zodat het formulier in edit-mode opent
   if (stage.id) {
     document.getElementById('aanpassenBtn').href =
-      '../stage-aanvraag/stage-aanvraag.html?id=' + stage.id;
+      '../../stage-aanvraag/stage-aanvraag.html?id=' + stage.id;
   }
 })
 .catch(function(err) { console.error('Kon stage niet ophalen:', err); });
