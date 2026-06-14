@@ -349,7 +349,7 @@ router.post('/:id/indienen', authMiddleware, async (req, res) => {
 // ────────────────────────────────────────────────────────────
 // POST /api/logboeken/:id/reactie — reactie plaatsen (docent/mentor)
 // ────────────────────────────────────────────────────────────
-router.post('/:id/reactie', authMiddleware, async (req, res) => {
+router.post('/:id/reactie', authMiddleware, hasRole('docent', 'mentor', 'admin'), async (req, res) => {
   const { reactie } = req.body;
 
   if (!reactie || !reactie.trim()) {
@@ -376,7 +376,7 @@ router.post('/:id/reactie', authMiddleware, async (req, res) => {
 // ────────────────────────────────────────────────────────────
 // POST /api/logboeken/:id/goedkeuren — logboek goedkeuren (docent/mentor)
 // ────────────────────────────────────────────────────────────
-router.post('/:id/goedkeuren', authMiddleware, async (req, res) => {
+router.post('/:id/goedkeuren', authMiddleware, hasRole('mentor', 'docent', 'admin'), async (req, res) => {
   const { mentor_feedback } = req.body;
 
   try {
