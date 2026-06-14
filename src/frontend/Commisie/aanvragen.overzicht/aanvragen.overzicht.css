@@ -202,16 +202,22 @@ body {
     box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
 }
 
+.student-card.status-ingediend,
 .student-card.status-in-afwachting {
-    border-left-color: #f59e0b;
+    border-left-color: #9ca3af;
 }
 
 .student-card.status-goedgekeurd {
     border-left-color: var(--success-color);
 }
 
+.student-card.status-afgekeurd,
 .student-card.status-afgewezen {
     border-left-color: var(--danger-color);
+}
+
+.student-card.status-aanpassingen_vereist {
+    border-left-color: #f97316;
 }
 
 .student-header {
@@ -271,9 +277,10 @@ body {
     white-space: nowrap;
 }
 
+.status-badge.ingediend,
 .status-badge.in-afwachting {
-    background-color: #fff3cd;
-    color: var(--warning-color);
+    background-color: #e5e7eb;
+    color: #4b5563;
 }
 
 .status-badge.goedgekeurd {
@@ -281,9 +288,15 @@ body {
     color: var(--success-color);
 }
 
+.status-badge.afgekeurd,
 .status-badge.afgewezen {
     background-color: #fee2e2;
     color: var(--danger-hover);
+}
+
+.status-badge.aanpassingen_vereist {
+    background-color: #fed7aa;
+    color: #c2410c;
 }
 
 .student-actions {
