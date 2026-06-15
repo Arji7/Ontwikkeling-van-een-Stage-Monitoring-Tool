@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // Meest relevante stage (zelfde prioriteit als dashboard)
-    const PRIORITEIT = ["goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
+    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
     const stage = stages.slice().sort(function (a, b) {
       const pa = PRIORITEIT.indexOf(a.status);
       const pb = PRIORITEIT.indexOf(b.status);
