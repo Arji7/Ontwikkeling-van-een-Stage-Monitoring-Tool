@@ -48,7 +48,12 @@ async function laadStage() {
     document.getElementById("stageMentorEmail").textContent = stage.contact_email || "";
     document.getElementById("stageStatus").textContent = statusText(stage.status);
 
+    const bedrijfEl = document.getElementById("profileBedrijf");
+    if (bedrijfEl) bedrijfEl.textContent = stage.bedrijf_naam ? "Stage bij " + stage.bedrijf_naam : "";
+
     const v = berekenVoortgang(stage.startdatum, stage.einddatum);
+    const weekEl = document.getElementById("profileWeek");
+    if (weekEl) weekEl.textContent = "Week " + v.huidig + " / " + v.totaal;
     document.getElementById("weekNum").textContent = "Week " + v.huidig + " / " + v.totaal;
     document.getElementById("weekPct").textContent = v.pct.toFixed(0) + "% voltooid";
     document.getElementById("stageMetaRow").textContent =
@@ -268,10 +273,11 @@ function selectEvalType(type) {
 
   // Labels
   const isTussen = type === "tussentijds";
+  document.getElementById("evalMentorLabel").textContent = isTussen ? "Mentor — tussentijds" : "Score mentor";
   document.getElementById("evalDocentLabel").textContent = isTussen ? "Jouw tussentijdse score" : "Jouw eindscore";
   document.getElementById("evalEindcijferTitle").textContent = isTussen ? "Officieel tussentijdse cijfer" : "Officieel eindcijfer";
   document.getElementById("btnEvalIndienen").textContent = isTussen ? "Tussentijdse indienen" : "Eindbeoordeling definitief indienen";
-  document.getElementById("evalTussenCard").style.display = isTussen ? "none" : "";
+  document.getElementById("btnEvalIndienen").className = isTussen ? "btn btn-primary" : "btn btn-danger";
 
   // Scores
   renderEvalScores();
@@ -361,33 +367,26 @@ function selectComp(compId) {
     html += '<span class="eval-gi-naam">' + (sc.subcompetentie_naam || "") + '</span>';
     html += '</div>';
 
-    // Row 1: Mentor score + feedback (readonly)
     html += '<div class="eval-score-row">';
-    html += '<div class="eval-field"><span class="eval-field-label">Score (Mentor)</span>';
-    html += '<div class="eval-field-readonly">' + (sc.score_mentor || "—") + '</div></div>';
-    html += '<div class="eval-field"><span class="eval-field-label">Feedback (Mentor)</span>';
-    html += '<div class="eval-field-readonly">' + (sc.feedback_mentor || "—") + '</div></div>';
-    html += '<div class="eval-field"><span class="eval-field-label">Student reflectie</span>';
-    html += '<div class="eval-field-student">' + (sc.student_reflectie || "—") + '</div></div>';
-    html += '</div>';
-
-    // Row 2: Docent score + feedback (editable)
-    html += '<div class="eval-score-row">';
-    html += '<div class="eval-field"><span class="eval-field-label">Score (Docent)</span>';
+    // Score
+    html += '<div class="eval-field"><span class="eval-field-label">Score</span>';
     if (isReadonly) {
       html += '<div class="eval-field-readonly">' + (sc.score_docent || "—") + '</div>';
     } else {
-      html += '<input type="number" min="1" max="5" value="' + (sc.score_docent || "") + '" data-sub-id="' + sc.subcompetentie_id + '" class="eval-score-input" />';
+      html += '<input type="number" min="1" max="5" value="' + (sc.score_docent || "") + '" data-sub-id="' + sc.subcompetentie_id + '" class="eval-score-input" placeholder="1-5" />';
     }
     html += '</div>';
-    html += '<div class="eval-field"><span class="eval-field-label">Feedback (Docent)</span>';
+    // Feedback
+    html += '<div class="eval-field"><span class="eval-field-label">Feedback</span>';
     if (isReadonly) {
       html += '<div class="eval-field-readonly">' + (sc.feedback_docent || "—") + '</div>';
     } else {
-      html += '<textarea data-sub-id="' + sc.subcompetentie_id + '" class="eval-feedback-input">' + (sc.feedback_docent || "") + '</textarea>';
+      html += '<textarea data-sub-id="' + sc.subcompetentie_id + '" class="eval-feedback-input" placeholder="Feedback...">' + (sc.feedback_docent || "") + '</textarea>';
     }
     html += '</div>';
-    html += '<div></div>';
+    // Student reflectie
+    html += '<div class="eval-field"><span class="eval-field-label">Student reflectie</span>';
+    html += '<div class="eval-field-student">' + (sc.student_reflectie || "Nog geen reflectie") + '</div></div>';
     html += '</div>';
 
     html += '</div>';

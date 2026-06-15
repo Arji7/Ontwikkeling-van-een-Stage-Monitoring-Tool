@@ -42,6 +42,8 @@
           <h1 class="profile-name" id="profileNaam">...</h1>
           <p class="profile-email" id="profileEmail">...</p>
           <p class="profile-meta" id="profileOpleiding">—</p>
+          <p class="profile-meta" id="profileBedrijf"></p>
+          <p class="profile-meta profile-week" id="profileWeek"></p>
         </div>
       </div>
 
@@ -148,19 +150,14 @@
         <!-- Score cards -->
         <div class="eval-scores" id="evalScores">
           <div class="eval-score-card eval-score-mentor">
-            <span class="eval-score-label" id="evalMentorLabel">Score mentor</span>
+            <span class="eval-score-label" id="evalMentorLabel">Mentor — tussentijds</span>
             <span class="eval-score-value" id="evalMentorScore">—/20</span>
-            <span class="eval-score-sub" id="evalMentorSub">—</span>
+            <span class="eval-score-sub" id="evalMentorSub">ingevuld door mentor</span>
           </div>
           <div class="eval-score-card eval-score-docent">
-            <span class="eval-score-label" id="evalDocentLabel">Jouw eindscore</span>
+            <span class="eval-score-label" id="evalDocentLabel">Jouw tussentijdse score</span>
             <span class="eval-score-value" id="evalDocentScore">—/20</span>
             <span class="eval-score-sub" id="evalDocentSub">berekend uit competenties</span>
-          </div>
-          <div class="eval-score-card eval-score-tussen" id="evalTussenCard" style="display:none;">
-            <span class="eval-score-label">Jouw Tussentijdsescore</span>
-            <span class="eval-score-value" id="evalTussenScore">—/20</span>
-            <span class="eval-score-sub" id="evalTussenSub">berekend uit competenties</span>
           </div>
         </div>
 
@@ -194,7 +191,7 @@
         <!-- Action buttons -->
         <div class="eval-actions" id="evalActions">
           <button class="btn btn-dark" id="btnBekijkRubriek" onclick="openRubriek()">BEKIJK RUBRIEK</button>
-          <button class="btn btn-danger" id="btnEvalIndienen" onclick="evalIndienen()">Eindbeoordeling definitief indienen</button>
+          <button class="btn btn-primary" id="btnEvalIndienen" onclick="evalIndienen()">Tussentijdse indienen</button>
         </div>
 
         <!-- Empty state als er geen evaluatie is -->
