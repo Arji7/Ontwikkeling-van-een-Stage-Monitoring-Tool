@@ -40,6 +40,8 @@ async function laadLogboek(id) {
 
     // Header
     document.getElementById("bcrStudent").textContent = studentNaam;
+    document.getElementById("bcrStudent").href = "../student-detail/student-detail.html?id=" + lb.stage_id;
+    document.getElementById("bcrLogboeken").href = "../student-detail/student-detail.html?id=" + lb.stage_id + "#logboeken";
     document.getElementById("bcrWeek").textContent = "Week " + lb.week_nummer;
     document.getElementById("logboekTitel").textContent = "Logboek week " + lb.week_nummer;
     document.getElementById("logboekSubtitle").textContent =
@@ -81,8 +83,102 @@ async function laadLogboek(id) {
       document.getElementById("opmerkingCard").style.display = "block";
     }
 
+    // Bestanden
+    renderBestanden(lb.bestanden || []);
+
+    // Reacties
+    renderReacties(lb.reacties || []);
+
+    // Docent acties tonen als logboek nog niet goedgekeurd is
+    if (lb.status !== "goedgekeurd") {
+      document.getElementById("docentActies").style.display = "block";
+    }
+
+    window._logboekId = id;
+
   } catch (err) {
     console.error("Logboek ophalen fout:", err);
+  }
+}
+
+function renderBestanden(bestanden) {
+  if (bestanden.length === 0) return;
+  document.getElementById("bestandenCard").style.display = "block";
+  const lijst = document.getElementById("bestandenList");
+  lijst.innerHTML = "";
+  bestanden.forEach(b => {
+    const el = document.createElement("a");
+    el.className = "bestand-item";
+    el.href = API_BASE_URL.replace("/api", "") + "/uploads/logboeken/" + b.bestandsnaam;
+    el.target = "_blank";
+    const grootte = b.bestandsgrootte < 1024 * 1024
+      ? Math.round(b.bestandsgrootte / 1024) + " KB"
+      : (b.bestandsgrootte / (1024 * 1024)).toFixed(1) + " MB";
+    el.innerHTML =
+      '<span class="bestand-icon">📄</span>' +
+      '<span class="bestand-naam">' + (b.origineel_naam || b.bestandsnaam) + '</span>' +
+      '<span class="bestand-grootte">' + grootte + '</span>';
+    lijst.appendChild(el);
+  });
+}
+
+function renderReacties(reacties) {
+  const lijst = document.getElementById("reactiesList");
+  const empty = document.getElementById("reactieEmpty");
+  lijst.innerHTML = "";
+  if (reacties.length === 0) {
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+  reacties.forEach(r => {
+    const naam = ((r.voornaam || "") + " " + (r.achternaam || "")).trim();
+    const datum = formatLong(r.aangemaakt_op);
+    const el = document.createElement("div");
+    el.className = "reactie-item";
+    el.innerHTML =
+      '<div class="reactie-header">' +
+        '<strong>' + naam + '</strong>' +
+        '<span class="reactie-datum">' + datum + '</span>' +
+      '</div>' +
+      '<p class="reactie-tekst">' + r.reactie + '</p>';
+    lijst.appendChild(el);
+  });
+}
+
+async function plaatsReactie() {
+  const tekst = document.getElementById("feedbackTekst").value.trim();
+  if (!tekst) return alert("Schrijf eerst een reactie.");
+  try {
+    const res = await fetch(API_BASE_URL + "/logboeken/" + window._logboekId + "/reactie", {
+      method: "POST",
+      headers: { ...authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ reactie: tekst })
+    });
+    if (!res.ok) { const d = await res.json(); return alert(d.error || "Fout"); }
+    document.getElementById("feedbackTekst").value = "";
+    await laadLogboek(window._logboekId);
+  } catch (err) {
+    console.error("Reactie fout:", err);
+    alert("Er ging iets mis.");
+  }
+}
+
+async function keurGoed() {
+  const feedback = document.getElementById("feedbackTekst").value.trim();
+  if (!confirm("Weet je zeker dat je dit logboek wilt goedkeuren?")) return;
+  try {
+    const res = await fetch(API_BASE_URL + "/logboeken/" + window._logboekId + "/goedkeuren", {
+      method: "POST",
+      headers: { ...authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ mentor_feedback: feedback || null })
+    });
+    if (!res.ok) { const d = await res.json(); return alert(d.error || "Fout"); }
+    alert("Logboek goedgekeurd!");
+    await laadLogboek(window._logboekId);
+  } catch (err) {
+    console.error("Goedkeuren fout:", err);
+    alert("Er ging iets mis.");
   }
 }
 

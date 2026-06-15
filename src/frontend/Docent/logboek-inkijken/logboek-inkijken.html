@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Logboek inkijken – StageMonitor</title>
+  <title>Logboek inkijken – StageMonitorage</title>
   <link rel="stylesheet" href="../dashboard/dashboard.css" />
   <link rel="stylesheet" href="logboek-inkijken.css" />
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
-      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-brand">StageMonitorage</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
       <nav class="sidebar-nav">
         <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
         <a href="../mijn-studenten/mijn-studenten.html" class="nav-item active">Mijn studenten</a>
-        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+        <a href="../student-detail/student-detail.html" class="nav-item">Evaluaties</a>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
@@ -76,6 +76,31 @@
       <div class="opmerking-card" id="opmerkingCard" style="display:none;">
         <h2 class="opmerking-title">Opmerking (stagementor)</h2>
         <p class="opmerking-text" id="opmerkingTekst">—</p>
+      </div>
+
+      <!-- Bestanden -->
+      <div class="bestanden-card" id="bestandenCard" style="display:none;">
+        <h2 class="section-title">📎 Bijlagen</h2>
+        <div class="bestanden-list" id="bestandenList"></div>
+      </div>
+
+      <!-- Reacties -->
+      <div class="reacties-card" id="reactiesCard">
+        <h2 class="section-title">💬 Reacties</h2>
+        <div class="reacties-list" id="reactiesList"></div>
+        <div class="reactie-empty" id="reactieEmpty">Nog geen reacties op dit logboek.</div>
+      </div>
+
+      <!-- Docent acties -->
+      <div class="docent-acties" id="docentActies" style="display:none;">
+        <h2 class="section-title">Jouw beoordeling</h2>
+        <div class="actie-card">
+          <textarea id="feedbackTekst" class="feedback-textarea" rows="3" placeholder="Schrijf een reactie of feedback..."></textarea>
+          <div class="actie-buttons">
+            <button class="btn btn-secondary" id="btnReactie" onclick="plaatsReactie()">Reactie plaatsen</button>
+            <button class="btn btn-success" id="btnGoedkeuren" onclick="keurGoed()">Logboek goedkeuren</button>
+          </div>
+        </div>
       </div>
     </main>
   </div>

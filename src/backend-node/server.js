@@ -23,7 +23,7 @@ app.use('/api/auth',        require('./routes/auth'));
 app.use('/api/gebruikers', require('./routes/gebruikers'));
 app.use('/api/stages',      require('./routes/stages'));
 app.use('/api/logboeken',   require('./routes/logboeken'));
-// app.use('/api/evaluaties',  require('./routes/evaluaties'));
+app.use('/api/evaluaties',  require('./routes/evaluaties'));
 app.use('/api/competenties',require('./routes/competenties'));
 
 // Start server

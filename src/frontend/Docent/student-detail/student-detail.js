@@ -58,42 +58,121 @@ async function laadStage() {
   }
 }
 
+let alleLogboeken = [];
+let logboekenFilter = "alle";
+let logboekenShowAll = false;
+
 async function laadLogboeken() {
   try {
     const res = await fetch(API_BASE_URL + "/logboeken/stage/" + stageId, { headers: authHeader() });
     if (!res.ok) return;
-    const logboeken = await res.json();
+    alleLogboeken = await res.json();
 
     const list = document.getElementById("logboekenList");
     const empty = document.getElementById("logboekenEmpty");
-    if (logboeken.length === 0) {
+    const stats = document.getElementById("logboekenStats");
+    const filters = document.getElementById("logboekenFilters");
+    const toonAlle = document.getElementById("lbToonAlle");
+
+    if (alleLogboeken.length === 0) {
       empty.style.display = "block";
+      stats.style.display = "none";
+      filters.style.display = "none";
+      toonAlle.style.display = "none";
       list.innerHTML = "";
       return;
     }
     empty.style.display = "none";
-    list.innerHTML = "";
-    logboeken.sort((a, b) => b.week_nummer - a.week_nummer);
-    logboeken.forEach(l => {
-      const badge = badgeFor(l.status);
-      const card = document.createElement("a");
-      card.className = "logboek-card";
-      card.href = "../logboek-inkijken/logboek-inkijken.html?id=" + l.id;
-      card.innerHTML =
-        '<div class="week-badge">' +
-          '<span class="week-badge-num">' + l.week_nummer + '</span>' +
-          '<span class="week-badge-label">Week</span>' +
-        '</div>' +
-        '<div class="logboek-info">' +
-          '<div class="logboek-titel">Week ' + l.week_nummer + ' · ' + (l.titel || "—") + '</div>' +
-          '<div class="logboek-meta">' + formatLong(l.datum_van) + " — " + formatLong(l.datum_tot) +
-          (l.totaal_dag_uren ? " · " + l.totaal_dag_uren + "u" : "") + '</div>' +
-        '</div>' +
-        '<span class="logboek-badge ' + badge.cls + '">' + badge.tekst + '</span>';
-      list.appendChild(card);
+    stats.style.display = "";
+    filters.style.display = "";
+
+    // Calculate stats
+    const totaalWeken = stage ? (stage.totaal_weken || berekenVoortgang(stage.startdatum, stage.einddatum).totaal) : 0;
+    const ingediend = alleLogboeken.length;
+    const bekeken = alleLogboeken.filter(l => l.status === "goedgekeurd").length;
+    const wacht = alleLogboeken.filter(l => l.status === "ingediend" || l.status === "wacht_op_mentor").length;
+    const totaalUren = alleLogboeken.reduce((s, l) => s + (parseFloat(l.totaal_dag_uren) || 0), 0);
+
+    document.getElementById("lbStatIngediend").textContent = ingediend + " / " + totaalWeken;
+    document.getElementById("lbStatBekeken").textContent = bekeken;
+    document.getElementById("lbStatWacht").textContent = wacht;
+    document.getElementById("lbStatUren").textContent = Math.round(totaalUren) + "u";
+
+    // Filter counts
+    const nietBekeken = alleLogboeken.filter(l => l.status !== "goedgekeurd").length;
+    document.getElementById("filterAlleCount").textContent = ingediend;
+    document.getElementById("filterBekekenCount").textContent = bekeken;
+    document.getElementById("filterNietBekekenCount").textContent = nietBekeken;
+
+    // Setup filter buttons
+    document.querySelectorAll(".lb-filter").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll(".lb-filter").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        logboekenFilter = btn.getAttribute("data-filter");
+        logboekenShowAll = false;
+        renderLogboeken();
+      };
     });
+
+    renderLogboeken();
   } catch (err) {
     console.error("Logboeken fout:", err);
+  }
+}
+
+function renderLogboeken() {
+  let filtered = alleLogboeken;
+  if (logboekenFilter === "bekeken") {
+    filtered = alleLogboeken.filter(l => l.status === "goedgekeurd");
+  } else if (logboekenFilter === "niet-bekeken") {
+    filtered = alleLogboeken.filter(l => l.status !== "goedgekeurd");
+  }
+  filtered.sort((a, b) => b.week_nummer - a.week_nummer);
+
+  const list = document.getElementById("logboekenList");
+  const toonAlle = document.getElementById("lbToonAlle");
+  const MAX_VISIBLE = 5;
+  const visible = logboekenShowAll ? filtered : filtered.slice(0, MAX_VISIBLE);
+
+  list.innerHTML = "";
+  visible.forEach(l => {
+    const badge = badgeFor(l.status);
+    const isWacht = l.status === "ingediend" || l.status === "wacht_op_mentor";
+    const card = document.createElement("a");
+    card.className = "logboek-card" + (isWacht ? " logboek-card--wacht" : "");
+    card.href = "../logboek-inkijken/logboek-inkijken.html?id=" + l.id;
+
+    const uren = l.totaal_dag_uren ? Math.round(parseFloat(l.totaal_dag_uren)) + "u" : "—";
+    const dagen = l.aantal_dagen ? l.aantal_dagen + " dagen" : "";
+    const beschrijving = l.uitgevoerde_taken || l.titel || "—";
+
+    card.innerHTML =
+      '<div class="week-badge">' +
+        '<span class="week-badge-num">' + l.week_nummer + '</span>' +
+        '<span class="week-badge-label">Week</span>' +
+      '</div>' +
+      '<div class="logboek-info">' +
+        '<div class="logboek-titel">Week ' + l.week_nummer + ' · ' + formatLong(l.datum_van) + " – " + formatLong(l.datum_tot) + '</div>' +
+        '<div class="logboek-beschrijving">' + beschrijving + '</div>' +
+      '</div>' +
+      '<div class="logboek-right">' +
+        '<span class="logboek-uren">' + uren + '</span>' +
+        (dagen ? '<span class="logboek-dagen">' + dagen + '</span>' : '') +
+        '<span class="logboek-badge ' + badge.cls + '">' + badge.tekst + '</span>' +
+      '</div>';
+    list.appendChild(card);
+  });
+
+  if (filtered.length > MAX_VISIBLE && !logboekenShowAll) {
+    toonAlle.style.display = "block";
+    toonAlle.querySelector("a").onclick = (e) => {
+      e.preventDefault();
+      logboekenShowAll = true;
+      renderLogboeken();
+    };
+  } else {
+    toonAlle.style.display = "none";
   }
 }
 
@@ -112,8 +191,298 @@ function setupTabs() {
       const id = "tab-" + tab.getAttribute("data-tab");
       document.getElementById(id).classList.add("active");
       if (tab.getAttribute("data-tab") === "logboeken") laadLogboeken();
+      if (tab.getAttribute("data-tab") === "evaluaties") laadEvaluaties();
     });
   });
+}
+
+// ═══════════════════════════════════════════
+// EVALUATIES
+// ═══════════════════════════════════════════
+let evalData = [];
+let currentEvalType = "tussentijds";
+let currentEval = null;
+let evalCompetentiesData = [];
+let activeCompId = null;
+
+async function laadEvaluaties() {
+  try {
+    const res = await fetch(API_BASE_URL + "/evaluaties/stage/" + stageId, { headers: authHeader() });
+    if (!res.ok) return;
+    evalData = await res.json();
+
+    setupEvalSubtabs();
+    selectEvalType(currentEvalType);
+  } catch (err) {
+    console.error("Evaluaties fout:", err);
+  }
+}
+
+function setupEvalSubtabs() {
+  document.querySelectorAll(".eval-subtab").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".eval-subtab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentEvalType = btn.getAttribute("data-eval-type");
+      selectEvalType(currentEvalType);
+    };
+  });
+}
+
+function selectEvalType(type) {
+  currentEval = evalData.find(e => e.type === type) || null;
+  const empty = document.getElementById("evalEmpty");
+  const scores = document.getElementById("evalScores");
+  const main = document.getElementById("evalMain");
+  const eindCard = document.getElementById("evalEindcijferCard");
+  const fbCard = document.getElementById("evalFeedbackCard");
+  const actions = document.getElementById("evalActions");
+  const banner = document.getElementById("evalBanner");
+
+  if (!currentEval) {
+    empty.style.display = "block";
+    scores.style.display = "none";
+    main.style.display = "none";
+    eindCard.style.display = "none";
+    fbCard.style.display = "none";
+    actions.style.display = "none";
+    banner.style.display = "none";
+    return;
+  }
+
+  empty.style.display = "none";
+  scores.style.display = "";
+  main.style.display = "";
+  eindCard.style.display = "";
+  fbCard.style.display = "";
+  actions.style.display = "";
+
+  // Banner
+  if (currentEval.status === "ingediend" || currentEval.status === "afgerond") {
+    banner.style.display = "block";
+    banner.className = "eval-banner success";
+    banner.textContent = "Definitief — niet meer wijzigbaar na indienen";
+  } else {
+    banner.style.display = "none";
+  }
+
+  // Labels
+  const isTussen = type === "tussentijds";
+  document.getElementById("evalDocentLabel").textContent = isTussen ? "Jouw tussentijdse score" : "Jouw eindscore";
+  document.getElementById("evalEindcijferTitle").textContent = isTussen ? "Officieel tussentijdse cijfer" : "Officieel eindcijfer";
+  document.getElementById("btnEvalIndienen").textContent = isTussen ? "Tussentijdse indienen" : "Eindbeoordeling definitief indienen";
+  document.getElementById("evalTussenCard").style.display = isTussen ? "none" : "";
+
+  // Scores
+  renderEvalScores();
+
+  // Load detail
+  laadEvalDetail();
+}
+
+function renderEvalScores() {
+  if (!currentEval) return;
+  const comps = evalCompetentiesData.length > 0 ? evalCompetentiesData : [];
+  let mentorTotal = 0, docentTotal = 0, mentorCount = 0, docentCount = 0;
+
+  comps.forEach(comp => {
+    (comp.scores || []).forEach(sc => {
+      if (sc.score_mentor) { mentorTotal += sc.score_mentor; mentorCount++; }
+      if (sc.score_docent) { docentTotal += sc.score_docent; docentCount++; }
+    });
+  });
+
+  const mentorAvg = mentorCount > 0 ? ((mentorTotal / mentorCount) * 4).toFixed(1) : "—";
+  const docentAvg = docentCount > 0 ? ((docentTotal / docentCount) * 4).toFixed(1) : "—";
+
+  document.getElementById("evalMentorScore").textContent = mentorAvg + "/20";
+  document.getElementById("evalDocentScore").textContent = docentAvg + "/20";
+  document.getElementById("evalDocentSub").textContent = docentCount > 0 ? docentCount + " ingevuld" : "berekend uit competenties";
+
+  if (currentEval.officieel_eindcijfer) {
+    document.getElementById("evalEindcijferInput").value = currentEval.officieel_eindcijfer;
+  } else {
+    document.getElementById("evalEindcijferInput").value = docentAvg !== "—" ? docentAvg : "";
+  }
+
+  if (currentEval.globale_feedback) {
+    document.getElementById("evalFeedbackTextarea").value = currentEval.globale_feedback;
+  } else {
+    document.getElementById("evalFeedbackTextarea").value = "";
+  }
+}
+
+async function laadEvalDetail() {
+  if (!currentEval) return;
+  try {
+    const res = await fetch(API_BASE_URL + "/evaluaties/" + currentEval.id, { headers: authHeader() });
+    if (!res.ok) return;
+    const detail = await res.json();
+    evalCompetentiesData = detail.competenties || [];
+    renderCompSidebar();
+    if (evalCompetentiesData.length > 0) {
+      selectComp(evalCompetentiesData[0].competentie_id);
+    }
+  } catch (err) {
+    console.error("Eval detail fout:", err);
+  }
+}
+
+function renderCompSidebar() {
+  const list = document.getElementById("evalCompList");
+  list.innerHTML = "";
+  evalCompetentiesData.forEach((comp, i) => {
+    const el = document.createElement("div");
+    el.className = "eval-comp-item";
+    el.textContent = (i + 1) + ". " + comp.competentie_naam;
+    el.onclick = () => selectComp(comp.competentie_id);
+    el.setAttribute("data-comp-id", comp.competentie_id);
+    list.appendChild(el);
+  });
+}
+
+function selectComp(compId) {
+  activeCompId = compId;
+  document.querySelectorAll(".eval-comp-item").forEach(el => {
+    el.classList.toggle("active", el.getAttribute("data-comp-id") == compId);
+  });
+
+  const comp = evalCompetentiesData.find(c => c.competentie_id == compId);
+  if (!comp) return;
+
+  const detail = document.getElementById("evalDetail");
+  const isReadonly = currentEval.status === "ingediend" || currentEval.status === "afgerond";
+  let html = "";
+
+  (comp.scores || []).forEach(sc => {
+    html += '<div class="eval-gi">';
+    html += '<div class="eval-gi-header">';
+    html += '<span class="eval-gi-code">' + (sc.code || "GI") + '</span>';
+    html += '<span class="eval-gi-naam">' + (sc.subcompetentie_naam || "") + '</span>';
+    html += '</div>';
+
+    // Row 1: Mentor score + feedback (readonly)
+    html += '<div class="eval-score-row">';
+    html += '<div class="eval-field"><span class="eval-field-label">Score (Mentor)</span>';
+    html += '<div class="eval-field-readonly">' + (sc.score_mentor || "—") + '</div></div>';
+    html += '<div class="eval-field"><span class="eval-field-label">Feedback (Mentor)</span>';
+    html += '<div class="eval-field-readonly">' + (sc.feedback_mentor || "—") + '</div></div>';
+    html += '<div class="eval-field"><span class="eval-field-label">Student reflectie</span>';
+    html += '<div class="eval-field-student">' + (sc.student_reflectie || "—") + '</div></div>';
+    html += '</div>';
+
+    // Row 2: Docent score + feedback (editable)
+    html += '<div class="eval-score-row">';
+    html += '<div class="eval-field"><span class="eval-field-label">Score (Docent)</span>';
+    if (isReadonly) {
+      html += '<div class="eval-field-readonly">' + (sc.score_docent || "—") + '</div>';
+    } else {
+      html += '<input type="number" min="1" max="5" value="' + (sc.score_docent || "") + '" data-sub-id="' + sc.subcompetentie_id + '" class="eval-score-input" />';
+    }
+    html += '</div>';
+    html += '<div class="eval-field"><span class="eval-field-label">Feedback (Docent)</span>';
+    if (isReadonly) {
+      html += '<div class="eval-field-readonly">' + (sc.feedback_docent || "—") + '</div>';
+    } else {
+      html += '<textarea data-sub-id="' + sc.subcompetentie_id + '" class="eval-feedback-input">' + (sc.feedback_docent || "") + '</textarea>';
+    }
+    html += '</div>';
+    html += '<div></div>';
+    html += '</div>';
+
+    html += '</div>';
+  });
+
+  detail.innerHTML = html;
+
+  // Auto-save on change
+  if (!isReadonly) {
+    detail.querySelectorAll(".eval-score-input, .eval-feedback-input").forEach(el => {
+      el.addEventListener("change", () => saveScores());
+    });
+  }
+}
+
+async function saveScores() {
+  const detail = document.getElementById("evalDetail");
+  const scoreInputs = detail.querySelectorAll(".eval-score-input");
+  const feedbackInputs = detail.querySelectorAll(".eval-feedback-input");
+
+  const scoresMap = {};
+  scoreInputs.forEach(inp => {
+    const subId = inp.getAttribute("data-sub-id");
+    if (!scoresMap[subId]) scoresMap[subId] = {};
+    scoresMap[subId].score_docent = parseInt(inp.value) || null;
+  });
+  feedbackInputs.forEach(inp => {
+    const subId = inp.getAttribute("data-sub-id");
+    if (!scoresMap[subId]) scoresMap[subId] = {};
+    scoresMap[subId].feedback_docent = inp.value;
+  });
+
+  const scores = Object.entries(scoresMap).map(([subId, data]) => ({
+    subcompetentie_id: parseInt(subId),
+    score_docent: data.score_docent,
+    feedback_docent: data.feedback_docent || ""
+  }));
+
+  const eindcijfer = document.getElementById("evalEindcijferInput").value;
+  const feedback = document.getElementById("evalFeedbackTextarea").value;
+
+  try {
+    await fetch(API_BASE_URL + "/evaluaties/" + currentEval.id + "/scores", {
+      method: "PUT",
+      headers: { ...authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({
+        scores,
+        officieel_eindcijfer: eindcijfer ? parseFloat(eindcijfer) : null,
+        globale_feedback: feedback || null
+      })
+    });
+  } catch (err) {
+    console.error("Scores opslaan fout:", err);
+  }
+}
+
+async function evalIndienen() {
+  if (!currentEval) return;
+  const feedback = document.getElementById("evalFeedbackTextarea").value.trim();
+  if (!feedback) return alert("Globale feedback is verplicht.");
+
+  await saveScores();
+
+  if (!confirm("Weet je zeker? Na indienen is de evaluatie niet meer wijzigbaar.")) return;
+
+  try {
+    const res = await fetch(API_BASE_URL + "/evaluaties/" + currentEval.id + "/indienen", {
+      method: "POST",
+      headers: { ...authHeader(), "Content-Type": "application/json" }
+    });
+    if (!res.ok) { const d = await res.json(); return alert(d.error || "Fout"); }
+    alert("Evaluatie ingediend!");
+    await laadEvaluaties();
+  } catch (err) {
+    console.error("Indienen fout:", err);
+  }
+}
+
+async function maakEvaluatie(type) {
+  try {
+    const res = await fetch(API_BASE_URL + "/evaluaties", {
+      method: "POST",
+      headers: { ...authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ stage_id: parseInt(stageId), type })
+    });
+    if (!res.ok) { const d = await res.json(); return alert(d.error || "Fout"); }
+    currentEvalType = type;
+    await laadEvaluaties();
+  } catch (err) {
+    console.error("Evaluatie aanmaken fout:", err);
+  }
+}
+
+function openRubriek() {
+  window.open("../rubriek/rubriek.html?stage_id=" + stageId, "_blank");
 }
 
 function statusText(s) {

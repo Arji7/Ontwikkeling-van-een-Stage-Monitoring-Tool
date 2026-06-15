@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beoordelingsrubriek – StageMonitorage</title>
+  <link rel="stylesheet" href="../dashboard/dashboard.css" />
+  <link rel="stylesheet" href="rubriek.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-studenten/mijn-studenten.html" class="nav-item active">Mijn studenten</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Docent</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="breadcrumb">
+        <a href="#" onclick="history.back(); return false;">Evaluaties</a> › Mijn evaluatie › Rubriek
+      </div>
+
+      <h1 class="page-title">Beoordelingsrubriek</h1>
+      <p class="page-subtitle">Wat je moet aantonen om elke score te halen, per competentie en subcompetentie</p>
+
+      <!-- Student info bar -->
+      <div class="rubriek-info-bar" id="rubriekInfoBar">
+        <div class="rubriek-info-item"><span class="rubriek-info-label">Student</span><span class="rubriek-info-value" id="rubriekStudent">—</span></div>
+        <div class="rubriek-info-item"><span class="rubriek-info-label">Bedrijf</span><span class="rubriek-info-value" id="rubriekBedrijf">—</span></div>
+        <div class="rubriek-info-item"><span class="rubriek-info-label">Opleiding</span><span class="rubriek-info-value" id="rubriekOpleiding">—</span></div>
+        <div class="rubriek-info-item"><span class="rubriek-info-label">Academiejaar</span><span class="rubriek-info-value" id="rubriekJaar">—</span></div>
+      </div>
+
+      <!-- Info banner -->
+      <div class="rubriek-banner">
+        <strong>Hoe werkt deze rubriek?</strong>
+        <p>Voor elke subcompetentie staan 5 niveaus beschreven. Je docent en mentor gebruiken deze criteria bij de evaluatie. Gebruik ze ook voor jezelf — zo weet je per onderdeel wat verwacht wordt en waar je kan groeien.</p>
+      </div>
+
+      <!-- Main layout -->
+      <div class="rubriek-main">
+        <div class="rubriek-sidebar">
+          <h3 class="rubriek-comp-title">Competenties</h3>
+          <div class="rubriek-comp-list" id="rubriekCompList"></div>
+        </div>
+        <div class="rubriek-detail" id="rubriekDetail">
+          <p>Selecteer een competentie...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="rubriek.js"></script>
+</body>
+</html>
