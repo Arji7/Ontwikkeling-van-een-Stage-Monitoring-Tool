@@ -43,3 +43,21 @@ WHERE g.email = 'lionel.messi@ehb.be' AND r.naam = 'docent';
 -- 3. Docent profiel zonder titel
 INSERT INTO docent (gebruiker_id)
 SELECT id FROM gebruiker WHERE email = 'lionel.messi@ehb.be';
+
+-- Stageovereenkomst aanmaken (ondertekend)
+INSERT INTO stageovereenkomst (stage_id, status, ondertekening_methode, ondertekend_op, geupload_op)
+SELECT s.id, 'ondertekend', 'handtekening', NOW(), NOW()
+FROM stage s
+JOIN student st ON st.id = s.student_id
+JOIN gebruiker g ON g.id = st.gebruiker_id
+WHERE g.email = 'student@ehb.be'
+ORDER BY s.aangemaakt_op DESC
+LIMIT 1;
+
+-- Stage op actief zetten zodat logboeken werken
+UPDATE stage s
+JOIN student st ON st.id = s.student_id
+JOIN gebruiker g ON g.id = st.gebruiker_id
+SET s.status = 'actief'
+WHERE g.email = 'student@ehb.be'
+  AND s.status IN ('goedgekeurd', 'wacht_op_overeenkomst');
