@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tussentijdse bespreking – StageMonitor</title>
+  <link rel="stylesheet" href="evaluaties.css" />
+</head>
+<body>
+  <div class="app">
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
+        <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
+        <a href="evaluaties.html" class="nav-item active">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content" id="mainContent" style="visibility:hidden;">
+      <div class="breadcrumb">
+        <a href="evaluaties.html">Evaluaties</a> › Tussentijdse bespreking
+      </div>
+      <h1 class="page-title">Tussentijdse bespreking</h1>
+      <p class="page-subtitle" id="pageSubtitle">—</p>
+
+      <!-- Info tiles -->
+      <div class="info-grid">
+        <div class="info-tile">
+          <div class="info-tile-label">Datum bespreking</div>
+          <div class="info-tile-value" id="infodatum">—</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Type bespreking</div>
+          <div class="info-tile-value" id="infotype">—</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Status</div>
+          <div class="info-tile-value" id="infostatus">—</div>
+        </div>
+      </div>
+
+      <!-- Sterke punten / verbeterpunten -->
+      <div class="feedback-grid">
+        <div class="feedback-block">
+          <div class="feedback-block-label">✅ Sterke punten</div>
+          <div class="feedback-block-text" id="sterkePunten">—</div>
+        </div>
+        <div class="feedback-block">
+          <div class="feedback-block-label">🔧 Verbeterpunten</div>
+          <div class="feedback-block-text" id="verbeterpunten">—</div>
+        </div>
+      </div>
+
+      <!-- Algemene appreciatie -->
+      <div class="detail-card" id="algWrap" style="display:none;">
+        <div class="detail-card-title">💬 Algemene appreciatie</div>
+        <div class="detail-card-body" id="algApprec">—</div>
+      </div>
+
+      <!-- Competentiescores -->
+      <div class="section-title">Competentiescores</div>
+      <p style="font-size:13px; color:#6b7280; margin-bottom:20px; margin-top:-12px;">
+        Scores gegeven door je docent en stagementor per subcompetentie (1 = Onvoldoende · 5 = Uitmuntend)
+      </p>
+      <div id="competentiesContainer">
+        <div class="loading">Scores laden…</div>
+      </div>
+
+      <!-- Terug -->
+      <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px;">
+        <a href="evaluaties.html" class="btn btn-secondary">← Terug naar evaluaties</a>
+        <a href="rubriek.html" class="btn btn-secondary btn-sm">📐 Rubriek bekijken</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script src="tussentijdse-evaluatie.js"></script>
+  <script>
+    (function () {
+      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+
+      document.getElementById("sidebarToggle").addEventListener("click", function () {
+        document.getElementById("sidebar").classList.toggle("mobile-open");
+      });
+    })();
+  </script>
+</body>
+</html>
