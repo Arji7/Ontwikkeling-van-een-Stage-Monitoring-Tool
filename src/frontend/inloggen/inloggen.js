@@ -8,7 +8,7 @@ const CONFIG = {
   DEMO_MODE: false,
   DASHBOARD_BY_ROLE: {
     student:      "../Student/empty-stage/empty-stage.html",
-    docent:       "../Student/empty-stage/empty-stage.html",
+    docent:       "../Docent/dashboard/dashboard.html",
     admin:        "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
     mentor:       "../Student/empty-stage/empty-stage.html",
     commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docent Dashboard – StageMonitor</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <span class="nav-group-label">Docent</span>
+        <a href="dashboard.html" class="nav-item active">Mijn stages</a>
+        <a href="#" class="nav-item">Logboeken</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Docent</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="breadcrumb">Docent · Mijn stages</div>
+      <h1 class="page-title">Mijn toegewezen stages</h1>
+      <p class="page-subtitle">Overzicht van studenten waarvan jij de begeleidende docent bent</p>
+
+      <!-- Stat cards -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Totaal stages</div>
+          <div class="stat-value" id="statTotaal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Actief</div>
+          <div class="stat-value green" id="statActief">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">In opstart</div>
+          <div class="stat-value orange" id="statOpstart">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Afgerond</div>
+          <div class="stat-value" id="statAfgerond">0</div>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="alle">Alle</button>
+        <button class="filter-tab" data-filter="actief">Actief</button>
+        <button class="filter-tab" data-filter="goedgekeurd">Goedgekeurd</button>
+        <button class="filter-tab" data-filter="afgerond">Afgerond</button>
+      </div>
+
+      <!-- Stages lijst -->
+      <div class="stages-list" id="stagesList"></div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Nog geen toegewezen stages</div>
+        <div class="empty-text">Zodra de commissie een stage aan jou toewijst, verschijnt hij hier.</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
