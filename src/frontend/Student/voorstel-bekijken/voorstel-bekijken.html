@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mijn stagevoorstel - StageMonitorage</title>
+  <link rel="stylesheet" href="voorstel-bekijken.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item active">Mijn stage</a>
+        <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+
+      <p class="breadcrumb">Dashboard › Mijn stagevoorstel</p>
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Mijn stagevoorstel</h1>
+          <p class="page-sub">Ingediend bij de stagecommissie</p>
+        </div>
+        <span class="status-badge" id="statusBadge">...</span>
+      </div>
+
+      <!-- Feedback banner (alleen zichtbaar als status = aanpassingen_vereist) -->
+      <div class="feedback-banner" id="feedbackBanner" style="display:none;">
+        <div class="feedback-meta">
+          ⚠ Feedback van de stagecommissie
+          <span id="feedbackAuteur"></span>
+          <span id="feedbackDatum"></span>
+        </div>
+        <p class="feedback-quote" id="feedbackTekst"></p>
+      </div>
+
+      <div class="detail-card">
+
+        <div class="section">
+          <h2 class="section-title">Bedrijfsgegevens</h2>
+          <div class="field-grid">
+            <div class="field-row">
+              <span class="field-label">Naam bedrijf</span>
+              <span class="field-value" id="bedrijfNaam">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Sector</span>
+              <span class="field-value" id="sector">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Stagementor</span>
+              <span class="field-value" id="mentor">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">E-mail mentor</span>
+              <span class="field-value" id="mentorEmail">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+          <h2 class="section-title">Stagegegevens</h2>
+          <div class="field-grid">
+            <div class="field-row">
+              <span class="field-label">Startdatum</span>
+              <span class="field-value" id="startdatum">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Einddatum</span>
+              <span class="field-value" id="einddatum">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Ingediend op</span>
+              <span class="field-value" id="ingediendOp">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Status</span>
+              <span class="field-value" id="statusTekst">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+          <h2 class="section-title">Omschrijving opdracht</h2>
+          <p class="omschrijving-tekst" id="omschrijving">—</p>
+        </div>
+
+      </div>
+
+      <div class="page-actions">
+        <a href="#" onclick="history.back(); return false;" class="btn btn-outline">← Terug</a>
+        <a href="#" class="btn btn-primary" id="aanpassenBtn" style="display:none;">Voorstel aanpassen</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script src="voorstel-bekijken.js"></script>
+  <script src="../sidebar-lock.js"></script>
+  <script>
+    (function () {
+      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+    })();
+  </script>
+</body>
+</html>

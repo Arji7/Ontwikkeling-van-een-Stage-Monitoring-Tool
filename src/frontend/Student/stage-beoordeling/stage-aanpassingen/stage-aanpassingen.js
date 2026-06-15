@@ -1,11 +1,10 @@
-const token = localStorage.getItem('token');
+const token = sessionStorage.getItem('token');
 
-// Studentnaam uit localStorage
-const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
 const naam = currentUser.voornaam || currentUser.naam || currentUser.name || '';
 if (naam) document.getElementById('studentNaam').textContent = naam;
 
-fetch('http://localhost:3000/api/stages/mijn', {
+fetch(API_BASE + '/stages/mijn', {
   headers: { 'Authorization': 'Bearer ' + token }
 })
 .then(function(res) { return res.json(); })
@@ -13,19 +12,24 @@ fetch('http://localhost:3000/api/stages/mijn', {
   if (!stages || stages.length === 0) return;
   const stage = stages[0];
 
-  document.getElementById('bedrijfNaam').textContent  = stage.bedrijf_naam || '-';
-  document.getElementById('tabelBedrijf').textContent = stage.bedrijf_naam || '-';
-  document.getElementById('ingediendOp').textContent  = formatDatum(stage.aangemaakt_op);
-  document.getElementById('afgekeurdOp').textContent  = formatDatum(stage.beoordeeld_op || stage.bijgewerkt_op);
+  document.getElementById('tabelBedrijf').textContent    = stage.bedrijf_naam || '-';
+  document.getElementById('ingediendOp').textContent     = formatDatum(stage.aangemaakt_op);
+  document.getElementById('feedbackOntvangen').textContent = formatDatum(stage.beoordeeld_op || stage.bijgewerkt_op);
 
   if (stage.feedback) {
     document.getElementById('feedbackTekst').textContent = '"' + stage.feedback + '"';
   }
   if (stage.beoordeeld_door) {
-    document.getElementById('feedbackAuteur').textContent = '· ' + stage.beoordeeld_door;
+    document.getElementById('feedbackAuteur').textContent = stage.beoordeeld_door + ' — Stagecommissie';
   }
   if (stage.beoordeeld_op || stage.bijgewerkt_op) {
     document.getElementById('feedbackDatum').textContent = '· ' + formatDatum(stage.beoordeeld_op || stage.bijgewerkt_op);
+  }
+
+  // Zet stage-id op de aanpassen-knop zodat het formulier in edit-mode opent
+  if (stage.id) {
+    document.getElementById('aanpassenBtn').href =
+      '../../stage-aanvraag/stage-aanvraag.html?id=' + stage.id;
   }
 })
 .catch(function(err) { console.error('Kon stage niet ophalen:', err); });

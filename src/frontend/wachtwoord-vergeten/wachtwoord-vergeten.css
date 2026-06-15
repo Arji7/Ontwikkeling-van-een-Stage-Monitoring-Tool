@@ -183,38 +183,23 @@ body.page-reset {
 /* ---------- Responsive — mobiele telefoons ---------- */
 
 @media (max-width: 768px) {
-  body.page-login { padding: 1rem; }
+  .page-wrapper { padding: 28px 16px; }
 }
 
 @media (max-width: 480px) {
-  body.page-login { padding: 0.75rem; }
+  .page-wrapper { padding: 16px 12px; }
 
-  .login-card {
+  .card {
     padding: 1.25rem 1rem;
     border-radius: var(--radius-sm);
     box-shadow: none;
     border: 1px solid var(--color-border);
   }
 
-  .login-title { font-size: 1.25rem; }
-  .login-subtitle { font-size: 0.8125rem; }
+  .brand-title { font-size: 1.25rem; }
+  .form-title { font-size: 1.125rem; }
+  .form-description { font-size: 0.8125rem; margin-bottom: 1rem; }
 
-  .input { padding: 0.75rem 0.75rem; font-size: 1rem; }
-  .btn { padding: 0.875rem 1rem; font-size: 1rem; }
-
-  .login-options {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-}
-
-@media (max-width: 360px) {
-  body.page-login { padding: 0.5rem; }
-  .login-card { padding: 1rem 0.875rem; }
-}
-
-/* ---------- Minder beweging ---------- */
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  .btn-primary { padding: 0.875rem 1rem; font-size: 1rem; }
+  .form-input { padding: 0.75rem 0.75rem; font-size: 1rem; }
 }

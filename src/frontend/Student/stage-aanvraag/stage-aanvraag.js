@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = API_BASE;
 const form = document.getElementById("voorstelForm");
 
 // Edit-mode? → ?id=<stage_id> in URL
@@ -23,7 +23,7 @@ if (isEditMode) {
 }
 
 async function laadStage() {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   if (!token) return;
 
   try {
@@ -112,7 +112,7 @@ form.addEventListener("submit", function (event) {
     omschrijving: document.getElementById("omschrijving").value.trim(),
   };
 
-  const token  = localStorage.getItem("token");
+  const token  = sessionStorage.getItem("token");
   const url    = isEditMode ? `${API_BASE_URL}/stages/${stageId}` : `${API_BASE_URL}/stages`;
   const method = isEditMode ? "PUT" : "POST";
 

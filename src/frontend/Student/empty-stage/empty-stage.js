@@ -1,13 +1,13 @@
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = API_BASE;
 
 document.addEventListener("DOMContentLoaded", async function () {
 
   // 1. Toon naam van ingelogde gebruiker
-  const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+  const user = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
   document.getElementById("userName").textContent = user.name || "Student";
 
   // 2. Token ophalen
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   if (!token) {
     window.location.href = "../../inloggen/inloggen.html";
     return;
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Toon meest relevante stage:
     //   1. Met openstaande actie (aanpassingen_vereist / afgekeurd)
     //   2. Anders: de meest recente
-    const PRIORITEIT = ["aanpassingen_vereist", "afgekeurd", "goedgekeurd", "ingediend", "in_beoordeling", "concept"];
+    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
     const stage = stages.slice().sort(function (a, b) {
       const pa = PRIORITEIT.indexOf(a.status);
       const pb = PRIORITEIT.indexOf(b.status);
@@ -43,8 +43,27 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("tabelIngediend").textContent = formatDateLong(stage.aangemaakt_op);
     document.getElementById("wachtBeoordeling").style.display = "block";
 
+    // Status dynamisch vullen
+    var statusEl = document.getElementById("tabelStatus");
+    var verwachteRow = document.getElementById("rowVerwachteBeslissing");
+    var statusMap = {
+      "ingediend":            { tekst: "⏱ Wacht op goedkeuring",    klasse: "info-value status-pending", toonVerwachte: true },
+      "in_beoordeling":       { tekst: "⏱ In beoordeling",          klasse: "info-value status-pending", toonVerwachte: true },
+      "goedgekeurd":          { tekst: "✓ Goedgekeurd",              klasse: "info-value status-success", toonVerwachte: false },
+      "actief":               { tekst: "✓ Stage loopt",              klasse: "info-value status-success", toonVerwachte: false },
+      "afgekeurd":            { tekst: "✕ Afgekeurd",                klasse: "info-value status-danger",  toonVerwachte: false },
+      "aanpassingen_vereist": { tekst: "✏ Aanpassingen vereist",     klasse: "info-value status-warning", toonVerwachte: false },
+      "wacht_op_overeenkomst":{ tekst: "📄 Wacht op overeenkomst",    klasse: "info-value status-success", toonVerwachte: false },
+    };
+    var s = statusMap[stage.status] || { tekst: stage.status, klasse: "info-value", toonVerwachte: false };
+    if (statusEl) {
+      statusEl.textContent = s.tekst;
+      statusEl.className = s.klasse;
+    }
+    if (verwachteRow) verwachteRow.style.display = s.toonVerwachte ? "" : "none";
+
     var bekijkBtn = document.getElementById("bekijkBtn");
-    if (bekijkBtn) bekijkBtn.href = "../stage-aanvraag/stage-aanvraag.html?id=" + stage.id;
+    if (bekijkBtn) bekijkBtn.href = "../voorstel-bekijken/voorstel-bekijken.html";
 
     // Banner per status configureren
     var banner = document.getElementById("statusBanner");
@@ -54,13 +73,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     var btn = document.getElementById("statusBtn");
     var bedrijf = stage.bedrijf_naam || "—";
 
-    if (stage.status === "goedgekeurd") {
+    if (stage.status === "actief") {
+      banner.className = "alert-banner alert-success";
+      icon.textContent = "🚀";
+      title.textContent = "Je stage loopt!";
+      text.textContent = "Je stage bij " + bedrijf + " is actief. Vergeet je wekelijkse logboeken niet in te dienen.";
+      btn.textContent = "Naar mijn stage →";
+      btn.href = "../mijn-stage/mijn-stage.html";
+      btn.style.display = "inline-block";
+      updateStepper("goedgekeurd");
+    } else if (stage.status === "goedgekeurd" || stage.status === "wacht_op_overeenkomst") {
       banner.className = "alert-banner alert-success";
       icon.textContent = "✅";
       title.textContent = "Stagevoorstel goedgekeurd!";
       text.textContent = "Je voorstel bij " + bedrijf + " is goedgekeurd. Bekijk de details en de volgende stappen.";
-      btn.textContent = "Bekijk goedkeuring →";
-      btn.href = "../stage-goedgekeurd/stage-goedgekeurd.html";
+      btn.textContent = "Stageovereenkomst ondertekenen →";
+      btn.href = "../mijn-stage/mijn-stage.html";
       btn.style.display = "inline-block";
       updateStepper("goedgekeurd");
     } else if (stage.status === "afgekeurd") {
@@ -69,7 +97,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       title.textContent = "Stagevoorstel afgekeurd";
       text.textContent = "Je voorstel bij " + bedrijf + " is helaas afgekeurd. Bekijk de motivatie en dien een nieuw voorstel in.";
       btn.textContent = "Bekijk details →";
-      btn.href = "../stage-afgewezen/stage-afgewezen.html";
+      btn.href = "../stage-beoordeling/stage-afgewezen/stage-afgewezen.html";
       btn.style.display = "inline-block";
       updateStepper("afgekeurd");
     } else if (stage.status === "aanpassingen_vereist") {
@@ -78,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       title.textContent = "Aanpassingen vereist";
       text.textContent = "De stagecommissie vraagt aanpassingen op je voorstel bij " + bedrijf + ".";
       btn.textContent = "Pas aan →";
-      btn.href = "../stage-aanpassingen/stage-aanpassingen.html";
+      btn.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
       btn.style.display = "inline-block";
       updateStepper("aanpassingen");
     } else {

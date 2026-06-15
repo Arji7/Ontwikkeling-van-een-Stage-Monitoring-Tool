@@ -1,7 +1,7 @@
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = API_BASE;
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   if (!token) {
     window.location.href = "../../inloggen/inloggen.html";
     return;
@@ -15,13 +15,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     const stages = await res.json();
 
     if (!Array.isArray(stages) || stages.length === 0) {
-      // Geen stage → terug naar dashboard
-      window.location.href = "../empty-stage/empty-stage.html";
+      // Geen stage → naar het aanvraag formulier
+      window.location.href = "../stage-aanvraag/stage-aanvraag.html";
       return;
     }
 
     // Meest relevante stage (zelfde prioriteit als dashboard)
-    const PRIORITEIT = ["goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
+    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
     const stage = stages.slice().sort(function (a, b) {
       const pa = PRIORITEIT.indexOf(a.status);
       const pb = PRIORITEIT.indexOf(b.status);
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Als niet goedgekeurd: redirect naar passende pagina
     if (stage.status === "aanpassingen_vereist") {
-      window.location.href = "../stage-aanpassen/stage-aanpassen.html";
+      window.location.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
       return;
     }
     if (stage.status !== "goedgekeurd" && stage.status !== "actief" && stage.status !== "wacht_op_overeenkomst") {
@@ -49,6 +49,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     } catch (e) {}
 
     vulPaginaIn(detail);
+    // Content pas tonen nu hij ingevuld is — voorkomt flits
+    document.getElementById("mainContent").style.visibility = "visible";
 
   } catch (err) {
     console.error("Fout bij ophalen stage:", err);
@@ -87,7 +89,19 @@ function vulPaginaIn(d) {
   // Stagevoorstel kaart — link + datum
   const voorstelDatum = d.bijgewerkt_op || d.aangemaakt_op;
   document.getElementById("voorstelSub").textContent = "Goedgekeurd op " + formatLong(voorstelDatum);
-  document.getElementById("kaartVoorstel").href = "../stage-goedgekeurd/stage-goedgekeurd.html";
+  document.getElementById("kaartVoorstel").href = "../voorstel-bekijken/voorstel-bekijken.html";
+
+  // Logboeken en evaluaties pas klikbaar als stage actief is
+  const isActief = d.status === "actief";
+  ["kaartLogboeken", "kaartEvaluaties"].forEach(function (id) {
+    const kaart = document.getElementById(id);
+    if (!kaart) return;
+    if (!isActief) {
+      kaart.style.opacity = "0.55";
+      kaart.style.cursor = "not-allowed";
+      kaart.style.pointerEvents = "none"; // blokkeert klikken
+    }
+  });
 }
 
 function formatShort(d) {

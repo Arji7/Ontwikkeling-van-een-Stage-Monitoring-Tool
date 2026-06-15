@@ -16,7 +16,7 @@
         <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
         <a href="mijn-stage.html" class="nav-item active">Mijn stage</a>
         <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
-        <a href="#" class="nav-item">Evaluaties</a>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
@@ -26,11 +26,11 @@
             <span class="user-role">Student</span>
           </div>
         </div>
-        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
       </div>
     </aside>
 
-    <main class="content">
+    <main class="content" id="mainContent" style="visibility:hidden;">
       <div class="breadcrumb">Mijn stage</div>
       <h1 class="page-title">Mijn stage</h1>
       <p class="page-subtitle"><span id="bedrijfNaam">—</span> · alle onderdelen van je stage op één plek</p>
@@ -87,7 +87,7 @@
         </a>
 
         <!-- Logboeken -->
-        <a href="../logboeken/logboeken.html" class="onderdeel-card">
+        <a href="../logboeken/logboeken.html" class="onderdeel-card" id="kaartLogboeken">
           <div class="card-icon icon-blue">📝</div>
           <div class="card-info">
             <div class="card-title">Wekelijkse logboeken</div>
@@ -98,7 +98,7 @@
         </a>
 
         <!-- Evaluaties -->
-        <a href="#" class="onderdeel-card">
+        <a href="#" class="onderdeel-card" id="kaartEvaluaties">
           <div class="card-icon icon-yellow">⭐</div>
           <div class="card-info">
             <div class="card-title">Evaluaties</div>
@@ -112,10 +112,11 @@
     </main>
   </div>
 
+  <script src="../../config.js"></script>
   <script src="mijn-stage.js"></script>
   <script>
     (function () {
-      var u = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
       var name = u.name || "Student";
       var nEl = document.getElementById("sidebarUserName");
       var aEl = document.getElementById("sidebarUserAvatar");
@@ -123,5 +124,6 @@
       if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
     })();
   </script>
+  <script src="../sidebar-lock.js"></script>
 </body>
 </html>

@@ -39,7 +39,7 @@ async function loadStudents() {
     showLoading(true);
     hideError();
 
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
         showError('Niet ingelogd. Log opnieuw in.');
         showLoading(false);
@@ -47,7 +47,7 @@ async function loadStudents() {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/stages', {
+        const response = await fetch(API_BASE + '/stages', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
 

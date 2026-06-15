@@ -25,7 +25,7 @@
             <span class="user-role">Stagecommissie</span>
           </div>
         </div>
-        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
       </div>
     </aside>
 
@@ -80,10 +80,11 @@
         </main>
     </div>
 
-    <script src="aanvragen.overzicht.js"></script>
+    <script src="../../config.js"></script>
+  <script src="aanvragen.overzicht.js"></script>
     <script>
       (function () {
-        var u = JSON.parse(localStorage.getItem("currentUser") || "{}");
+        var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
         var name = u.name || "Commissielid";
         var nEl = document.getElementById("sidebarUserName");
         var aEl = document.getElementById("sidebarUserAvatar");

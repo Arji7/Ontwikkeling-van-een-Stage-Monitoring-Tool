@@ -15,6 +15,12 @@ async function getStudentId(gebruikerId) {
   return rijen[0].id;
 }
 
+// Hulpfunctie: heeft de gebruiker een staf-rol (docent/mentor/commissielid/admin)?
+function isStaf(user) {
+  const stafRollen = ['docent', 'mentor', 'commissielid', 'admin'];
+  return (user.rollen || []).some(r => stafRollen.includes(r));
+}
+
 // POST /api/stages — stagevoorstel indienen
 router.post('/', authMiddleware, async (req, res) => {
   const { bedrijf, sector, mentor, mentorEmail, startDatum, eindDatum, omschrijving } = req.body;
@@ -79,16 +85,33 @@ router.get('/mijn', authMiddleware, async (req, res) => {
       `SELECT s.*,
               b.naam AS bedrijf_naam,
               b.sector,
+              s.aangemaakt_op AS ingediend_op,
               (SELECT bs.opmerking
                  FROM beslissing bs
                 WHERE bs.stage_id = s.id
                 ORDER BY bs.datum DESC
                 LIMIT 1) AS laatste_opmerking,
+              (SELECT bs.opmerking
+                 FROM beslissing bs
+                WHERE bs.stage_id = s.id
+                ORDER BY bs.datum DESC
+                LIMIT 1) AS feedback,
               (SELECT bs.beslissing
                  FROM beslissing bs
                 WHERE bs.stage_id = s.id
                 ORDER BY bs.datum DESC
-                LIMIT 1) AS laatste_beslissing
+                LIMIT 1) AS laatste_beslissing,
+              (SELECT bs.datum
+                 FROM beslissing bs
+                WHERE bs.stage_id = s.id
+                ORDER BY bs.datum DESC
+                LIMIT 1) AS beoordeeld_op,
+              (SELECT CONCAT(g.voornaam, ' ', g.achternaam)
+                 FROM beslissing bs
+                 JOIN gebruiker g ON g.id = bs.commissielid_id
+                WHERE bs.stage_id = s.id
+                ORDER BY bs.datum DESC
+                LIMIT 1) AS beoordeeld_door
        FROM stage s
        LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
        WHERE s.student_id = ?
@@ -132,6 +155,14 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Stage niet gevonden.' });
+    }
+
+    // Als geen staf-rol: alleen eigen stage mag bekeken worden
+    if (!isStaf(req.user)) {
+      const eigenStudentId = await getStudentId(req.user.id);
+      if (rows[0].student_id !== eigenStudentId) {
+        return res.status(403).json({ error: 'Geen toegang tot deze stage.' });
+      }
     }
 
     res.json(rows[0]);

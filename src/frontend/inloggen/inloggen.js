@@ -4,7 +4,7 @@
 
 /* ---------- INSTELLINGEN (pas hier aan) ---------- */
 const CONFIG = {
-  API_BASE_URL: "http://localhost:3000/api",
+  API_BASE_URL: API_BASE,
   DEMO_MODE: false,
   DASHBOARD_BY_ROLE: {
     student:      "../Student/empty-stage/empty-stage.html",
@@ -51,7 +51,37 @@ document.addEventListener("DOMContentLoaded", function () {
       if (rememberInput.checked) localStorage.setItem("rememberedEmail", email);
       else localStorage.removeItem("rememberedEmail");
 
-      localStorage.setItem("currentUser", JSON.stringify(user));
+      sessionStorage.setItem("currentUser", JSON.stringify(user));
+
+      // Voor studenten: check de stage-status en stuur door naar juiste pagina
+      if (user.role === "student") {
+        try {
+          const stagesRes = await fetch(CONFIG.API_BASE_URL + "/stages/mijn", {
+            headers: { "Authorization": "Bearer " + user.token }
+          });
+          if (stagesRes.ok) {
+            const stages = await stagesRes.json();
+            if (Array.isArray(stages) && stages.length > 0) {
+              const PRIORITEIT = ["aanpassingen_vereist", "afgekeurd", "goedgekeurd", "ingediend", "in_beoordeling", "concept"];
+              const stage = stages.slice().sort(function (a, b) {
+                const pa = PRIORITEIT.indexOf(a.status);
+                const pb = PRIORITEIT.indexOf(b.status);
+                if (pa !== pb) return pa - pb;
+                return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
+              })[0];
+              const STATUS_REDIRECTS = {
+                "goedgekeurd":          "../Student/stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html",
+                "afgekeurd":            "../Student/stage-beoordeling/stage-afgewezen/stage-afgewezen.html",
+                "aanpassingen_vereist": "../Student/stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html"
+              };
+              if (STATUS_REDIRECTS[stage.status]) {
+                window.location.href = STATUS_REDIRECTS[stage.status];
+                return;
+              }
+            }
+          }
+        } catch (e) { /* val terug op standaard dashboard */ }
+      }
 
       const target = CONFIG.DASHBOARD_BY_ROLE[user.role];
       if (target) window.location.href = target;
@@ -76,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "E-mailadres of wachtwoord is onjuist.");
 
-    localStorage.setItem("token", data.token);
+    sessionStorage.setItem("token", data.token);
 
     const rollen = data.gebruiker.rollen || [];
     // Kies hoogste rol uit de prioriteitslijst

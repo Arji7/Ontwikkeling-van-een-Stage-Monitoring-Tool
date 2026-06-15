@@ -16,7 +16,7 @@
         <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
         <a href="#" class="nav-item active">Mijn stage</a>
         <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
-        <a href="#" class="nav-item">Evaluaties</a>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
@@ -26,7 +26,7 @@
             <span class="user-role">Student</span>
           </div>
         </div>
-        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
       </div>
     </aside>
 
@@ -110,10 +110,11 @@
     </main>
   </div>
 
+  <script src="../../config.js"></script>
   <script src="stage-aanvraag.js"></script>
   <script>
     (function () {
-      var u = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
       var name = u.name || "Student";
       var nEl = document.getElementById("sidebarUserName");
       var aEl = document.getElementById("sidebarUserAvatar");
@@ -121,5 +122,6 @@
       if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
     })();
   </script>
+  <script src="../sidebar-lock.js"></script>
 </body>
 </html>
