@@ -1,0 +1,55 @@
+/* Meta info bar */
+.meta-bar {
+  display: flex; flex-wrap: wrap; gap: 18px;
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+  padding: 14px 18px; margin-bottom: 18px;
+  font-size: 13px; color: #1a1a2e;
+}
+.meta-bar strong { color: #6b7280; font-weight: 600; margin-right: 4px; }
+
+/* Mentor banner */
+.mentor-banner {
+  background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 10px;
+  padding: 14px 18px; margin-bottom: 22px;
+  font-size: 13px; color: #15803d; font-weight: 500;
+}
+
+/* Section title */
+.section-title { font-size: 15px; font-weight: 600; color: #374151; margin: 24px 0 12px; }
+
+/* Dagen lijst */
+.dagen-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.dag-card {
+  display: grid; grid-template-columns: 140px 60px 1fr auto; gap: 16px;
+  align-items: center;
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+  padding: 16px 18px;
+}
+.dag-naam { font-weight: 600; color: #1a1a2e; }
+.dag-datum { font-size: 12px; color: #6b7280; }
+.dag-uren {
+  background: #ede9fe; color: #6d28d9; font-weight: 700; font-size: 13px;
+  padding: 6px 12px; border-radius: 6px; text-align: center;
+}
+.dag-content { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.dag-taken { font-size: 13px; color: #1a1a2e; }
+.dag-comps { display: flex; gap: 6px; flex-wrap: wrap; }
+.comp-chip {
+  background: #ede9fe; color: #6d28d9; padding: 3px 10px;
+  border-radius: 12px; font-size: 11px; font-weight: 600;
+}
+.dag-locatie { font-size: 12px; color: #6b7280; white-space: nowrap; }
+.dag-locatie::before { content: "📍 "; }
+
+.dag-afwezig { color: #ef4444; font-style: italic; }
+
+/* Reflectie card */
+.reflectie-card, .opmerking-card {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+  padding: 20px 24px; margin-bottom: 16px;
+}
+.reflectie-title, .opmerking-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin: 0 0 14px; }
+.reflectie-section { margin-bottom: 14px; }
+.reflectie-section:last-child { margin-bottom: 0; }
+.reflectie-label { font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-bottom: 6px; }
+.reflectie-text, .opmerking-text { font-size: 14px; color: #374151; line-height: 1.6; margin: 0; }

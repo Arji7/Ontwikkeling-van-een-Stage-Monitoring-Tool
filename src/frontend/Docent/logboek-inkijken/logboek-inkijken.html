@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logboek inkijken – StageMonitor</title>
+  <link rel="stylesheet" href="../dashboard/dashboard.css" />
+  <link rel="stylesheet" href="logboek-inkijken.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-studenten/mijn-studenten.html" class="nav-item active">Mijn studenten</a>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Docent</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="breadcrumb">
+        <a href="../mijn-studenten/mijn-studenten.html">Mijn studenten</a> ›
+        <a href="#" id="bcrStudent">...</a> ›
+        <a href="#" id="bcrLogboeken">Logboeken</a> ›
+        <span id="bcrWeek">Week —</span>
+      </div>
+
+      <h1 class="page-title" id="logboekTitel">Logboek week —</h1>
+      <p class="page-subtitle" id="logboekSubtitle">—</p>
+
+      <!-- Meta info -->
+      <div class="meta-bar">
+        <div><strong>Periode:</strong> <span id="metaPeriode">—</span></div>
+        <div><strong>Totaal uren:</strong> <span id="metaUren">—</span></div>
+        <div><strong>Dagen aanwezig:</strong> <span id="metaDagen">—</span></div>
+        <div><strong>Bedrijf:</strong> <span id="metaBedrijf">—</span></div>
+        <div><strong>Mentor:</strong> <span id="metaMentor">—</span></div>
+      </div>
+
+      <!-- Mentor afgetekend banner -->
+      <div class="mentor-banner" id="mentorBanner" style="display:none;">
+        ✓ Reeds afgetekend door <span id="mentorNaam">mentor</span> op <span id="mentorDatum">—</span> — "<span id="mentorOpmerking">—</span>"
+      </div>
+
+      <!-- Dagrapporten -->
+      <h2 class="section-title">📅 Dagrapporten van deze week</h2>
+      <div class="dagen-list" id="dagenList"></div>
+
+      <!-- Reflectie -->
+      <div class="reflectie-card" id="reflectieCard" style="display:none;">
+        <h2 class="reflectie-title">📝 Wekelijkse reflectie van <span id="reflectieStudent">student</span></h2>
+        <div class="reflectie-section">
+          <div class="reflectie-label">Reflectie</div>
+          <p class="reflectie-text" id="reflectieTekst">—</p>
+        </div>
+        <div class="reflectie-section" id="leerpuntenSection" style="display:none;">
+          <div class="reflectie-label">Problemen en leerpunten</div>
+          <p class="reflectie-text" id="leerpuntenTekst">—</p>
+        </div>
+      </div>
+
+      <!-- Opmerking mentor -->
+      <div class="opmerking-card" id="opmerkingCard" style="display:none;">
+        <h2 class="opmerking-title">Opmerking (stagementor)</h2>
+        <p class="opmerking-text" id="opmerkingTekst">—</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="logboek-inkijken.js"></script>
+</body>
+</html>

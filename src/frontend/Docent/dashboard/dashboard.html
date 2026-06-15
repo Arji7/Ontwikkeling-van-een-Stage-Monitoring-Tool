@@ -13,10 +13,9 @@
       <div class="sidebar-brand">StageMonitor</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
       <nav class="sidebar-nav">
-        <span class="nav-group-label">Docent</span>
-        <a href="dashboard.html" class="nav-item active">Mijn stages</a>
-        <a href="#" class="nav-item">Logboeken</a>
-        <a href="#" class="nav-item">Evaluaties</a>
+        <a href="dashboard.html" class="nav-item active">Dashboard</a>
+        <a href="../mijn-studenten/mijn-studenten.html" class="nav-item">Mijn studenten</a>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
@@ -27,51 +26,43 @@
           </div>
         </div>
         <a href="../../inloggen/inloggen.html" class="sidebar-logout"
-           onclick="localStorage.removeItem('currentUser'); localStorage.removeItem('token');">🔓 Uitloggen</a>
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
       </div>
     </aside>
 
     <main class="content">
-      <div class="breadcrumb">Docent · Mijn stages</div>
-      <h1 class="page-title">Mijn toegewezen stages</h1>
-      <p class="page-subtitle">Overzicht van studenten waarvan jij de begeleidende docent bent</p>
+      <header class="page-header">
+        <h1 class="page-title">Welkom terug, <span id="welkomNaam">...</span></h1>
+        <p class="page-subtitle">Stagejaar 2025-2026 · <span id="aantalStudenten">0</span> actieve studenten</p>
+      </header>
 
       <!-- Stat cards -->
       <div class="stat-row">
-        <div class="stat-card">
-          <div class="stat-label">Totaal stages</div>
-          <div class="stat-value" id="statTotaal">0</div>
+        <div class="stat-card stat-warning">
+          <div class="stat-label">Logboeken te beoordelen</div>
+          <div class="stat-value orange" id="statLogboeken">0</div>
+          <div class="stat-sub" id="statLogboekenSub">van 0 studenten</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Actief</div>
+          <div class="stat-label">Evaluaties open</div>
+          <div class="stat-value" id="statEvaluaties">0</div>
+          <div class="stat-sub">Komt binnenkort</div>
+        </div>
+        <div class="stat-card stat-success">
+          <div class="stat-label">Actief in stage</div>
           <div class="stat-value green" id="statActief">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">In opstart</div>
-          <div class="stat-value orange" id="statOpstart">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Afgerond</div>
-          <div class="stat-value" id="statAfgerond">0</div>
+          <div class="stat-sub" id="statAfgerondSub">0 afgerond</div>
         </div>
       </div>
 
-      <!-- Filter tabs -->
-      <div class="filter-tabs">
-        <button class="filter-tab active" data-filter="alle">Alle</button>
-        <button class="filter-tab" data-filter="actief">Actief</button>
-        <button class="filter-tab" data-filter="goedgekeurd">Goedgekeurd</button>
-        <button class="filter-tab" data-filter="afgerond">Afgerond</button>
-      </div>
+      <!-- Opstaande taken -->
+      <h2 class="section-title">Opstaande taken — acties die op je wachten</h2>
+      <div class="taken-list" id="takenList"></div>
 
-      <!-- Stages lijst -->
-      <div class="stages-list" id="stagesList"></div>
-
-      <!-- Empty state -->
       <div class="empty-state" id="emptyState" style="display:none;">
-        <div class="empty-icon">📋</div>
-        <div class="empty-title">Nog geen toegewezen stages</div>
-        <div class="empty-text">Zodra de commissie een stage aan jou toewijst, verschijnt hij hier.</div>
+        <div class="empty-icon">✅</div>
+        <div class="empty-title">Geen opstaande taken</div>
+        <div class="empty-text">Alle logboeken zijn beoordeeld. Goed bezig!</div>
       </div>
     </main>
   </div>

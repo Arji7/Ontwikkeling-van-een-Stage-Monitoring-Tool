@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student detail – StageMonitor</title>
+  <link rel="stylesheet" href="../dashboard/dashboard.css" />
+  <link rel="stylesheet" href="student-detail.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-studenten/mijn-studenten.html" class="nav-item active">Mijn studenten</a>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Docent</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="breadcrumb">
+        <a href="../mijn-studenten/mijn-studenten.html">Mijn studenten</a> › <span id="bcrNaam">...</span>
+      </div>
+
+      <!-- Profile header -->
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileAvatar">??</div>
+        <div class="profile-info">
+          <h1 class="profile-name" id="profileNaam">...</h1>
+          <p class="profile-email" id="profileEmail">...</p>
+          <p class="profile-meta" id="profileOpleiding">—</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="tabs">
+        <button class="tab active" data-tab="stages">Stages</button>
+        <button class="tab" data-tab="logboeken">Logboeken</button>
+        <button class="tab" data-tab="evaluaties">Evaluaties</button>
+        <button class="tab" data-tab="documenten">Documenten</button>
+      </nav>
+
+      <!-- Stages tab -->
+      <div class="tab-content active" id="tab-stages">
+        <div class="stage-card huidige">
+          <div class="stage-card-header">
+            <span class="dot dot-active"></span>
+            <span class="stage-bedrijf" id="stageBedrijf">—</span>
+            <span class="stage-titel"> — <span id="stageTitel">—</span></span>
+            <span class="huidige-tag">HUIDIGE STAGE</span>
+            <div class="week-info">
+              <div class="week-num" id="weekNum">Week — / —</div>
+              <div class="week-pct" id="weekPct">— voltooid</div>
+            </div>
+          </div>
+          <div class="stage-meta-row" id="stageMetaRow">—</div>
+
+          <div class="stage-grid">
+            <div class="stage-grid-item">
+              <span class="label">Stagementor</span>
+              <span class="value" id="stageMentor">—</span>
+              <span class="sub" id="stageMentorEmail">—</span>
+            </div>
+            <div class="stage-grid-item">
+              <span class="label">Opdracht</span>
+              <span class="value" id="stageOpdracht">—</span>
+            </div>
+            <div class="stage-grid-item">
+              <span class="label">Status</span>
+              <span class="value" id="stageStatus">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logboeken tab -->
+      <div class="tab-content" id="tab-logboeken">
+        <div id="logboekenList"></div>
+        <div class="empty-state" id="logboekenEmpty" style="display:none;">
+          <div class="empty-icon">📓</div>
+          <div class="empty-title">Nog geen logboeken</div>
+          <div class="empty-text">Deze student heeft nog geen logboeken ingediend.</div>
+        </div>
+      </div>
+
+      <!-- Evaluaties tab -->
+      <div class="tab-content" id="tab-evaluaties">
+        <div class="empty-state">
+          <div class="empty-icon">⭐</div>
+          <div class="empty-title">Evaluaties komen binnenkort</div>
+          <div class="empty-text">De evaluatie-feature wordt binnenkort beschikbaar gemaakt.</div>
+        </div>
+      </div>
+
+      <!-- Documenten tab -->
+      <div class="tab-content" id="tab-documenten">
+        <div class="empty-state">
+          <div class="empty-icon">📄</div>
+          <div class="empty-title">Geen documenten</div>
+          <div class="empty-text">Documenten verschijnen hier zodra de student ze oplaadt.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="student-detail.js"></script>
+</body>
+</html>

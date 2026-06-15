@@ -1,120 +1,89 @@
 const API_BASE_URL = "http://localhost:3000/api";
-let allStages = [];
-let currentFilter = "alle";
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   if (!token) {
     window.location.href = "../../inloggen/inloggen.html";
     return;
   }
 
-  // Sidebar user info
-  const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
-  const name = user.name || "Docent";
-  document.getElementById("userName").textContent = name;
+  const user = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  const fullName = user.name || "Docent";
+  const voornaam = fullName.split(" ")[0];
+  document.getElementById("welkomNaam").textContent = voornaam;
+  document.getElementById("userName").textContent = fullName;
   document.getElementById("userAvatar").textContent =
-    name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+    fullName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
-  await laadStages();
-  setupFilters();
+  await Promise.all([laadStages(), laadTaken()]);
 });
+
+function authHeader() {
+  return { "Authorization": "Bearer " + sessionStorage.getItem("token") };
+}
 
 async function laadStages() {
   try {
-    const res = await fetch(API_BASE_URL + "/stages/docent/mijn", {
-      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-    });
-    if (res.status === 401 || res.status === 403) {
-      window.location.href = "../../inloggen/inloggen.html";
-      return;
-    }
-    allStages = await res.json();
-    updateStats();
-    renderList();
+    const res = await fetch(API_BASE_URL + "/stages/docent/mijn", { headers: authHeader() });
+    if (!res.ok) return;
+    const stages = await res.json();
+
+    const actief = stages.filter(s => s.status === "actief").length;
+    const afgerond = stages.filter(s => s.status === "afgerond").length;
+    const totaalStudenten = stages.length;
+
+    document.getElementById("aantalStudenten").textContent = totaalStudenten;
+    document.getElementById("statActief").textContent = actief;
+    document.getElementById("statAfgerondSub").textContent = afgerond + " afgerond";
   } catch (err) {
     console.error("Stages ophalen fout:", err);
-    document.getElementById("emptyState").style.display = "block";
   }
 }
 
-function updateStats() {
-  const totaal = allStages.length;
-  const actief = allStages.filter(s => s.status === "actief").length;
-  const opstart = allStages.filter(s => s.status === "goedgekeurd" || s.status === "wacht_op_overeenkomst").length;
-  const afgerond = allStages.filter(s => s.status === "afgerond").length;
+async function laadTaken() {
+  try {
+    const res = await fetch(API_BASE_URL + "/logboeken/docent/te-beoordelen", { headers: authHeader() });
+    if (!res.ok) return;
+    const taken = await res.json();
 
-  document.getElementById("statTotaal").textContent = totaal;
-  document.getElementById("statActief").textContent = actief;
-  document.getElementById("statOpstart").textContent = opstart;
-  document.getElementById("statAfgerond").textContent = afgerond;
-}
+    // Tellingen
+    const aantal = taken.length;
+    const uniekeStudenten = new Set(taken.map(t => t.student_voornaam + " " + t.student_achternaam)).size;
+    document.getElementById("statLogboeken").textContent = aantal;
+    document.getElementById("statLogboekenSub").textContent = "van " + uniekeStudenten + " studenten";
 
-function renderList() {
-  const container = document.getElementById("stagesList");
-  const emptyState = document.getElementById("emptyState");
+    // Lijst
+    const lijst = document.getElementById("takenList");
+    const empty = document.getElementById("emptyState");
+    if (taken.length === 0) {
+      empty.style.display = "block";
+      return;
+    }
 
-  let filtered = allStages;
-  if (currentFilter === "actief") {
-    filtered = allStages.filter(s => s.status === "actief");
-  } else if (currentFilter === "goedgekeurd") {
-    filtered = allStages.filter(s => s.status === "goedgekeurd" || s.status === "wacht_op_overeenkomst");
-  } else if (currentFilter === "afgerond") {
-    filtered = allStages.filter(s => s.status === "afgerond");
-  }
-
-  if (allStages.length === 0) {
-    emptyState.style.display = "block";
-    container.innerHTML = "";
-    return;
-  }
-
-  emptyState.style.display = "none";
-  container.innerHTML = "";
-
-  filtered.forEach(s => {
-    const naam = ((s.student_voornaam || "") + " " + (s.student_achternaam || "")).trim() || "Onbekend";
-    const initialen = naam.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-    const card = document.createElement("a");
-    card.href = "../../Commisie/stage-beoordeling/commissie.aanvraag-beoordeling.html?id=" + s.id;
-    card.className = "stage-card";
-    card.innerHTML =
-      '<div class="student-avatar">' + initialen + '</div>' +
-      '<div class="stage-info">' +
-        '<div class="stage-student">' + naam + '</div>' +
-        '<div class="stage-bedrijf">' + (s.bedrijf_naam || "—") + '</div>' +
-        '<div class="stage-meta">' + formatDate(s.startdatum) + " — " + formatDate(s.einddatum) + '</div>' +
-      '</div>' +
-      '<div class="stage-status">' +
-        '<span class="status-badge ' + s.status + '">' + getStatusText(s.status) + '</span>' +
-      '</div>' +
-      '<span class="stage-arrow">›</span>';
-    container.appendChild(card);
-  });
-}
-
-function setupFilters() {
-  document.querySelectorAll(".filter-tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll(".filter-tab").forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      currentFilter = tab.getAttribute("data-filter");
-      renderList();
+    lijst.innerHTML = "";
+    taken.forEach(t => {
+      const naam = ((t.student_voornaam || "") + " " + (t.student_achternaam || "")).trim();
+      const datum = t.ingediend_op ? formatDate(t.ingediend_op) : "—";
+      const item = document.createElement("a");
+      item.className = "taak-item";
+      item.href = "../logboek-inkijken/logboek-inkijken.html?id=" + t.id;
+      item.innerHTML =
+        '<div class="taak-icon">📄</div>' +
+        '<div class="taak-info">' +
+          '<div class="taak-titel">Logboek week ' + t.week_nummer + ' — ' + naam + '</div>' +
+          '<div class="taak-meta">Ingediend op ' + datum + ' · wacht op jouw beoordeling</div>' +
+        '</div>' +
+        '<button class="btn btn-primary">Beoordeel</button>';
+      lijst.appendChild(item);
     });
-  });
-}
-
-function getStatusText(status) {
-  const map = {
-    "goedgekeurd": "Goedgekeurd",
-    "wacht_op_overeenkomst": "Wacht op overeenkomst",
-    "actief": "Stage loopt",
-    "afgerond": "Afgerond"
-  };
-  return map[status] || status;
+  } catch (err) {
+    console.error("Taken ophalen fout:", err);
+  }
 }
 
 function formatDate(d) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("nl-BE");
+  const date = new Date(d);
+  const maanden = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+  return date.getDate() + " " + maanden[date.getMonth()];
 }
