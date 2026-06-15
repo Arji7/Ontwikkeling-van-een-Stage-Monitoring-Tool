@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stageovereenkomst ondertekend - StageMonitorage</title>
+  <link rel="stylesheet" href="stageovereenkomst-ondertekend.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Zijbalk -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item active">Dashboard</a>
+        <a href="../mijn-voorstel/mijn-voorstel.html" class="nav-item">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout">⎋ Uitloggen</a>
+    </aside>
+
+    <!-- Hoofdinhoud -->
+    <main class="content">
+      <div class="confirm">
+
+        <div class="check-circle">✓</div>
+        <h1 class="confirm-title">Stageovereenkomst succesvol ondertekend!</h1>
+
+        <div class="status-box">
+          <div class="status-row">
+            <span class="status-label">Status</span>
+            <span class="status-value status-started" id="statusValue">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Ingediend op</span>
+            <span class="status-value" id="ingediendOp">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Bedrijf</span>
+            <span class="status-value" id="bedrijf">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Periode</span>
+            <span class="status-value" id="periode">—</span>
+          </div>
+        </div>
+
+        <div class="confirm-actions">
+          <a href="../empty-stage/empty-stage.html" class="btn btn-danger">Terug naar dashboard</a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="stageovereenkomst-ondertekend.js"></script>
+</body>
+</html>
