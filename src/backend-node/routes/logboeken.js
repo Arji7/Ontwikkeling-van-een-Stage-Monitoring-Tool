@@ -45,6 +45,26 @@ async function getActieveStage(studentId) {
   return rijen[0].id;
 }
 
+// Hulpfunctie: heeft de gebruiker een staf-rol?
+function isStaf(user) {
+  const stafRollen = ['docent', 'mentor', 'commissielid', 'admin'];
+  return (user.rollen || []).some(r => stafRollen.includes(r));
+}
+
+// Hulpfunctie: check of een logboek bij de ingelogde student hoort
+async function isEigenLogboek(logboekId, gebruikerId) {
+  const [rijen] = await db.query(
+    `SELECT s.student_id, st.gebruiker_id
+       FROM logboek l
+       JOIN stage s   ON s.id  = l.stage_id
+       JOIN student st ON st.id = s.student_id
+      WHERE l.id = ?`,
+    [logboekId]
+  );
+  if (rijen.length === 0) return false;
+  return rijen[0].gebruiker_id === gebruikerId;
+}
+
 // ────────────────────────────────────────────────────────────
 // GET /api/logboeken/mijn — alle logboeken van ingelogde student
 // ────────────────────────────────────────────────────────────
@@ -124,6 +144,19 @@ router.get('/mijn/overzicht', authMiddleware, async (req, res) => {
 // ────────────────────────────────────────────────────────────
 router.get('/stage/:stageId', authMiddleware, async (req, res) => {
   try {
+    // Ownership check — student moet eigenaar zijn van de stage
+    if (!isStaf(req.user)) {
+      const studentId = await getStudentId(req.user.id);
+      const [stageRows] = await db.query(
+        'SELECT student_id FROM stage WHERE id = ?',
+        [req.params.stageId]
+      );
+      if (stageRows.length === 0) return res.status(404).json({ error: 'Stage niet gevonden' });
+      if (stageRows[0].student_id !== studentId) {
+        return res.status(403).json({ error: 'Geen toegang tot deze stage.' });
+      }
+    }
+
     const [rows] = await db.query(
       `SELECT l.*,
               (SELECT COUNT(*) FROM logboek_dag ld WHERE ld.logboek_id = l.id) AS aantal_dagen,
@@ -150,6 +183,12 @@ router.get('/:id', authMiddleware, async (req, res) => {
     if (logboeken.length === 0) return res.status(404).json({ error: 'Logboek niet gevonden' });
 
     const logboek = logboeken[0];
+
+    // Ownership check: student mag enkel eigen logboeken zien
+    if (!isStaf(req.user)) {
+      const eigenaar = await isEigenLogboek(logboek.id, req.user.id);
+      if (!eigenaar) return res.status(403).json({ error: 'Geen toegang tot dit logboek.' });
+    }
 
     const [dagen] = await db.query(
       'SELECT * FROM logboek_dag WHERE logboek_id = ? ORDER BY datum ASC',
@@ -411,6 +450,15 @@ router.post('/:id/bestanden', authMiddleware, upload.single('bestand'), async (r
       return res.status(404).json({ error: 'Logboek niet gevonden' });
     }
 
+    // Ownership check — student moet eigenaar zijn
+    if (!isStaf(req.user)) {
+      const eigenaar = await isEigenLogboek(req.params.id, req.user.id);
+      if (!eigenaar) {
+        fs.unlinkSync(req.file.path);
+        return res.status(403).json({ error: 'Geen toegang tot dit logboek.' });
+      }
+    }
+
     const [result] = await db.query(
       `INSERT INTO logboek_bestand (logboek_id, bestandsnaam, origineel_naam, mimetype, bestandsgrootte)
        VALUES (?, ?, ?, ?, ?)`,
@@ -438,10 +486,16 @@ router.post('/:id/bestanden', authMiddleware, upload.single('bestand'), async (r
 router.delete('/bestanden/:bestandId', authMiddleware, async (req, res) => {
   try {
     const [rijen] = await db.query(
-      'SELECT bestandsnaam FROM logboek_bestand WHERE id = ?',
+      'SELECT bestandsnaam, logboek_id FROM logboek_bestand WHERE id = ?',
       [req.params.bestandId]
     );
     if (rijen.length === 0) return res.status(404).json({ error: 'Bestand niet gevonden' });
+
+    // Ownership check — student moet eigenaar zijn van het logboek
+    if (!isStaf(req.user)) {
+      const eigenaar = await isEigenLogboek(rijen[0].logboek_id, req.user.id);
+      if (!eigenaar) return res.status(403).json({ error: 'Geen toegang tot dit bestand.' });
+    }
 
     const filePath = path.join(uploadDir, rijen[0].bestandsnaam);
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);

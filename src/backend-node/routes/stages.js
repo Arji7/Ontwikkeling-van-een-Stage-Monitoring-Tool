@@ -15,6 +15,12 @@ async function getStudentId(gebruikerId) {
   return rijen[0].id;
 }
 
+// Hulpfunctie: heeft de gebruiker een staf-rol (docent/mentor/commissielid/admin)?
+function isStaf(user) {
+  const stafRollen = ['docent', 'mentor', 'commissielid', 'admin'];
+  return (user.rollen || []).some(r => stafRollen.includes(r));
+}
+
 // POST /api/stages — stagevoorstel indienen
 router.post('/', authMiddleware, async (req, res) => {
   const { bedrijf, sector, mentor, mentorEmail, startDatum, eindDatum, omschrijving } = req.body;
@@ -149,6 +155,14 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Stage niet gevonden.' });
+    }
+
+    // Als geen staf-rol: alleen eigen stage mag bekeken worden
+    if (!isStaf(req.user)) {
+      const eigenStudentId = await getStudentId(req.user.id);
+      if (rows[0].student_id !== eigenStudentId) {
+        return res.status(403).json({ error: 'Geen toegang tot deze stage.' });
+      }
     }
 
     res.json(rows[0]);
