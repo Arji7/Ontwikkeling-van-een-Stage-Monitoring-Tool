@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stageovereenkomst - StageMonitorage</title>
+  <link rel="stylesheet" href="stageovereenkomst-document.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Zijbalk -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-voorstel/mijn-voorstel.html" class="nav-item active">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout">⎋ Uitloggen</a>
+    </aside>
+
+    <!-- Hoofdinhoud -->
+    <main class="content">
+      <div class="doc-wrap">
+
+        <!-- Document header -->
+        <div class="doc-header">
+          <h1 class="doc-title">Stageovereenkomst <span id="academiejaar">—</span></h1>
+          <p class="doc-subtitle">
+            Academiejaar <span id="academiejaarSub">—</span> · Hogeschool Brussel · Ref. <span id="referentie">—</span>
+          </p>
+        </div>
+
+        <!-- Artikel 1 — Partijen -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 1 — Partijen</h2>
+          <div class="field-list">
+            <div class="field-row">
+              <span class="field-label">Student</span>
+              <span class="field-value" id="studentNaam">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Studentnummer</span>
+              <span class="field-value" id="studentNummer">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Opleiding</span>
+              <span class="field-value" id="opleiding">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Hogeschool</span>
+              <span class="field-value" id="hogeschool">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Onderneming</span>
+              <span class="field-value" id="onderneming">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Ondernemingsnr.</span>
+              <span class="field-value" id="ondernemingsnr">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Adres onderneming</span>
+              <span class="field-value" id="adresOnderneming">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Stagementor</span>
+              <span class="field-value" id="stagementor">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Begeleider school</span>
+              <span class="field-value" id="begeleiderSchool">—</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Artikel 2 — Stageperiode & werkuren -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 2 — Stageperiode & werkuren</h2>
+          <div class="field-list">
+            <div class="field-row">
+              <span class="field-label">Startdatum</span>
+              <span class="field-value" id="startdatum">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Einddatum</span>
+              <span class="field-value" id="einddatum">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Totaal uren</span>
+              <span class="field-value" id="totaalUren">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Werkdagen</span>
+              <span class="field-value" id="werkdagen">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Werkuren</span>
+              <span class="field-value" id="werkuren">—</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Locatie</span>
+              <span class="field-value" id="locatie">—</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Artikel 3 — Taken & doelstellingen -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 3 — Taken & doelstellingen</h2>
+          <p class="article-text" id="takenTekst">—</p>
+        </section>
+
+        <!-- Artikel 4 — Rechten & plichten student -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 4 — Rechten & plichten student</h2>
+          <p class="article-text" id="rechtenPlichtenTekst">—</p>
+        </section>
+
+        <!-- Artikel 5 — Verplichtingen onderneming -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 5 — Verplichtingen onderneming</h2>
+          <p class="article-text" id="verplichtingenTekst">—</p>
+        </section>
+
+        <!-- Artikel 6 — Verzekering -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 6 — Verzekering</h2>
+          <p class="article-text" id="verzekeringTekst">—</p>
+        </section>
+
+        <!-- Artikel 7 — Evaluatie & beoordeling -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 7 — Evaluatie & beoordeling</h2>
+          <p class="article-text" id="evaluatieTekst">—</p>
+        </section>
+
+        <!-- Artikel 8 — Vroegtijdige beëindiging -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 8 — Vroegtijdige beëindiging</h2>
+          <p class="article-text" id="beeindigingTekst">—</p>
+        </section>
+
+        <!-- Artikel 9 — Toepasselijk recht -->
+        <section class="doc-section">
+          <h2 class="article-title">Artikel 9 — Toepasselijk recht</h2>
+          <p class="article-text" id="toepasselijkRechtTekst">—</p>
+        </section>
+
+        <!-- Ondertekeningsstatus -->
+        <section class="doc-section signing-section">
+          <div class="signing-header">
+            <h2 class="article-title">Ondertekeningsstatus</h2>
+            <span class="ref-badge" id="docRef">—</span>
+          </div>
+
+          <div class="signer-list" id="signerList">
+            <!-- Ondertekenaars worden hier dynamisch ingevuld -->
+          </div>
+
+          <div class="signing-actions">
+            <button class="btn btn-primary" id="btnOndertekenen">Ondertekenen</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="stageovereenkomst-document.js"></script>
+</body>
+</html>
