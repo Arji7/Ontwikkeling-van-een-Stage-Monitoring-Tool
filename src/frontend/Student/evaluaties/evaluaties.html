@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluaties – StageMonitor</title>
+  <link rel="stylesheet" href="evaluaties.css" />
+</head>
+<body>
+  <div class="app">
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
+        <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
+        <a href="evaluaties.html" class="nav-item active">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="breadcrumb">Evaluaties</div>
+      <h1 class="page-title">Mijn evaluaties</h1>
+      <p class="page-subtitle">Overzicht van je tussentijdse bespreking en eindbeoordeling</p>
+
+      <!-- Eval cards -->
+      <div class="eval-cards" id="evalCards">
+        <div class="loading">Evaluaties laden…</div>
+      </div>
+
+      <!-- Rubriek link -->
+      <div class="section-title">Beoordelingsrubriek</div>
+      <a href="rubriek.html" class="eval-card" style="max-width: 500px; display: flex;">
+        <div class="eval-card-header">
+          <div class="eval-card-icon icon-purple">📐</div>
+          <div>
+            <div class="eval-card-title">Rubriek bekijken</div>
+            <div class="eval-card-desc">Alle competenties en beoordelingscriteria per niveau (1–5)</div>
+          </div>
+        </div>
+        <div class="eval-card-footer" style="margin-top: 8px;">
+          <span class="badge badge-purple">11 competenties</span>
+          <span class="eval-card-arrow">›</span>
+        </div>
+      </a>
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script src="evaluaties.js"></script>
+  <script>
+    (function () {
+      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+
+      // Mobile sidebar toggle
+      document.getElementById("sidebarToggle").addEventListener("click", function () {
+        document.getElementById("sidebar").classList.toggle("mobile-open");
+      });
+    })();
+  </script>
+</body>
+</html>
