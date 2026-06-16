@@ -1,5 +1,3 @@
-const API_BASE_URL = API_BASE;
-
 document.addEventListener("DOMContentLoaded", async function () {
   const token = sessionStorage.getItem("token");
   if (!token) {
@@ -9,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   try {
     // Haal stages op
-    const res = await fetch(API_BASE_URL + "/stages/mijn", {
+    const res = await fetch(API_BASE + "/stages/mijn", {
       headers: { "Authorization": "Bearer " + token }
     });
     const stages = await res.json();
@@ -42,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Volledige detail ophalen voor docent + mentor namen
     let detail = stage;
     try {
-      const detailRes = await fetch(API_BASE_URL + "/stages/" + stage.id, {
+      const detailRes = await fetch(API_BASE + "/stages/" + stage.id, {
         headers: { "Authorization": "Bearer " + token }
       });
       if (detailRes.ok) detail = await detailRes.json();

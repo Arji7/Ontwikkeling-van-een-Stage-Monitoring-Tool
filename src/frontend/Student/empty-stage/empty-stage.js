@@ -1,5 +1,3 @@
-const API_BASE_URL = API_BASE;
-
 document.addEventListener("DOMContentLoaded", async function () {
 
   // 1. Toon naam van ingelogde gebruiker
@@ -15,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // 3. Stages ophalen van backend
   try {
-    const response = await fetch(API_BASE_URL + "/stages/mijn", {
+    const response = await fetch(API_BASE + "/stages/mijn", {
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -179,19 +177,4 @@ function updateStepper(state) {
     circles[2].classList.add("step-warning");
     circles[2].textContent = "!";
   }
-}
-
-function humanStatus(s) {
-  const map = {
-    "concept":              "Concept",
-    "ingediend":            "Ingediend, wachten op goedkeuring",
-    "in_beoordeling":       "In behandeling",
-    "goedgekeurd":          "✅ Goedgekeurd",
-    "aanpassingen_vereist": "✏️ Aanpassingen vereist",
-    "afgekeurd":            "❌ Afgekeurd",
-    "wacht_op_overeenkomst":"Wacht op overeenkomst",
-    "actief":               "Stage loopt",
-    "afgerond":             "Afgerond",
-  };
-  return map[s] || s;
 }
