@@ -212,13 +212,18 @@ let evalCompetentiesData = [];
 let activeCompId = null;
 
 async function laadEvaluaties() {
+  console.log("laadEvaluaties() called, stageId:", stageId);
+  if (!stageId) { console.warn("Geen stageId!"); return; }
+  evalCompetentiesData = [];
   try {
     const res = await fetch(API_BASE_URL + "/evaluaties/stage/" + stageId, { headers: authHeader() });
-    if (!res.ok) return;
+    console.log("Evaluaties response status:", res.status);
+    if (!res.ok) { console.error("Evaluaties fetch mislukt:", res.status); return; }
     evalData = await res.json();
+    console.log("evalData geladen:", evalData.length, "evaluaties");
 
     setupEvalSubtabs();
-    selectEvalType(currentEvalType);
+    await selectEvalType(currentEvalType);
   } catch (err) {
     console.error("Evaluaties fout:", err);
   }
@@ -226,17 +231,19 @@ async function laadEvaluaties() {
 
 function setupEvalSubtabs() {
   document.querySelectorAll(".eval-subtab").forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       document.querySelectorAll(".eval-subtab").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       currentEvalType = btn.getAttribute("data-eval-type");
-      selectEvalType(currentEvalType);
+      await selectEvalType(currentEvalType);
     };
   });
 }
 
-function selectEvalType(type) {
+async function selectEvalType(type) {
+  console.log("selectEvalType:", type, "evalData:", evalData);
   currentEval = evalData.find(e => e.type === type) || null;
+  console.log("currentEval:", currentEval ? "id=" + currentEval.id : "null");
   const empty = document.getElementById("evalEmpty");
   const scores = document.getElementById("evalScores");
   const main = document.getElementById("evalMain");
@@ -246,6 +253,7 @@ function selectEvalType(type) {
   const banner = document.getElementById("evalBanner");
 
   if (!currentEval) {
+    console.log("Geen evaluatie gevonden voor type:", type);
     empty.style.display = "block";
     scores.style.display = "none";
     main.style.display = "none";
@@ -280,11 +288,9 @@ function selectEvalType(type) {
   document.getElementById("btnEvalIndienen").textContent = isTussen ? "Tussentijdse indienen" : "Eindbeoordeling definitief indienen";
   document.getElementById("btnEvalIndienen").className = isTussen ? "btn btn-primary" : "btn btn-danger";
 
-  // Scores
+  // Load detail then render scores
+  await laadEvalDetail();
   renderEvalScores();
-
-  // Load detail
-  laadEvalDetail();
 }
 
 function renderEvalScores() {
@@ -320,12 +326,15 @@ function renderEvalScores() {
 }
 
 async function laadEvalDetail() {
-  if (!currentEval) return;
+  if (!currentEval) { evalCompetentiesData = []; return; }
   try {
+    console.log("laadEvalDetail voor evaluatie id:", currentEval.id);
     const res = await fetch(API_BASE_URL + "/evaluaties/" + currentEval.id, { headers: authHeader() });
-    if (!res.ok) return;
+    console.log("Eval detail response status:", res.status);
+    if (!res.ok) { console.error("Eval detail fetch mislukt:", res.status); return; }
     const detail = await res.json();
     evalCompetentiesData = detail.competenties || [];
+    console.log("evalCompetentiesData geladen:", evalCompetentiesData.length, "competenties");
     renderCompSidebar();
     if (evalCompetentiesData.length > 0) {
       selectComp(evalCompetentiesData[0].competentie_id);
