@@ -21,6 +21,108 @@ function isStaf(user) {
   return (user.rollen || []).some(r => stafRollen.includes(r));
 }
 
+// Standaard artikel-teksten voor de stageovereenkomst (reglement)
+const ARTIKEL_TEKSTEN = {
+  taken: "De student voert gedurende de stage de overeengekomen taken uit zoals beschreven in het stagevoorstel. " +
+         "De stagementor stuurt bij waar nodig en zorgt voor voldoende leerkansen aangepast aan het opleidingsniveau.",
+  rechtenPlichten: "De student houdt zich aan de geldende werk- en veiligheidsregels van de onderneming, " +
+                   "respecteert de vertrouwelijkheid van informatie waarmee hij/zij in aanraking komt, " +
+                   "en dient wekelijks een logboek in via het Stage Monitor platform.",
+  verplichtingen: "De onderneming voorziet de student van een werkomgeving die past bij de opleidingsdoelen, " +
+                  "stelt een stagementor aan en informeert de hogeschool tijdig bij problemen of afwezigheden.",
+  verzekering: "De Erasmushogeschool Brussel voorziet in een verzekering burgerlijke aansprakelijkheid en " +
+               "lichamelijke ongevallen voor de duur van de stage. De onderneming sluit geen bijkomende " +
+               "arbeidsovereenkomst met de student.",
+  evaluatie: "De student wordt tussentijds en op het einde van de stage geëvalueerd op basis van de " +
+             "opleidingscompetenties. Stagementor en schoolbegeleider vullen samen een evaluatieformulier in.",
+  beeindiging: "Bij ernstige tekortkomingen of overmacht kan de stage vroegtijdig worden beëindigd in overleg " +
+               "tussen student, stagementor en schoolbegeleider. Eventuele beslissing wordt schriftelijk gemotiveerd.",
+  toepasselijkRecht: "Op deze overeenkomst is het Belgisch recht van toepassing. Eventuele geschillen worden " +
+                     "in eerste instantie minnelijk geregeld; bij gebrek aan akkoord zijn de rechtbanken van Brussel bevoegd."
+};
+
+// GET /api/stages/overeenkomst-document — alle data voor het overeenkomst document
+// MOET vóór router.get('/:id') staan, anders matcht :id de path 'overeenkomst-document'
+router.get('/overeenkomst-document', authMiddleware, async (req, res) => {
+  try {
+    const studentId = await getStudentId(req.user.id);
+    if (!studentId) return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
+
+    const [rijen] = await db.query(
+      `SELECT s.id           AS stage_id,
+              s.startdatum, s.einddatum, s.omschrijving,
+              s.contact_naam, s.contact_email,
+              s.status,
+              b.naam         AS bedrijf_naam,
+              b.adres        AS bedrijf_adres,
+              b.postcode     AS bedrijf_postcode,
+              b.stad         AS bedrijf_stad,
+              b.btw_nummer   AS bedrijf_btw,
+              st.studentnummer,
+              sg.voornaam    AS student_voornaam,
+              sg.achternaam  AS student_achternaam,
+              o.naam         AS opleiding_naam,
+              aj.naam        AS academiejaar_naam,
+              dg.voornaam    AS docent_voornaam,
+              dg.achternaam  AS docent_achternaam
+       FROM stage s
+       LEFT JOIN bedrijf      b  ON b.id  = s.bedrijf_id
+       LEFT JOIN student      st ON st.id = s.student_id
+       LEFT JOIN gebruiker    sg ON sg.id = st.gebruiker_id
+       LEFT JOIN opleiding    o  ON o.id  = st.opleiding_id
+       LEFT JOIN academiejaar aj ON aj.id = s.academiejaar_id
+       LEFT JOIN docent       d  ON d.id  = s.docent_id
+       LEFT JOIN gebruiker    dg ON dg.id = d.gebruiker_id
+       WHERE s.student_id = ?
+         AND s.status IN ('goedgekeurd', 'wacht_op_overeenkomst', 'actief')
+       ORDER BY s.aangemaakt_op DESC
+       LIMIT 1`,
+      [studentId]
+    );
+
+    if (rijen.length === 0) {
+      return res.status(404).json({ error: 'Geen goedgekeurde stage gevonden.' });
+    }
+    const r = rijen[0];
+
+    const adres = [r.bedrijf_adres, r.bedrijf_postcode, r.bedrijf_stad].filter(Boolean).join(', ') || '—';
+    const docentNaam = (r.docent_voornaam || r.docent_achternaam)
+      ? ((r.docent_voornaam || '') + ' ' + (r.docent_achternaam || '')).trim()
+      : '—';
+
+    res.json({
+      academiejaar: r.academiejaar_naam || '—',
+      referentie: 'STG-' + (r.academiejaar_naam || 'XXXX') + '-' + r.stage_id,
+      student: {
+        naam: ((r.student_voornaam || '') + ' ' + (r.student_achternaam || '')).trim() || '—',
+        studentnummer: r.studentnummer || '—',
+        opleiding: r.opleiding_naam || '—',
+        hogeschool: 'Erasmushogeschool Brussel'
+      },
+      onderneming: {
+        naam: r.bedrijf_naam || '—',
+        ondernemingsnr: r.bedrijf_btw || '—',
+        adres: adres,
+        stagementor: r.contact_naam || '—',
+        begeleiderSchool: docentNaam
+      },
+      periode: {
+        startdatum: r.startdatum || '—',
+        einddatum: r.einddatum || '—',
+        totaalUren: '—',
+        werkdagen: '—',
+        werkuren: '—',
+        locatie: r.bedrijf_naam || '—'
+      },
+      artikels: ARTIKEL_TEKSTEN,
+      ondertekenaars: []
+    });
+  } catch (err) {
+    console.error('Overeenkomst document ophalen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
 // POST /api/stages — stagevoorstel indienen
 router.post('/', authMiddleware, async (req, res) => {
   const { bedrijf, sector, mentor, mentorEmail, startDatum, eindDatum, omschrijving } = req.body;
