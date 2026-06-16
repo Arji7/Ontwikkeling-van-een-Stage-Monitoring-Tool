@@ -142,7 +142,7 @@ async function ondertekenen(token) {
     if (!res.ok) throw new Error("Ondertekenen mislukt.");
 
     // Doorsturen naar bevestigingsscherm
-    window.location.href = "../stageovereenkomst-ondertekend/stageovereenkomst-ondertekend.html";
+   window.location.href = "../stageovereenkomst-ondertekend/stageovereenkomst-ondertekend.html";
 
   } catch (err) {
     console.error("Kon niet ondertekenen:", err);
