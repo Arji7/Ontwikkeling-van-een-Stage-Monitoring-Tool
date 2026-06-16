@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const container = document.getElementById("evalCards");
 
   try {
-    const res = await fetch(API_BASE_URL + "/evaluaties/mijn", {
+    const res = await fetch(API_BASE_URL + "/evaluaties/student/mijn", {
       headers: { "Authorization": "Bearer " + token }
     });
 

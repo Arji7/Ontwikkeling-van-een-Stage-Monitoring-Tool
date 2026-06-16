@@ -2,7 +2,6 @@ const API_BASE_URL = API_BASE;
 
 const SCORE_LABELS = ["", "Onvoldoende", "Zwak", "Voldoende", "Goed", "Uitmuntend"];
 const SCORE_COLORS = ["", "score-1", "score-2", "score-3", "score-4", "score-5"];
-const TREND_ICONS  = { stijgend: "📈", stabiel: "➡️", dalend: "📉" };
 
 document.addEventListener("DOMContentLoaded", async function () {
   const token = sessionStorage.getItem("token");
@@ -23,34 +22,37 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (!res.ok) throw new Error("niet gevonden");
       ev = await res.json();
     } else {
-      // Haal meest recente tussentijdse op
-      const res = await fetch(API_BASE_URL + "/evaluaties/mijn", {
+      const res = await fetch(API_BASE_URL + "/evaluaties/student/mijn", {
         headers: { "Authorization": "Bearer " + token }
       });
       if (!res.ok) throw new Error("API error");
       const lijst = await res.json();
       ev = lijst.find(function (e) { return e.type === "tussentijds"; });
       if (!ev) throw new Error("geen tussentijdse");
+      // Haal detail op voor competenties
+      const detailRes = await fetch(API_BASE_URL + "/evaluaties/" + ev.id, {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (detailRes.ok) ev = await detailRes.json();
     }
 
     vulPaginaIn(ev);
   } catch (err) {
-    vulDemoData();
+    vulLegeStaat();
   }
 });
 
 function vulPaginaIn(ev) {
-  document.getElementById("pageSubtitle").textContent =
-    "Week " + (ev.week_nummer || "—") + " · " + (ev.bedrijf_naam || "Mijn stage");
+  document.getElementById("infoDatum").textContent = formatDatum(ev.datum_bespreking);
+  document.getElementById("infoType").textContent =
+    ev.type_bespreking === "online" ? "Online" :
+    ev.type_bespreking === "fysiek" ? "Fysiek bij bedrijf" : "—";
+  document.getElementById("infoWeek").textContent =
+    ev.week_nummer ? "Week " + ev.week_nummer + " van 12" : "—";
 
-  document.getElementById("infodatum").textContent = formatDatum(ev.datum_bespreking);
-  document.getElementById("infotype").textContent =
-    ev.type_bespreking === "online" ? "🖥️ Online" :
-    ev.type_bespreking === "fysiek" ? "🏢 Fysiek" : "—";
-
-  const statusEl = document.getElementById("infostatus");
+  var statusEl = document.getElementById("infoStatus");
   if (ev.status === "afgerond") {
-    statusEl.innerHTML = '<span class="badge badge-green">✓ Afgerond</span>';
+    statusEl.innerHTML = '<span class="badge badge-green">Afgerond</span>';
   } else if (ev.status === "ingediend") {
     statusEl.innerHTML = '<span class="badge badge-blue">Ingediend</span>';
   } else {
@@ -61,82 +63,74 @@ function vulPaginaIn(ev) {
   document.getElementById("verbeterpunten").textContent = ev.verbeterpunten || "Nog niet ingevuld door je docent.";
 
   if (ev.algemene_appreciatie) {
-    document.getElementById("algApprec").textContent = ev.algemene_appreciatie;
+    document.getElementById("algApprec").textContent = '"' + ev.algemene_appreciatie + '"';
     document.getElementById("algWrap").style.display = "block";
   }
 
-  if (ev.scores && ev.scores.length > 0) {
-    renderScores(ev.scores);
+  if (ev.competenties && ev.competenties.length > 0) {
+    renderScoringTabel(ev.competenties);
   } else {
     document.getElementById("competentiesContainer").innerHTML =
       '<div class="empty-state">' +
         '<div class="empty-icon">📊</div>' +
         '<div class="empty-title">Scores nog niet beschikbaar</div>' +
-        '<div class="empty-text">Je docent heeft de competentiescores nog niet ingevoerd. Je ontvangt een melding zodra dit gebeurd is.</div>' +
+        '<div class="empty-text">Je docent heeft de competentiescores nog niet ingevoerd.</div>' +
       '</div>';
   }
 
   document.getElementById("mainContent").style.visibility = "visible";
 }
 
-function renderScores(scores) {
-  // Groepeer per competentie
-  const groepen = {};
-  scores.forEach(function (s) {
-    const cId = s.competentie_id || "0";
-    if (!groepen[cId]) {
-      groepen[cId] = { naam: s.competentie_naam || "Competentie", subcomps: [] };
-    }
-    groepen[cId].subcomps.push(s);
-  });
+function renderScoringTabel(competenties) {
+  var html = '<table class="scoring-table">';
+  html += '<thead><tr>' +
+    '<th>Competentie</th>' +
+    '<th class="center">Score</th>' +
+    '<th class="center">Eind-doelscore</th>' +
+    '<th class="center">Trend</th>' +
+  '</tr></thead><tbody>';
 
-  let html = "";
-  Object.values(groepen).forEach(function (groep) {
-    html += '<div class="comp-section">';
-    html += '<div class="comp-section-title">📌 ' + escHtml(groep.naam) + '</div>';
-    html += '<table class="comp-table">';
-    html += '<thead><tr>' +
-      '<th style="width:38%">Subcompetentie</th>' +
-      '<th class="center" style="width:14%">Score docent</th>' +
-      '<th class="center" style="width:14%">Score mentor</th>' +
-      '<th style="width:34%">Feedback docent</th>' +
-    '</tr></thead><tbody>';
-
-    groep.subcomps.forEach(function (s) {
-      const sd = s.score_docent;
-      const sm = s.score_mentor;
-      html += '<tr>';
-      html += '<td>' +
-        '<div class="subcomp-code">' + escHtml(s.code || "") + '</div>' +
-        '<div class="subcomp-name">' + escHtml(s.naam || "") + '</div>' +
-      '</td>';
-      html += '<td class="center">' + scoreChip(sd) + '</td>';
-      html += '<td class="center">' + scoreChip(sm) + '</td>';
-      html += '<td>' + (s.feedback_docent ? '<span style="font-size:13px;color:#374151;">' + escHtml(s.feedback_docent) + '</span>' : '<span style="color:#d1d5db;font-size:13px;">—</span>') + '</td>';
-      html += '</tr>';
+  competenties.forEach(function (comp) {
+    // Bereken gemiddelde score voor de competentie
+    var totalScore = 0, totalDoel = 0, countScore = 0, countDoel = 0;
+    var trend = null;
+    comp.scores.forEach(function (s) {
+      if (s.score_docent) { totalScore += s.score_docent; countScore++; }
+      if (s.eind_doelscore) { totalDoel += s.eind_doelscore; countDoel++; }
+      if (s.trend) trend = s.trend;
     });
+    var avgScore = countScore > 0 ? Math.round(totalScore / countScore) : null;
+    var avgDoel = countDoel > 0 ? Math.round(totalDoel / countDoel) : null;
 
-    html += '</tbody></table></div>';
+    html += '<tr>';
+    html += '<td>' + escHtml(comp.competentie_naam) + '</td>';
+    html += '<td class="center">' + scoreBadge(avgScore) + '</td>';
+    html += '<td class="center">' + scoreBadge(avgDoel) + '</td>';
+    html += '<td class="center">' + trendPijl(trend) + '</td>';
+    html += '</tr>';
   });
 
+  html += '</tbody></table>';
   document.getElementById("competentiesContainer").innerHTML = html;
 }
 
-function scoreChip(score) {
-  if (!score || score < 1 || score > 5) {
-    return '<span class="score-chip score-none">—</span>';
-  }
-  return '<span class="score-chip score-' + score + '" title="' + SCORE_LABELS[score] + '">' + score + '</span>';
+function scoreBadge(score) {
+  if (!score || score < 1 || score > 5) return '<span class="score-badge score-badge-none">—</span>';
+  return '<span class="score-badge score-badge-' + score + '">' + score + ' — ' + SCORE_LABELS[score] + '</span>';
 }
 
-function vulDemoData() {
-  // Toont zinvolle lege staat als geen API beschikbaar is
-  document.getElementById("pageSubtitle").textContent = "Tussentijdse bespreking";
-  document.getElementById("infodatum").textContent = "—";
-  document.getElementById("infotype").textContent = "—";
-  document.getElementById("infostatus").innerHTML = '<span class="badge badge-gray">Nog niet beschikbaar</span>';
-  document.getElementById("sterkePunten").textContent = "Nog niet ingevuld.";
-  document.getElementById("verbeterpunten").textContent = "Nog niet ingevuld.";
+function trendPijl(trend) {
+  if (trend === "stijgend") return '<span class="trend-arrow trend-up">↗</span>';
+  if (trend === "dalend") return '<span class="trend-arrow trend-down">↘</span>';
+  if (trend === "stabiel") return '<span class="trend-arrow trend-stable">→</span>';
+  return '<span style="color:#d1d5db;">—</span>';
+}
+
+function vulLegeStaat() {
+  document.getElementById("infoDatum").textContent = "—";
+  document.getElementById("infoType").textContent = "—";
+  document.getElementById("infoWeek").textContent = "—";
+  document.getElementById("infoStatus").innerHTML = '<span class="badge badge-gray">Nog niet beschikbaar</span>';
   document.getElementById("competentiesContainer").innerHTML =
     '<div class="empty-state">' +
       '<div class="empty-icon">📊</div>' +
@@ -148,8 +142,8 @@ function vulDemoData() {
 
 function formatDatum(d) {
   if (!d) return "—";
-  const date = new Date(d);
-  const maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+  var date = new Date(d);
+  var maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
   return date.getDate() + " " + maanden[date.getMonth()] + " " + date.getFullYear();
 }
 

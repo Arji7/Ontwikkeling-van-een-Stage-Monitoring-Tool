@@ -12,22 +12,16 @@
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
 
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">StageMonitor</div>
-      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <div class="sidebar-brand">StageMonitorage</div>
       <nav class="sidebar-nav">
         <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
         <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
         <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
         <a href="evaluaties.html" class="nav-item active">Evaluaties</a>
+        <a href="tussentijdse-evaluatie.html" class="nav-sub-item active">→ Tussentijds</a>
+        <a href="eind-evaluatie.html" class="nav-sub-item">Eindevaluatie</a>
       </nav>
       <div class="sidebar-footer">
-        <div class="sidebar-user">
-          <div class="user-avatar" id="sidebarUserAvatar">??</div>
-          <div class="user-info">
-            <span class="user-name" id="sidebarUserName">...</span>
-            <span class="user-role">Student</span>
-          </div>
-        </div>
         <a href="../../inloggen/inloggen.html" class="sidebar-logout"
            onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
       </div>
@@ -38,47 +32,58 @@
         <a href="evaluaties.html">Evaluaties</a> › Tussentijdse bespreking
       </div>
       <h1 class="page-title">Tussentijdse bespreking</h1>
-      <p class="page-subtitle" id="pageSubtitle">—</p>
+      <p class="page-subtitle">Halverwege jouw stage — feedback en afspraken</p>
 
-      <!-- Info tiles -->
-      <div class="info-grid">
+      <!-- Info banner -->
+      <div class="info-banner info-banner-blue">
+        <span class="info-banner-icon">💬</span>
+        <div>
+          <strong>Feedbackmoment — niet bindend voor de eindscore</strong><br/>
+          <span class="info-banner-text">Deze bespreking is bedoeld om je voortgang te evalueren en bij te sturen voor de tweede helft van je stage.</span>
+        </div>
+      </div>
+
+      <!-- Info tiles (4 kolommen) -->
+      <div class="info-grid info-grid-4">
         <div class="info-tile">
           <div class="info-tile-label">Datum bespreking</div>
-          <div class="info-tile-value" id="infodatum">—</div>
+          <div class="info-tile-value" id="infoDatum">—</div>
         </div>
         <div class="info-tile">
-          <div class="info-tile-label">Type bespreking</div>
-          <div class="info-tile-value" id="infotype">—</div>
+          <div class="info-tile-label">Type</div>
+          <div class="info-tile-value" id="infoType">—</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Week stage</div>
+          <div class="info-tile-value" id="infoWeek">—</div>
         </div>
         <div class="info-tile">
           <div class="info-tile-label">Status</div>
-          <div class="info-tile-value" id="infostatus">—</div>
+          <div class="info-tile-value" id="infoStatus">—</div>
         </div>
       </div>
 
-      <!-- Sterke punten / verbeterpunten -->
-      <div class="feedback-grid">
-        <div class="feedback-block">
-          <div class="feedback-block-label">✅ Sterke punten</div>
-          <div class="feedback-block-text" id="sterkePunten">—</div>
-        </div>
-        <div class="feedback-block">
-          <div class="feedback-block-label">🔧 Verbeterpunten</div>
-          <div class="feedback-block-text" id="verbeterpunten">—</div>
-        </div>
+      <!-- Feedback van de begeleiders -->
+      <div class="section-title">Feedback van de begeleiders</div>
+
+      <div class="feedback-card feedback-card-green" id="sterkePuntenWrap">
+        <div class="feedback-card-label">✓ Sterke punten — <span id="feedbackAuthors">docent &amp; mentor</span></div>
+        <div class="feedback-card-text" id="sterkePunten">Nog niet ingevuld door je docent.</div>
       </div>
 
-      <!-- Algemene appreciatie -->
-      <div class="detail-card" id="algWrap" style="display:none;">
-        <div class="detail-card-title">💬 Algemene appreciatie</div>
-        <div class="detail-card-body" id="algApprec">—</div>
+      <div class="feedback-card feedback-card-orange" id="verbeterpuntenWrap">
+        <div class="feedback-card-label">⚠ Verbeterpunten</div>
+        <div class="feedback-card-text" id="verbeterpunten">Nog niet ingevuld door je docent.</div>
       </div>
 
-      <!-- Competentiescores -->
-      <div class="section-title">Competentiescores</div>
-      <p style="font-size:13px; color:#6b7280; margin-bottom:20px; margin-top:-12px;">
-        Scores gegeven door je docent en stagementor per subcompetentie (1 = Onvoldoende · 5 = Uitmuntend)
-      </p>
+      <div class="feedback-card feedback-card-blue" id="algWrap" style="display:none;">
+        <div class="feedback-card-label">📋 Algemene appreciatie</div>
+        <div class="feedback-card-text" id="algApprec">—</div>
+      </div>
+
+      <!-- Tussentijdse scoring per competentie -->
+      <div class="section-title" style="margin-top:32px;">Tussentijdse scoring per competentie <span style="font-weight:400;color:#9ca3af;font-size:13px;">(optioneel — informatief)</span></div>
+
       <div id="competentiesContainer">
         <div class="loading">Scores laden…</div>
       </div>
@@ -95,13 +100,6 @@
   <script src="tussentijdse-evaluatie.js"></script>
   <script>
     (function () {
-      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
-      var name = u.name || "Student";
-      var nEl = document.getElementById("sidebarUserName");
-      var aEl = document.getElementById("sidebarUserAvatar");
-      if (nEl) nEl.textContent = name;
-      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
-
       document.getElementById("sidebarToggle").addEventListener("click", function () {
         document.getElementById("sidebar").classList.toggle("mobile-open");
       });

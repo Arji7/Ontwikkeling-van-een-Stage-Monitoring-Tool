@@ -12,22 +12,16 @@
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
 
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">StageMonitor</div>
-      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <div class="sidebar-brand">StageMonitorage</div>
       <nav class="sidebar-nav">
         <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
         <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
         <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
         <a href="evaluaties.html" class="nav-item active">Evaluaties</a>
+        <a href="tussentijdse-evaluatie.html" class="nav-sub-item">Tussentijds</a>
+        <a href="eind-evaluatie.html" class="nav-sub-item">→ Eindevaluatie</a>
       </nav>
       <div class="sidebar-footer">
-        <div class="sidebar-user">
-          <div class="user-avatar" id="sidebarUserAvatar">??</div>
-          <div class="user-info">
-            <span class="user-name" id="sidebarUserName">...</span>
-            <span class="user-role">Student</span>
-          </div>
-        </div>
         <a href="../../inloggen/inloggen.html" class="sidebar-logout"
            onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
       </div>
@@ -35,29 +29,37 @@
 
     <main class="content">
       <div class="breadcrumb">
-        <a href="evaluaties.html">Evaluaties</a> › Rubriek
+        <a href="evaluaties.html">Evaluaties</a> › <a href="eind-evaluatie.html">Mijn evaluatie</a> › Rubriek
       </div>
-      <h1 class="page-title">Beoordelingsrubriek</h1>
-      <p class="page-subtitle">Alle competenties en beoordelingscriteria per niveau — klik op een competentie om de criteria te zien</p>
+      <h1 class="page-title">⭕ Beoordelingsrubriek</h1>
+      <p class="page-subtitle">Wat je moet aantonen om elke score te halen, per competentie en subcompetentie</p>
 
-      <!-- Niveau legenda -->
-      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px;">
-        <span class="score-chip score-1" style="width:auto; padding: 4px 14px; border-radius:20px; font-size:13px;">1 · Onvoldoende</span>
-        <span class="score-chip score-2" style="width:auto; padding: 4px 14px; border-radius:20px; font-size:13px;">2 · Zwak</span>
-        <span class="score-chip score-3" style="width:auto; padding: 4px 14px; border-radius:20px; font-size:13px;">3 · Voldoende</span>
-        <span class="score-chip score-4" style="width:auto; padding: 4px 14px; border-radius:20px; font-size:13px;">4 · Goed</span>
-        <span class="score-chip score-5" style="width:auto; padding: 4px 14px; border-radius:20px; font-size:13px;">5 · Uitmuntend</span>
-      </div>
-
-      <!-- Alles uitklappen / inklappen -->
-      <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-        <button class="btn btn-secondary btn-sm" id="btnAllesOpen">Alles uitklappen</button>
-        <button class="btn btn-secondary btn-sm" id="btnAllesDicht">Alles inklappen</button>
+      <!-- Student info bar -->
+      <div class="rubriek-student-bar" id="studentBar">
+        <div class="rsb-item"><span class="rsb-label">Student</span><span class="rsb-value" id="rsbStudent">—</span></div>
+        <div class="rsb-item"><span class="rsb-label">Bedrijf</span><span class="rsb-value" id="rsbBedrijf">—</span></div>
+        <div class="rsb-item"><span class="rsb-label">Opleiding</span><span class="rsb-value" id="rsbOpleiding">—</span></div>
+        <div class="rsb-item"><span class="rsb-label">Academiejaar</span><span class="rsb-value" id="rsbJaar">—</span></div>
       </div>
 
-      <!-- Rubriek accordion -->
-      <div id="rubriekContainer">
-        <div class="loading">Rubriek laden…</div>
+      <!-- Info banner -->
+      <div class="info-banner info-banner-blue">
+        <span class="info-banner-icon">ℹ️</span>
+        <div>
+          <strong>Hoe werkt deze rubriek?</strong><br/>
+          <span class="info-banner-text">Voor elke subcompetentie staan 5 niveaus beschreven. Je docent en mentor gebruiken deze criteria bij de evaluatie. Gebruik ze ook voor jezelf — zo weet je per onderdeel wat verwacht wordt en waar je kan groeien.</span>
+        </div>
+      </div>
+
+      <!-- Competenties sidebar + detail -->
+      <div class="eval-detail-layout">
+        <div class="comp-sidebar" id="compSidebar">
+          <div class="comp-sidebar-title">Competenties</div>
+          <div id="compSidebarList"></div>
+        </div>
+        <div class="comp-detail" id="compDetail">
+          <div class="loading">Rubriek laden…</div>
+        </div>
       </div>
 
       <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
@@ -70,13 +72,6 @@
   <script src="rubriek.js"></script>
   <script>
     (function () {
-      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
-      var name = u.name || "Student";
-      var nEl = document.getElementById("sidebarUserName");
-      var aEl = document.getElementById("sidebarUserAvatar");
-      if (nEl) nEl.textContent = name;
-      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
-
       document.getElementById("sidebarToggle").addEventListener("click", function () {
         document.getElementById("sidebar").classList.toggle("mobile-open");
       });

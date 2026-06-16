@@ -1,8 +1,8 @@
 const API_BASE_URL = API_BASE;
 
 const SCORE_LABELS = ["", "Onvoldoende", "Zwak", "Voldoende", "Goed", "Uitmuntend"];
-const TREND_ICONS  = { stijgend: "📈", stabiel: "➡️", dalend: "📉" };
-const TREND_LABELS = { stijgend: "Stijgend", stabiel: "Stabiel", dalend: "Dalend" };
+let currentEval = null;
+let currentCompIdx = 0;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const token = sessionStorage.getItem("token");
@@ -23,60 +23,58 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (!res.ok) throw new Error("niet gevonden");
       ev = await res.json();
     } else {
-      const res = await fetch(API_BASE_URL + "/evaluaties/mijn", {
+      const res = await fetch(API_BASE_URL + "/evaluaties/student/mijn", {
         headers: { "Authorization": "Bearer " + token }
       });
       if (!res.ok) throw new Error("API error");
       const lijst = await res.json();
-      ev = lijst.find(function (e) { return e.type === "eind"; });
-      if (!ev) throw new Error("geen eindevaluatie");
+      const eindEv = lijst.find(function (e) { return e.type === "eind"; });
+      if (!eindEv) throw new Error("geen eindevaluatie");
+      const detailRes = await fetch(API_BASE_URL + "/evaluaties/" + eindEv.id, {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (!detailRes.ok) throw new Error("detail fout");
+      ev = await detailRes.json();
     }
 
+    currentEval = ev;
     vulPaginaIn(ev);
   } catch (err) {
-    vulDemoData();
+    vulLegeStaat();
   }
 });
 
 function vulPaginaIn(ev) {
-  document.getElementById("pageSubtitle").textContent =
-    ev.bedrijf_naam ? "Stage bij " + ev.bedrijf_naam : "Definitieve scores en officieel eindcijfer";
+  // Eindscore
+  var cijfer = ev.officieel_eindcijfer;
+  document.getElementById("eindscoreNum").textContent = cijfer != null ? cijfer : "—";
+  document.getElementById("eindscoreMention").textContent = cijfer != null ? cijferMention(cijfer) : "—";
 
-  // Eindcijfer
-  const cijfer = ev.officieel_eindcijfer;
-  document.getElementById("eindcijferNum").textContent = cijfer != null ? cijfer : "—";
-  if (cijfer != null) {
-    const label = cijferLabel(cijfer);
-    document.getElementById("eindcijferTitel").textContent = label.titel;
-    document.getElementById("eindcijferDesc").textContent = label.desc;
-  }
+  // Stage info - we halen dit uit de evaluatie of stage data
+  document.getElementById("infoStage").textContent = ev.stage_titel
+    ? (ev.bedrijf_naam ? ev.bedrijf_naam + " — " + ev.stage_titel : ev.stage_titel)
+    : (ev.bedrijf_naam || "—");
+  document.getElementById("infoPeriode").textContent =
+    ev.startdatum && ev.einddatum
+      ? formatKort(ev.startdatum) + " — " + formatKort(ev.einddatum)
+      : "—";
+  document.getElementById("infoDocent").textContent = ev.docent_naam || "—";
+  document.getElementById("infoMentor").textContent = ev.mentor_naam || "—";
+  document.getElementById("infoAfgerond").textContent =
+    ev.status === "afgerond" ? formatDatum(ev.aangemaakt_op) : "—";
 
-  document.getElementById("infodatum").textContent = formatDatum(ev.datum_bespreking);
-  document.getElementById("infotype").textContent =
-    ev.type_bespreking === "online" ? "🖥️ Online" :
-    ev.type_bespreking === "fysiek" ? "🏢 Fysiek" : "—";
+  // Competenties
+  if (ev.competenties && ev.competenties.length > 0) {
+    renderCompSidebar(ev.competenties);
+    selectComp(0);
 
-  const statusEl = document.getElementById("infostatus");
-  if (ev.status === "afgerond") {
-    statusEl.innerHTML = '<span class="badge badge-green">✓ Afgerond</span>';
-  } else if (ev.status === "ingediend") {
-    statusEl.innerHTML = '<span class="badge badge-blue">Ingediend</span>';
+    // Reflectie button tonen als evaluatie open of ingediend is
+    if (ev.status !== "afgerond") {
+      document.getElementById("btnReflectie").style.display = "inline-flex";
+      document.getElementById("btnReflectie").addEventListener("click", saveReflecties);
+    }
   } else {
-    statusEl.innerHTML = '<span class="badge badge-orange">Open</span>';
-  }
-
-  if (ev.globale_feedback) {
-    document.getElementById("globaleFeedback").textContent = ev.globale_feedback;
-    document.getElementById("feedbackWrap").style.display = "block";
-  }
-
-  document.getElementById("sterkePunten").textContent = ev.sterke_punten || "Nog niet ingevuld door je docent.";
-  document.getElementById("verbeterpunten").textContent = ev.verbeterpunten || "Nog niet ingevuld door je docent.";
-
-  if (ev.scores && ev.scores.length > 0) {
-    renderScores(ev.scores);
-  } else {
-    document.getElementById("competentiesContainer").innerHTML =
+    document.getElementById("compDetail").innerHTML =
       '<div class="empty-state">' +
         '<div class="empty-icon">🏆</div>' +
         '<div class="empty-title">Scores nog niet beschikbaar</div>' +
@@ -87,82 +85,129 @@ function vulPaginaIn(ev) {
   document.getElementById("mainContent").style.visibility = "visible";
 }
 
-function renderScores(scores) {
-  const groepen = {};
-  scores.forEach(function (s) {
-    const cId = s.competentie_id || "0";
-    if (!groepen[cId]) {
-      groepen[cId] = { naam: s.competentie_naam || "Competentie", subcomps: [] };
-    }
-    groepen[cId].subcomps.push(s);
+function renderCompSidebar(competenties) {
+  var html = "";
+  competenties.forEach(function (comp, idx) {
+    html += '<div class="comp-sidebar-item' + (idx === 0 ? ' active' : '') + '" data-idx="' + idx + '" onclick="selectComp(' + idx + ')">';
+    html += (comp.volgorde || idx + 1) + ". " + escHtml(comp.competentie_naam);
+    html += '</div>';
+  });
+  document.getElementById("compSidebarList").innerHTML = html;
+}
+
+function selectComp(idx) {
+  currentCompIdx = idx;
+  var items = document.querySelectorAll(".comp-sidebar-item");
+  items.forEach(function (el) { el.classList.remove("active"); });
+  if (items[idx]) items[idx].classList.add("active");
+
+  var comp = currentEval.competenties[idx];
+  renderCompDetail(comp);
+}
+
+function renderCompDetail(comp) {
+  var html = "";
+
+  comp.scores.forEach(function (s) {
+    html += '<div class="gi-item">';
+    html += '<div class="gi-header">';
+    html += '<strong>' + escHtml(s.code || "") + ':</strong> ' + escHtml(s.subcompetentie_naam || "");
+    html += '</div>';
+
+    html += '<div class="gi-scores-row">';
+
+    // Score (Docent)
+    html += '<div class="gi-field">';
+    html += '<div class="gi-field-label">Score (Docent)</div>';
+    html += '<div class="gi-field-value">' + (s.score_docent || '<span class="gi-placeholder">Wordt ingevuld door docent</span>') + '</div>';
+    html += '<div class="gi-readonly">🔒 Read-only</div>';
+    html += '</div>';
+
+    // Feedback (Docent)
+    html += '<div class="gi-field">';
+    html += '<div class="gi-field-label">Feedback (Docent)</div>';
+    html += '<div class="gi-field-value">' + (s.feedback_docent ? escHtml(s.feedback_docent) : '<span class="gi-placeholder">Wordt ingevuld door docent</span>') + '</div>';
+    html += '<div class="gi-readonly">🔒 Read-only</div>';
+    html += '</div>';
+
+    // Jouw reflectie
+    html += '<div class="gi-field gi-field-reflectie">';
+    html += '<div class="gi-field-label">Jouw reflectie</div>';
+    html += '<textarea class="gi-reflectie" data-sub-id="' + s.subcompetentie_id + '" placeholder="Beschrijf hoe je deze competentie hebt ontwikkeld…">' + escHtml(s.student_reflectie || "") + '</textarea>';
+    html += '</div>';
+
+    html += '</div>'; // gi-scores-row
+
+    // Score (Mentor) + Feedback (Mentor) - second row
+    html += '<div class="gi-scores-row gi-scores-row-secondary">';
+    html += '<div class="gi-field">';
+    html += '<div class="gi-field-label">Score (Mentor)</div>';
+    html += '<div class="gi-field-value">' + (s.score_mentor || '<span class="gi-placeholder">Wordt ingevuld door docent</span>') + '</div>';
+    html += '<div class="gi-readonly">🔒 Read-only</div>';
+    html += '</div>';
+
+    html += '<div class="gi-field">';
+    html += '<div class="gi-field-label">Feedback</div>';
+    html += '<div class="gi-field-value"><span class="gi-placeholder">Wordt ingevuld door docent</span></div>';
+    html += '<div class="gi-readonly">🔒 Read-only</div>';
+    html += '</div>';
+
+    html += '<div class="gi-field"></div>'; // empty for alignment
+
+    html += '</div>'; // gi-scores-row secondary
+
+    html += '</div>'; // gi-item
   });
 
-  let html = "";
-  Object.values(groepen).forEach(function (groep) {
-    html += '<div class="comp-section">';
-    html += '<div class="comp-section-title">📌 ' + escHtml(groep.naam) + '</div>';
-    html += '<table class="comp-table">';
-    html += '<thead><tr>' +
-      '<th style="width:35%">Subcompetentie</th>' +
-      '<th class="center" style="width:12%">Score docent</th>' +
-      '<th class="center" style="width:12%">Score mentor</th>' +
-      '<th class="center" style="width:12%">Doelscore</th>' +
-      '<th class="center" style="width:10%">Trend</th>' +
-      '<th style="width:19%">Feedback docent</th>' +
-    '</tr></thead><tbody>';
+  document.getElementById("compDetail").innerHTML = html;
+}
 
-    groep.subcomps.forEach(function (s) {
-      const trend = s.trend;
-      const trendHtml = trend
-        ? '<span class="trend-icon" title="' + (TREND_LABELS[trend] || "") + '">' + (TREND_ICONS[trend] || "—") + '</span>'
-        : '<span style="color:#d1d5db;">—</span>';
+async function saveReflecties() {
+  var token = sessionStorage.getItem("token");
+  if (!token || !currentEval) return;
 
-      html += '<tr>';
-      html += '<td>' +
-        '<div class="subcomp-code">' + escHtml(s.code || "") + '</div>' +
-        '<div class="subcomp-name">' + escHtml(s.naam || "") + '</div>' +
-      '</td>';
-      html += '<td class="center">' + scoreChip(s.score_docent) + '</td>';
-      html += '<td class="center">' + scoreChip(s.score_mentor) + '</td>';
-      html += '<td class="center">' + scoreChip(s.eind_doelscore) + '</td>';
-      html += '<td class="center">' + trendHtml + '</td>';
-      html += '<td>' + (s.feedback_docent
-        ? '<span style="font-size:13px;color:#374151;">' + escHtml(s.feedback_docent) + '</span>'
-        : '<span style="color:#d1d5db;font-size:13px;">—</span>') + '</td>';
-      html += '</tr>';
+  var textareas = document.querySelectorAll(".gi-reflectie");
+  var reflecties = [];
+  textareas.forEach(function (ta) {
+    reflecties.push({
+      subcompetentie_id: parseInt(ta.dataset.subId),
+      student_reflectie: ta.value.trim() || null
+    });
+  });
+
+  // Also gather from other competenties (not currently displayed)
+  // We only save what's currently visible - user navigates per comp
+  try {
+    var res = await fetch(API_BASE_URL + "/evaluaties/" + currentEval.id + "/reflectie", {
+      method: "PUT",
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ reflecties: reflecties })
     });
 
-    html += '</tbody></table></div>';
-  });
-
-  document.getElementById("competentiesContainer").innerHTML = html;
-}
-
-function cijferLabel(cijfer) {
-  if (cijfer >= 16) return { titel: "Uitstekend resultaat", desc: "Proficiat! Je hebt een uitstekende stage afgerond." };
-  if (cijfer >= 14) return { titel: "Goed resultaat", desc: "Je hebt je stage goed afgerond." };
-  if (cijfer >= 12) return { titel: "Bevredigend resultaat", desc: "Je hebt je stage bevredigend afgerond." };
-  if (cijfer >= 10) return { titel: "Voldoende resultaat", desc: "Je stage is succesvol afgerond." };
-  return { titel: "Onvoldoende", desc: "Je stage werd als onvoldoende beoordeeld. Neem contact op met je docent." };
-}
-
-function scoreChip(score) {
-  if (!score || score < 1 || score > 5) {
-    return '<span class="score-chip score-none">—</span>';
+    if (res.ok) {
+      alert("Reflecties opgeslagen!");
+    } else {
+      var data = await res.json();
+      alert("Fout: " + (data.error || "Onbekende fout"));
+    }
+  } catch (err) {
+    alert("Kon reflecties niet opslaan.");
   }
-  return '<span class="score-chip score-' + score + '" title="' + SCORE_LABELS[score] + '">' + score + '</span>';
 }
 
-function vulDemoData() {
-  document.getElementById("eindcijferNum").textContent = "—";
-  document.getElementById("eindcijferTitel").textContent = "Eindbeoordeling stage";
-  document.getElementById("eindcijferDesc").textContent = "Het eindcijfer wordt vastgelegd na de eindbeoordeling door je docent.";
-  document.getElementById("infodatum").textContent = "—";
-  document.getElementById("infotype").textContent = "—";
-  document.getElementById("infostatus").innerHTML = '<span class="badge badge-gray">Nog niet beschikbaar</span>';
-  document.getElementById("sterkePunten").textContent = "Nog niet ingevuld.";
-  document.getElementById("verbeterpunten").textContent = "Nog niet ingevuld.";
-  document.getElementById("competentiesContainer").innerHTML =
+function cijferMention(cijfer) {
+  if (cijfer >= 16) return "Onderscheiding";
+  if (cijfer >= 14) return "Grote voldoening";
+  if (cijfer >= 12) return "Voldoening";
+  if (cijfer >= 10) return "Voldoende";
+  return "Onvoldoende";
+}
+
+function vulLegeStaat() {
+  document.getElementById("compDetail").innerHTML =
     '<div class="empty-state">' +
       '<div class="empty-icon">🏆</div>' +
       '<div class="empty-title">Eindbeoordeling nog niet beschikbaar</div>' +
@@ -173,9 +218,15 @@ function vulDemoData() {
 
 function formatDatum(d) {
   if (!d) return "—";
-  const date = new Date(d);
-  const maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+  var date = new Date(d);
+  var maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
   return date.getDate() + " " + maanden[date.getMonth()] + " " + date.getFullYear();
+}
+
+function formatKort(d) {
+  if (!d) return "—";
+  var date = new Date(d);
+  return ("0" + date.getDate()).slice(-2) + "/" + ("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getFullYear();
 }
 
 function escHtml(s) {
