@@ -206,10 +206,49 @@
 
       <!-- Documenten tab -->
       <div class="tab-content" id="tab-documenten">
-        <div class="empty-state">
-          <div class="empty-icon">📄</div>
-          <div class="empty-title">Geen documenten</div>
-          <div class="empty-text">Documenten verschijnen hier zodra de student ze oplaadt.</div>
+        <!-- Stageovereenkomst sectie -->
+        <div class="doc-section" id="docOvereenkomstSection">
+          <h2 class="doc-section-title">Stageovereenkomst</h2>
+          <div class="doc-overeenkomst-card" id="docOvereenkomstCard">
+            <div class="doc-overeenkomst-info">
+              <div class="doc-overeenkomst-icon">📋</div>
+              <div class="doc-overeenkomst-details">
+                <span class="doc-overeenkomst-naam" id="docOvkNaam">Stageovereenkomst</span>
+                <span class="doc-overeenkomst-meta" id="docOvkMeta">—</span>
+              </div>
+              <span class="doc-overeenkomst-status" id="docOvkStatus">—</span>
+            </div>
+            <div class="doc-overeenkomst-handtekeningen" id="docOvkHandtekeningen"></div>
+            <div class="doc-overeenkomst-actions" id="docOvkActions"></div>
+          </div>
+          <div class="doc-overeenkomst-empty" id="docOvkEmpty" style="display:none;">
+            <p>Er is nog geen stageovereenkomst opgeladen voor deze stage.</p>
+          </div>
+        </div>
+
+        <!-- Documenten lijst -->
+        <div class="doc-section">
+          <div class="doc-section-header">
+            <h2 class="doc-section-title">Documenten</h2>
+            <button class="btn btn-primary btn-sm" id="btnDocUpload" onclick="document.getElementById('docFileInput').click()">+ Document uploaden</button>
+            <input type="file" id="docFileInput" style="display:none;" onchange="uploadDocument()" />
+          </div>
+
+          <div class="doc-filters" id="docFilters">
+            <button class="doc-filter active" data-filter="alle">Alle</button>
+            <button class="doc-filter" data-filter="stagevoorstel">Stagevoorstel</button>
+            <button class="doc-filter" data-filter="bijlage">Bijlage</button>
+            <button class="doc-filter" data-filter="evaluatie">Evaluatie</button>
+            <button class="doc-filter" data-filter="andere">Andere</button>
+          </div>
+
+          <div class="doc-list" id="docList"></div>
+
+          <div class="empty-state" id="docEmpty" style="display:none;">
+            <div class="empty-icon">📄</div>
+            <div class="empty-title">Geen documenten</div>
+            <div class="empty-text">Er zijn nog geen documenten opgeladen voor deze stage.</div>
+          </div>
         </div>
       </div>
     </main>
