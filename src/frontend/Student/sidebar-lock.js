@@ -1,8 +1,9 @@
 // ============================================================
 // sidebar-lock.js
-// Vergrendelt de "Logboeken" link in de sidebar als de student
-// geen actieve/goedgekeurde stage heeft. Wordt door alle student
-// pagina's geïnclude.
+// Beheert Logboeken en Evaluaties links in de sidebar:
+//  - Geen actieve stage → beide gelocked (🔒)
+//  - Wel actieve stage → beide klikbaar
+//    (Evaluaties toont 'binnenkort beschikbaar' tot het scherm bestaat)
 // ============================================================
 
 (async function () {
@@ -16,10 +17,28 @@
     if (!res.ok) return;
     var data = await res.json();
 
-    // Wel actieve stage → niets te doen
-    if (data && data.stage_id) return;
+    var heeftActieveStage = !!(data && data.stage_id);
 
-    // Geen actieve stage → vervang Logboeken link door locked span
+    if (heeftActieveStage) {
+      // Stage is actief → Evaluaties ontgrendelen
+      var lockedItems = document.querySelectorAll(".sidebar-nav span.nav-item.locked");
+      lockedItems.forEach(function (item) {
+        if (item.textContent.trim().startsWith("Evaluaties")) {
+          var link = document.createElement("a");
+          link.href = "#";
+          link.className = "nav-item";
+          link.textContent = "Evaluaties";
+          link.onclick = function (e) {
+            e.preventDefault();
+            alert("De evaluaties pagina is binnenkort beschikbaar.");
+          };
+          item.parentNode.replaceChild(link, item);
+        }
+      });
+      return;
+    }
+
+    // Geen actieve stage → vergrendel Logboeken (Evaluaties is al locked in HTML)
     var links = document.querySelectorAll(".sidebar-nav a.nav-item");
     links.forEach(function (link) {
       if (link.textContent.trim() === "Logboeken") {

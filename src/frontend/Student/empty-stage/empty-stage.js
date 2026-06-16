@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Toon meest relevante stage:
     //   1. Met openstaande actie (aanpassingen_vereist / afgekeurd)
     //   2. Anders: de meest recente
-    const PRIORITEIT = ["aanpassingen_vereist", "afgekeurd", "goedgekeurd", "ingediend", "in_beoordeling", "concept"];
+    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
     const stage = stages.slice().sort(function (a, b) {
       const pa = PRIORITEIT.indexOf(a.status);
       const pb = PRIORITEIT.indexOf(b.status);
@@ -73,7 +73,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     var btn = document.getElementById("statusBtn");
     var bedrijf = stage.bedrijf_naam || "—";
 
-    if (stage.status === "goedgekeurd") {
+    if (stage.status === "actief") {
+      banner.className = "alert-banner alert-success";
+      icon.textContent = "🚀";
+      title.textContent = "Je stage loopt!";
+      text.textContent = "Je stage bij " + bedrijf + " is actief. Vergeet je wekelijkse logboeken niet in te dienen.";
+      btn.textContent = "Naar mijn stage →";
+      btn.href = "../mijn-stage/mijn-stage.html";
+      btn.style.display = "inline-block";
+      updateStepper("goedgekeurd");
+    } else if (stage.status === "goedgekeurd" || stage.status === "wacht_op_overeenkomst") {
       banner.className = "alert-banner alert-success";
       icon.textContent = "✅";
       title.textContent = "Stagevoorstel goedgekeurd!";
