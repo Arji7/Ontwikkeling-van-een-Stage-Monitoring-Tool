@@ -20,8 +20,6 @@
 // POST /api/stages/overeenkomst-document/ondertekenen
 // ============================================================
 
-const API_BASE_URL = "http://localhost:3000/api";
-
 document.addEventListener("DOMContentLoaded", function () {
   const token = sessionStorage.getItem("token");
   if (!token) {
@@ -38,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 async function laadOvereenkomst(token) {
   try {
-    const res = await fetch(API_BASE_URL + "/stages/overeenkomst-document", {
+    const res = await fetch(API_BASE + "/stages/overeenkomst-document", {
       headers: { Authorization: "Bearer " + token },
     });
 
@@ -134,7 +132,7 @@ async function ondertekenen(token) {
   btn.textContent = "Bezig...";
 
   try {
-    const res = await fetch(API_BASE_URL + "/stages/overeenkomst-document/ondertekenen", {
+    const res = await fetch(API_BASE + "/stages/overeenkomst-document/ondertekenen", {
       method: "POST",
       headers: { Authorization: "Bearer " + token },
     });
