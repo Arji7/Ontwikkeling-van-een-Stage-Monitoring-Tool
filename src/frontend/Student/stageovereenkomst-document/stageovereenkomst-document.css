@@ -161,3 +161,6 @@ body {
 .sign-modal-actions .btn-primary:hover { background: var(--primary-hover); }
 .sign-modal-actions .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .sign-modal-error { color: #dc2626; font-size: 13px; margin-top: 10px; }
+.page-actions { display: flex; gap: 12px; justify-content: flex-start; max-width: 720px; margin: 16px auto 0; }
+.btn-outline { background: #fff; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { background: #f9fafb; }
