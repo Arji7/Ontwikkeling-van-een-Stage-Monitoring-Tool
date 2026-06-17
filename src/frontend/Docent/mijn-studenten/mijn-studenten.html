@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mijn studenten – StageMonitorage</title>
+  <link rel="stylesheet" href="../dashboard/dashboard.css" />
+  <link rel="stylesheet" href="mijn-studenten.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Docent</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <h1 class="page-title">Mijn studenten</h1>
+        <p class="page-subtitle">Overzicht van de studenten die je begeleidt dit academiejaar</p>
+      </header>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 Zoek student of bedrijf..." />
+      </div>
+
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="alle">Alle (<span id="cntAlle">0</span>)</button>
+        <button class="filter-tab" data-filter="actief">Actief (<span id="cntActief">0</span>)</button>
+        <button class="filter-tab" data-filter="goedgekeurd">Wacht op goedkeuring (<span id="cntWacht">0</span>)</button>
+        <button class="filter-tab" data-filter="afgerond">Afgerond (<span id="cntAfgerond">0</span>)</button>
+      </div>
+
+      <table class="studenten-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Bedrijf</th>
+            <th>Voortgang</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="studentenList"></tbody>
+      </table>
+
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Geen studenten gevonden</div>
+        <div class="empty-text">Er zijn nog geen stages aan jou toegewezen.</div>
+      </div>
+    </main>
+  </div>
+
+  <script>window.SIDEBAR_PAGE = 'mijn-studenten'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../../sidebar-builder.js"></script>
+  <script src="mijn-studenten.js"></script>
+</body>
+</html>

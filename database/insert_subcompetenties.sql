@@ -1,74 +1,74 @@
-USE stage_monitor;
-
--- 1. Beheersing planningsproces
+-- Subcompetenties (GI-codes) voor alle 11 competenties
+-- Competentie 1: Beheersing planningsproces
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(1, 'GI.01', 'Maakt een realistische planning op basis van vereisten', 1),
-(1, 'GI.02', 'Bewaakt de voortgang en stuurt bij waar nodig', 2),
-(1, 'GI.03', 'Schat taken en doorlooptijd correct in', 3);
+(1, 'GI 1.1', 'Stelt een realistische planning op en bewaakt de voortgang ervan.', 1),
+(1, 'GI 1.2', 'Schat de benodigde tijd en middelen correct in.', 2),
+(1, 'GI 1.3', 'Past de planning aan bij veranderende omstandigheden.', 3);
 
--- 2. Ontwerpen IT-oplossingen
+-- Competentie 2: Ontwerpen IT-oplossingen
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(2, 'GI.04', 'Analyseert functionele en technische vereisten', 1),
-(2, 'GI.05', 'Maakt onderbouwde technologiekeuzes', 2),
-(2, 'GI.06', 'Ontwerpt schaalbare en onderhoudbare oplossingen', 3);
+(2, 'GI 2.1', 'Analyseert de vereisten en vertaalt deze naar een technisch ontwerp.', 4),
+(2, 'GI 2.2', 'Ontwerpt schaalbare en onderhoudbare oplossingen.', 5),
+(2, 'GI 2.3', 'Houdt rekening met beveiliging en performantie in het ontwerp.', 6);
 
--- 3. Implementatie digitale producten
+-- Competentie 3: Implementatie digitale producten
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(3, 'GI.07', 'Schrijft kwalitatieve en leesbare code', 1),
-(3, 'GI.08', 'Test en debugt systematisch', 2),
-(3, 'GI.09', 'Levert werkende software op binnen de afspraken', 3);
+(3, 'GI 3.1', 'Schrijft kwalitatieve en leesbare code volgens afgesproken standaarden.', 7),
+(3, 'GI 3.2', 'Test de eigen code grondig en systematisch.', 8),
+(3, 'GI 3.3', 'Levert werkende software op binnen de afgesproken termijnen.', 9);
 
--- 4. Integratie technologie
+-- Competentie 4: Integratie technologie
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(4, 'GI.10', 'Integreert APIs en externe services', 1),
-(4, 'GI.11', 'Werkt met databases en datastromen', 2),
-(4, 'GI.12', 'Past beveiligingsprincipes toe', 3);
+(4, 'GI 4.1', 'Integreert verschillende technologieën en systemen op een correcte manier.', 10),
+(4, 'GI 4.2', 'Configureert en beheert ontwikkel- en productieomgevingen.', 11);
 
--- 5. Onderzoekende houding
+-- Competentie 5: Onderzoekende houding
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(5, 'GI.13', 'Onderzoekt nieuwe technologieen en tools', 1),
-(5, 'GI.14', 'Onderbouwt keuzes met bronnen en argumenten', 2);
+(5, 'GI 5.1', 'Zoekt actief naar nieuwe technologieën en methoden.', 12),
+(5, 'GI 5.2', 'Onderbouwt keuzes met relevante bronnen en argumenten.', 13);
 
--- 6. Communicatie
+-- Competentie 6: Communicatie
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(6, 'GI.15', 'Communiceert helder mondeling en schriftelijk', 1),
-(6, 'GI.16', 'Documenteert werk toegankelijk voor het team', 2),
-(6, 'GI.17', 'Geeft en ontvangt constructieve feedback', 3);
+(6, 'GI 6.1', 'Communiceert helder en professioneel, zowel mondeling als schriftelijk.', 14),
+(6, 'GI 6.2', 'Rapporteert regelmatig en gestructureerd over de voortgang.', 15),
+(6, 'GI 6.3', 'Stelt gerichte vragen en luistert actief.', 16);
 
--- 7. Probleemoplossend vermogen
+-- Competentie 7: Probleemoplossend vermogen
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(7, 'GI.18', 'Analyseert problemen gestructureerd', 1),
-(7, 'GI.19', 'Zoekt creatieve en effectieve oplossingen', 2);
+(7, 'GI 7.1', 'Analyseert problemen systematisch en identificeert de kern.', 17),
+(7, 'GI 7.2', 'Zoekt creatieve en efficiënte oplossingen.', 18);
 
--- 8. Persoonlijke ontwikkeling
+-- Competentie 8: Persoonlijke ontwikkeling
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(8, 'GI.20', 'Reflecteert op eigen functioneren', 1),
-(8, 'GI.21', 'Neemt initiatief voor eigen groei', 2);
+(8, 'GI 8.1', 'Reflecteert kritisch op het eigen functioneren.', 19),
+(8, 'GI 8.2', 'Staat open voor feedback en past gedrag aan.', 20);
 
--- 9. Professionele attitude
+-- Competentie 9: Professionele attitude
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(9, 'GI.22', 'Is stipt, betrouwbaar en respectvol', 1),
-(9, 'GI.23', 'Houdt zich aan afspraken en deadlines', 2);
+(9, 'GI 9.1', 'Toont verantwoordelijkheid en betrouwbaarheid.', 21),
+(9, 'GI 9.2', 'Werkt constructief samen binnen het team.', 22),
+(9, 'GI 9.3', 'Gaat respectvol om met collega\'s en stakeholders.', 23);
 
--- 10. Ondernemend handelen
+-- Competentie 10: Ondernemend handelen
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(10, 'GI.24', 'Neemt initiatief en denkt proactief mee', 1),
-(10, 'GI.25', 'Signaleert kansen en verbeterpunten', 2);
+(10, 'GI 10.1', 'Neemt initiatief en toont proactiviteit.', 24),
+(10, 'GI 10.2', 'Signaleert kansen en draagt bij aan verbetering.', 25);
 
--- 11. Ethisch handelen
+-- Competentie 11: Ethisch handelen
 INSERT INTO subcompetentie (competentie_id, code, naam, volgorde) VALUES
-(11, 'GI.26', 'Handelt integer en respecteert privacy', 1),
-(11, 'GI.27', 'Houdt rekening met maatschappelijke impact', 2);
+(11, 'GI 11.1', 'Handelt integer en respecteert vertrouwelijkheid.', 26),
+(11, 'GI 11.2', 'Houdt rekening met de maatschappelijke impact van ICT.', 27);
 
--- Niveaus per subcompetentie (5 niveaus elk)
+-- Subcompetentie niveaus (5 niveaus per subcompetentie)
+-- We voegen voor elke subcompetentie 5 niveaus toe
 INSERT INTO subcompetentie_niveau (subcompetentie_id, niveau, label, sublabel, beschrijving)
-SELECT s.id, n.niveau, n.label, n.sublabel, n.beschrijving
+SELECT s.id, n.niveau, n.label, n.sublabel, CONCAT('Niveau ', n.niveau, ' voor ', s.code)
 FROM subcompetentie s
 CROSS JOIN (
-  SELECT 1 AS niveau, 'Onvoldoende' AS label, 'Onder verwachting' AS sublabel, 'Voldoet niet aan de minimale verwachtingen voor dit criterium.' AS beschrijving
-  UNION ALL SELECT 2, 'Zwak', 'Net onder verwachting', 'Voldoet gedeeltelijk maar vertoont duidelijke tekortkomingen.'
-  UNION ALL SELECT 3, 'Voldoende', 'Naar verwachting', 'Voldoet aan de verwachtingen voor dit criterium.'
-  UNION ALL SELECT 4, 'Goed', 'Boven verwachting', 'Presteert boven de verwachtingen met merkbare kwaliteit.'
-  UNION ALL SELECT 5, 'Uitmuntend', 'Ver boven verwachting', 'Uitzonderlijke prestatie die als voorbeeld kan dienen.'
+  SELECT 1 AS niveau, 'Onvoldoende' AS label, 'Beginner' AS sublabel UNION ALL
+  SELECT 2, 'Ondermaats', 'Gevorderd beginner' UNION ALL
+  SELECT 3, 'Voldoende', 'Competent' UNION ALL
+  SELECT 4, 'Goed', 'Bekwaam' UNION ALL
+  SELECT 5, 'Uitstekend', 'Expert'
 ) n
 ORDER BY s.id, n.niveau;

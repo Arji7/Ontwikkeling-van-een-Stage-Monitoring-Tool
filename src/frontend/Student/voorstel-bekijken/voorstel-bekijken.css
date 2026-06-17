@@ -51,15 +51,16 @@ body {
 
 /* ── Paginakop ── */
 .page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
   margin-bottom: 20px;
+}
+.page-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .page-title { font-size: 22px; font-weight: 700; color: var(--heading); }
-.page-sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+.page-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
 /* Status badge */
 .status-badge {

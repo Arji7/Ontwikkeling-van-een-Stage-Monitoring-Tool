@@ -66,6 +66,41 @@ async function isEigenLogboek(logboekId, gebruikerId) {
 }
 
 // ────────────────────────────────────────────────────────────
+// GET /api/logboeken/docent/te-beoordelen — opstaande logboeken voor docent
+// ────────────────────────────────────────────────────────────
+router.get('/docent/te-beoordelen', authMiddleware, async (req, res) => {
+  try {
+    const [docentRows] = await db.query(
+      'SELECT id FROM docent WHERE gebruiker_id = ?',
+      [req.user.id]
+    );
+    if (docentRows.length === 0) {
+      return res.status(403).json({ error: 'Geen docentprofiel gevonden.' });
+    }
+    const docent_id = docentRows[0].id;
+
+    const [rows] = await db.query(
+      `SELECT l.id, l.week_nummer, l.titel, l.uitgevoerde_taken, l.status, l.ingediend_op,
+              s.id AS stage_id, b.naam AS bedrijf_naam,
+              g.voornaam AS student_voornaam, g.achternaam AS student_achternaam
+       FROM logboek l
+       JOIN stage s     ON s.id  = l.stage_id
+       JOIN student st  ON st.id = s.student_id
+       JOIN gebruiker g ON g.id  = st.gebruiker_id
+       LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
+       WHERE s.docent_id = ? AND l.status IN ('ingediend', 'wacht_op_mentor')
+       ORDER BY l.ingediend_op DESC`,
+      [docent_id]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('Te beoordelen ophalen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
 // GET /api/logboeken/mijn — alle logboeken van ingelogde student
 // ────────────────────────────────────────────────────────────
 router.get('/mijn', authMiddleware, async (req, res) => {
