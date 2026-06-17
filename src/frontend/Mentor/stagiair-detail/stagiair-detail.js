@@ -213,6 +213,303 @@
     }
   }
 
+  // ── Evaluaties tab ──
+  var evalState = { evaluaties: [], rubriek: [], actieveSub: 'tussentijds', actieveComp: 0, pendingScores: {} };
+
+  function scoreNaarTwintig(scores) {
+    var gevuld = scores.filter(function (s) { return s.score_mentor; });
+    if (!gevuld.length) return null;
+    var gem = gevuld.reduce(function (t, s) { return t + s.score_mentor; }, 0) / gevuld.length;
+    return Math.round((gem / 5) * 20 * 10) / 10;
+  }
+
+  function renderEvalScoreCard(label, score, klasse) {
+    return '<div class="eval-score-card ' + (klasse||'') + '">' +
+      '<div class="eval-score-label">' + label + '</div>' +
+      '<div class="eval-score-val">' + (score !== null ? score + '/20' : '—') + '</div>' +
+      '<div class="eval-score-sub">berekend uit competenties</div>' +
+    '</div>';
+  }
+
+  function alleScoresVoorEval(evalId) {
+    var comp = evalState.rubriek;
+    var scores = [];
+    comp.forEach(function (c) {
+      c.subcompetenties.forEach(function (sc) {
+        var ev = evalState.evaluaties.find(function (e) { return e.id === evalId; });
+        var scoreObj = ev ? (ev.competenties || []).reduce(function (a, cc) {
+          return a.concat(cc.scores || []);
+        }, []).find(function (s) { return s.subcompetentie_id === sc.id; }) : null;
+        scores.push(scoreObj || { subcompetentie_id: sc.id, score_mentor: null });
+      });
+    });
+    return scores;
+  }
+
+  function renderEvaluatiesInhoud() {
+    var tussentijds = evalState.evaluaties.find(function (e) { return e.type === 'tussentijds'; });
+    var eind        = evalState.evaluaties.find(function (e) { return e.type === 'eind'; });
+    var actief      = evalState.actieveSub === 'tussentijds' ? tussentijds : eind;
+
+    var tScoreAlleScores = tussentijds ? alleScoresVoorEval(tussentijds.id) : [];
+    var eScoreAlleScores = eind        ? alleScoresVoorEval(eind.id)        : [];
+    var tScore = scoreNaarTwintig(tScoreAlleScores);
+    var eScore = scoreNaarTwintig(eScoreAlleScores);
+
+    // Sub-tab knoppen + rubriek knop
+    var html =
+      '<div class="eval-header-rij">' +
+        '<div class="eval-subtabs">' +
+          '<button class="eval-subtab' + (evalState.actieveSub==='tussentijds'?' active':'') + '" data-ev="tussentijds">' +
+            (tussentijds ? '<span class="dot oranje"></span>' : '') + ' Tussentijdse evaluatie' +
+          '</button>' +
+          '<button class="eval-subtab' + (evalState.actieveSub==='eind'?' active':'') + '" data-ev="eind">' +
+            (eind ? '<span class="dot oranje"></span> ' : '') + 'Eindbeoordeling' +
+          '</button>' +
+        '</div>' +
+        '<button class="btn-rubriek" id="btnBekijkRubriek">📋 Bekijk rubriek</button>' +
+      '</div>';
+
+    // Score cards
+    if (evalState.actieveSub === 'tussentijds' && tussentijds) {
+      html += '<div class="eval-score-cards">' + renderEvalScoreCard('Jouw tussentijdse score', tScore, '') + '</div>';
+    } else if (evalState.actieveSub === 'eind' && eind) {
+      html += '<div class="eval-score-cards">' +
+        renderEvalScoreCard('Jouw Tussentijdsscore', tScore, '') +
+        renderEvalScoreCard('Jouw eindscore', eScore, '') +
+      '</div>';
+    }
+
+    if (!actief) {
+      html += '<div class="empty-state"><div class="empty-icon">📋</div>' +
+        '<div class="empty-title">Nog geen evaluatie aangemaakt</div>' +
+        '<div class="empty-text">De begeleidende docent maakt de evaluatie aan. Daarna kan jij je scores invullen.</div></div>';
+      el('evaluatiesContent').innerHTML = html;
+      el('evaluatiesContent').querySelectorAll('.eval-subtab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          evalState.actieveSub = btn.dataset.ev;
+          renderEvaluatiesInhoud();
+        });
+      });
+      var rb = el('btnBekijkRubriek');
+      if (rb) rb.addEventListener('click', function () { toonRubriekModal(); });
+      return;
+    }
+
+    // 2-kolom layout: sidebar competenties + rechter content
+    html += '<div class="eval-layout">';
+
+    // Linker sidebar: competenties
+    html += '<div class="eval-comp-sidebar">';
+    evalState.rubriek.forEach(function (c, idx) {
+      html += '<div class="eval-comp-item' + (evalState.actieveComp === idx ? ' active' : '') + '" data-idx="' + idx + '">' +
+        '<span class="eval-comp-num">' + (idx+1) + '.</span> ' + esc(c.naam) +
+      '</div>';
+    });
+    html += '</div>';
+
+    // Rechter content: subcompetencies van actieve competentie
+    var comp = evalState.rubriek[evalState.actieveComp];
+    html += '<div class="eval-comp-content">';
+    if (comp) {
+      var evalComp = (actief.competenties || []).find(function (cc) { return cc.competentie_naam === comp.naam; });
+      comp.subcompetenties.forEach(function (sc) {
+        var scoreObj = evalComp ? (evalComp.scores || []).find(function (s) { return s.subcompetentie_id === sc.id; }) : null;
+        var sM = scoreObj ? scoreObj.score_mentor   : null;
+        var fM = scoreObj ? scoreObj.feedback_mentor : '';
+        var sD = scoreObj ? scoreObj.score_docent   : null;
+        var fD = scoreObj ? scoreObj.feedback_docent : '';
+        var ref = scoreObj ? scoreObj.student_reflectie : '';
+        var key = actief.id + '_' + sc.id;
+        var pendScore = evalState.pendingScores[key];
+        if (pendScore !== undefined) { sM = pendScore.score_mentor !== undefined ? pendScore.score_mentor : sM; fM = pendScore.feedback_mentor !== undefined ? pendScore.feedback_mentor : fM; }
+
+        html +=
+          '<div class="eval-gi-blok" data-eval="' + actief.id + '" data-sub="' + sc.id + '">' +
+            '<div class="eval-gi-code">' + esc(sc.code) + ':</div>' +
+            '<div class="eval-gi-naam">' + esc(sc.naam) + '</div>' +
+            '<div class="eval-gi-rij">' +
+              '<div class="eval-gi-col">' +
+                '<label>Score (Mentor)</label>' +
+                '<input class="eval-score-input" type="number" min="1" max="5" step="0.5" placeholder="1-5"' +
+                  ' value="' + (sM !== null ? sM : '') + '"' +
+                  ' data-key="' + key + '" data-field="score_mentor" />' +
+              '</div>' +
+              '<div class="eval-gi-col wide">' +
+                '<label>Feedback (Mentor)</label>' +
+                '<textarea class="eval-feedback-input" rows="3" placeholder="Geef feedback…"' +
+                  ' data-key="' + key + '" data-field="feedback_mentor">' + esc(fM || '') + '</textarea>' +
+              '</div>' +
+              '<div class="eval-gi-col">' +
+                '<label>Score (Docent)</label>' +
+                '<input class="eval-score-input readonly" type="number" min="1" max="5" readonly' +
+                  ' value="' + (sD !== null ? sD : '') + '" />' +
+              '</div>' +
+              '<div class="eval-gi-col wide">' +
+                '<label>Feedback (Docent)</label>' +
+                '<textarea class="eval-feedback-input readonly" rows="3" readonly>' + esc(fD || '') + '</textarea>' +
+              '</div>' +
+              (ref ? '<div class="eval-student-reflectie"><div class="eval-ref-label">Student reflectie</div><div class="eval-ref-tekst">' + esc(ref) + '</div></div>' : '<div class="eval-student-reflectie leeg"></div>') +
+            '</div>' +
+          '</div>';
+      });
+    }
+    html += '</div></div>';
+
+    // Opslaan knop
+    html += '<div class="eval-save-bar"><button class="btn-eval-save" id="btnEvalSave">💾 Scores opslaan</button></div>';
+
+    el('evaluatiesContent').innerHTML = html;
+
+    // Event: sub-tab wisselen
+    el('evaluatiesContent').querySelectorAll('.eval-subtab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        evalState.actieveSub = btn.dataset.ev;
+        renderEvaluatiesInhoud();
+      });
+    });
+
+    // Event: competentie selecteren
+    el('evaluatiesContent').querySelectorAll('.eval-comp-item').forEach(function (item) {
+      item.addEventListener('click', function () {
+        evalState.actieveComp = parseInt(item.dataset.idx, 10);
+        renderEvaluatiesInhoud();
+      });
+    });
+
+    // Event: input wijzigingen bijhouden (zonder re-render)
+    el('evaluatiesContent').querySelectorAll('[data-key]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        var key   = inp.dataset.key;
+        var field = inp.dataset.field;
+        if (!evalState.pendingScores[key]) evalState.pendingScores[key] = {};
+        evalState.pendingScores[key][field] = inp.value;
+      });
+    });
+
+    // Event: opslaan
+    el('btnEvalSave').addEventListener('click', function () { slaEvalOp(actief.id); });
+
+    // Event: rubriek modal
+    el('btnBekijkRubriek').addEventListener('click', function () { toonRubriekModal(); });
+  }
+
+  function toonRubriekModal() {
+    var bestaand = document.getElementById('rubriekModal');
+    if (bestaand) { bestaand.remove(); }
+
+    var html =
+      '<div class="rubriek-overlay" id="rubriekModal">' +
+        '<div class="rubriek-modal">' +
+          '<div class="rubriek-modal-header">' +
+            '<h2>📋 Rubriek — Competenties & Criteria</h2>' +
+            '<button class="rubriek-sluit" id="sluitRubriek">✕</button>' +
+          '</div>' +
+          '<div class="rubriek-modal-body">';
+
+    evalState.rubriek.forEach(function (c, idx) {
+      html +=
+        '<div class="rubriek-comp">' +
+          '<div class="rubriek-comp-titel">' + (idx+1) + '. ' + esc(c.naam) + '</div>';
+      c.subcompetenties.forEach(function (sc) {
+        html +=
+          '<div class="rubriek-gi">' +
+            '<span class="rubriek-gi-code">' + esc(sc.code) + '</span>' +
+            '<span class="rubriek-gi-naam">' + esc(sc.naam) + '</span>' +
+          '</div>';
+      });
+      html += '</div>';
+    });
+
+    html +=
+          '<div class="rubriek-schaal">' +
+            '<div class="rubriek-schaal-titel">Score-schaal (1 – 5)</div>' +
+            '<div class="rubriek-niveaus">' +
+              '<div class="rubriek-niveau n1"><span>1</span> Onvoldoende</div>' +
+              '<div class="rubriek-niveau n2"><span>2</span> Zwak</div>' +
+              '<div class="rubriek-niveau n3"><span>3</span> Voldoende</div>' +
+              '<div class="rubriek-niveau n4"><span>4</span> Goed</div>' +
+              '<div class="rubriek-niveau n5"><span>5</span> Uitmuntend</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    document.body.insertAdjacentHTML('beforeend', html);
+
+    document.getElementById('sluitRubriek').addEventListener('click', function () {
+      document.getElementById('rubriekModal').remove();
+    });
+    document.getElementById('rubriekModal').addEventListener('click', function (e) {
+      if (e.target === document.getElementById('rubriekModal')) {
+        document.getElementById('rubriekModal').remove();
+      }
+    });
+  }
+
+  async function slaEvalOp(evalId) {
+    var btn = el('btnEvalSave');
+    btn.disabled = true; btn.textContent = 'Bezig…';
+
+    var scoreMap = {};
+    el('evaluatiesContent').querySelectorAll('[data-key]').forEach(function (inp) {
+      var parts = inp.dataset.key.split('_');
+      var subId = parseInt(parts[1], 10);
+      var field = inp.dataset.field;
+      if (!scoreMap[subId]) scoreMap[subId] = { subcompetentie_id: subId };
+      var val = inp.value.trim();
+      if (field === 'score_mentor') scoreMap[subId][field] = val ? parseFloat(val) : null;
+      else scoreMap[subId][field] = val || null;
+    });
+
+    try {
+      var res = await fetch(API_BASE + '/evaluaties/' + evalId + '/mentor-scores', {
+        method: 'PUT',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+        body: JSON.stringify({ scores: Object.values(scoreMap) }),
+      });
+      if (!res.ok) throw new Error();
+      evalState.pendingScores = {};
+      evaluatiesGeladen = false;
+      await laadEvaluaties();
+      btn.textContent = '✓ Opgeslagen';
+      setTimeout(function () { var b = el('btnEvalSave'); if (b) { b.disabled = false; b.textContent = '💾 Scores opslaan'; } }, 2000);
+    } catch (e) {
+      btn.disabled = false; btn.textContent = '💾 Scores opslaan';
+      alert('Opslaan mislukt. Probeer opnieuw.');
+    }
+  }
+
+  async function laadEvaluaties() {
+    el('evaluatiesContent').innerHTML = '<div class="loading-state"><div class="spinner"></div><div>Evaluaties laden...</div></div>';
+    try {
+      var [evRes, rubRes] = await Promise.all([
+        fetch(API_BASE + '/evaluaties/stage/' + stageId, { headers: headers }),
+        fetch(API_BASE + '/evaluaties/competenties/rubriek', { headers: headers }),
+      ]);
+
+      var evaluatiesRaw = evRes.ok ? await evRes.json() : [];
+      var rubriek       = rubRes.ok ? await rubRes.json() : [];
+
+      // Laad detail per evaluatie (met competenties + scores)
+      var evaluaties = [];
+      for (var i = 0; i < evaluatiesRaw.length; i++) {
+        var dRes = await fetch(API_BASE + '/evaluaties/' + evaluatiesRaw[i].id, { headers: headers });
+        evaluaties.push(dRes.ok ? await dRes.json() : evaluatiesRaw[i]);
+      }
+
+      evalState.evaluaties = Array.isArray(evaluaties) ? evaluaties : [];
+      evalState.rubriek    = Array.isArray(rubriek) ? rubriek.filter(function (c) { return c.subcompetenties && c.subcompetenties.length; }) : [];
+      evalState.actieveComp = 0;
+      evaluatiesGeladen = true;
+      renderEvaluatiesInhoud();
+    } catch (e) {
+      el('evaluatiesContent').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Fout</div><div class="empty-text">Evaluaties konden niet worden geladen.</div></div>';
+    }
+  }
+
   // ── Stage laden ──
   async function laad() {
     try {
@@ -230,7 +527,8 @@
       } catch (e) { stage.huidige_week = 0; }
 
       stage.totaal_weken = stage.totaal_weken || 14;
-      window._stageTotaalWeken = stage.totaal_weken;
+      window._stageTotaalWeken  = stage.totaal_weken;
+      window._stageHuidigeWeek  = stage.huidige_week || 0;
       renderStage(stage);
     } catch (e) {
       el('stageContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Stage niet gevonden</div><div class="empty-text">De opgevraagde stage kon niet worden geladen.</div></div>';
