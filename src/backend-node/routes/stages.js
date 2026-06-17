@@ -260,11 +260,18 @@ router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, re
               b.sector,
               g.voornaam    AS student_voornaam,
               g.achternaam  AS student_achternaam,
-              g.email       AS student_email
+              g.email       AS student_email,
+              gd.voornaam   AS docent_voornaam,
+              gd.achternaam AS docent_achternaam,
+              s.contact_naam  AS mentor_naam,
+              s.contact_email AS mentor_email
        FROM stage s
        LEFT JOIN bedrijf  b  ON b.id  = s.bedrijf_id
        LEFT JOIN student  st ON st.id = s.student_id
        LEFT JOIN gebruiker g ON g.id  = st.gebruiker_id
+       LEFT JOIN docent    d  ON d.id  = s.docent_id
+       LEFT JOIN gebruiker gd ON gd.id = d.gebruiker_id
+       WHERE NOT (s.status = 'ingediend' AND s.aangemaakt_op < NOW() - INTERVAL 24 HOUR)
        ORDER BY s.aangemaakt_op DESC`
     );
     res.json(rows);
