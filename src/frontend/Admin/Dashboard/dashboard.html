@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitoring</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <span class="nav-group-label">Algemeen</span>
+        <a href="dashboard.html" class="nav-item active">Dashboard</a>
+        <span class="nav-group-label">Stagecommissie</span>
+        <a href="../aanvragen/aanvragen.html" class="nav-item">Aanvragen</a>
+        <a href="../lopende-stages/lopende-stages.html" class="nav-item">Lopende stages</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+        <a href="#" class="nav-item">Competenties</a>
+        <span class="nav-group-label">Beheer</span>
+        <a href="#" class="nav-item">Gebruikers</a>
+        <a href="#" class="nav-item">Bedrijven</a>
+        <a href="#" class="nav-item">Systeem</a>
+        <a href="#" class="nav-item">Rapporten</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-role-label">
+          Actieve rollen:<br />
+          <strong id="sidebarRoles">—</strong>
+        </div>
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role" id="sidebarUserRole">Administratie</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+          🔓 Uitloggen
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Welcome back, <span id="adminVoornaam">Admin</span></h1>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Stageaanvragen</span>
+            <span class="stat-icon">📋</span>
+          </div>
+          <div class="stat-value" id="statAanvragen">—</div>
+          <div class="stat-sub">wachten op goedkeuring</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Actieve stages</span>
+            <span class="stat-icon">✅</span>
+          </div>
+          <div class="stat-value" id="statActief">—</div>
+          <div class="stat-sub">op dit moment gaande</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Ontbrekende logboeken</span>
+            <span class="stat-icon">⚠️</span>
+          </div>
+          <div class="stat-value" id="statLogboeken">—</div>
+          <div class="stat-sub">Hebben attentie nodig</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Afgeronde stages</span>
+            <span class="stat-icon">🗓️</span>
+          </div>
+          <div class="stat-value" id="statAfgerond">—</div>
+          <div class="stat-sub">Dit academiejaar</div>
+        </div>
+      </div>
+
+      <section class="dashboard-section">
+        <div class="section-header">
+          <h2>Recente Stages Aanvragen</h2>
+          <a href="../aanvragen/aanvragen.html" class="btn btn-red">Bekijk alle aanvragen</a>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Company</th>
+                <th>Teacher</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recenteAanvragenBody">
+              <tr><td colspan="5" class="table-empty">Laden…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="dashboard-section">
+        <div class="section-header">
+          <h2>Stages Overzicht</h2>
+          <div class="section-actions">
+            <a href="../lopende-stages/lopende-stages.html" class="btn btn-red">Bekijk alle stages</a>
+            <a href="../aanvragen/aanvragen.html" class="btn btn-blue">Zoek Stages</a>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+              </tr>
+            </thead>
+            <tbody id="stagesOverzichtBody">
+              <tr><td colspan="6" class="table-empty">Laden…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

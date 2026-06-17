@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aanvragen – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="aanvragen.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitoring</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <span class="nav-group-label">Algemeen</span>
+        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
+        <span class="nav-group-label">Stagecommissie</span>
+        <a href="aanvragen.html" class="nav-item active">Aanvragen</a>
+        <a href="../lopende-stages/lopende-stages.html" class="nav-item">Lopende stages</a>
+        <a href="#" class="nav-item">Evaluaties</a>
+        <a href="#" class="nav-item">Competenties</a>
+        <span class="nav-group-label">Beheer</span>
+        <a href="#" class="nav-item">Gebruikers</a>
+        <a href="#" class="nav-item">Bedrijven</a>
+        <a href="#" class="nav-item">Systeem</a>
+        <a href="#" class="nav-item">Rapporten</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-role-label">
+          Actieve rollen:<br />
+          <strong id="sidebarRoles">—</strong>
+        </div>
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role" id="sidebarUserRole">Administratie</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+          🔓 Uitloggen
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Aanvragen</h1>
+        <p>Overzicht van de aanvragen dit academiejaar</p>
+      </div>
+
+      <div class="controls">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="🔍 Zoek stagiair of bedrijf..." />
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-filter="alle">Alle (<span id="tabAlleCount">0</span>)</button>
+        <button class="tab-btn" data-filter="aanpassingen_vereist">veranderingen vereist (<span id="tabWijzigCount">0</span>)</button>
+        <button class="tab-btn" data-filter="ingediend">wachten op goedkeuring (<span id="tabWachtCount">0</span>)</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Company</th>
+              <th>Teacher</th>
+              <th>Internship Period</th>
+              <th>Status</th>
+              <th>Last Update</th>
+            </tr>
+          </thead>
+          <tbody id="aanvragenBody">
+            <tr><td colspan="6" class="table-empty">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bottom-actions">
+        <a href="../dashboard/dashboard.html" class="btn btn-danger">Terug</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script src="aanvragen.js"></script>
+</body>
+</html>
