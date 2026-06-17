@@ -36,6 +36,7 @@ async function laadStages() {
         student:   ((s.student_voornaam || '') + ' ' + (s.student_achternaam || '')).trim(),
         email:     s.student_email || '',
         bedrijf:   s.bedrijf_naam  || '—',
+        mentor:    s.mentor_naam || s.contact_naam || '—',
         docent:    (s.docent_voornaam || s.docent_achternaam)
                      ? ((s.docent_voornaam || '') + ' ' + (s.docent_achternaam || '')).trim()
                      : 'Nog niet toegekend',
@@ -106,6 +107,10 @@ function maakKaart(s) {
       <div class="detail-row">
         <span class="detail-label">Bedrijf</span>
         <span class="detail-value">${s.bedrijf}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Mentor</span>
+        <span class="detail-value">${s.mentor}</span>
       </div>
       <div class="detail-row">
         <span class="detail-label">Docent</span>
