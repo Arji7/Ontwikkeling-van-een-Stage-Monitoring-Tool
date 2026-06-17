@@ -95,7 +95,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial
 /* BADGES */
 .badge { display: inline-flex; align-items: center; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .badge-pending  { background: #fff3cd; color: #92400e; }
-.badge-changes  { background: #fee2e2; color: #b91c1c; }
+.badge-changes  { background: #fff3cd; color: #92400e; }
+.badge-danger   { background: #fee2e2; color: #b91c1c; }
 .badge-active   { background: #dcfce7; color: #166534; }
 
 /* DOCENT SELECT */

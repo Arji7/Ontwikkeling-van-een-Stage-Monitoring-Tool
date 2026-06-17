@@ -38,7 +38,7 @@ function statusBadge(status) {
   const s = (status || "").toLowerCase();
   if (s === "ingediend")            return `<span class="badge badge-pending">Wachten op goedkeuring</span>`;
   if (s === "goedgekeurd")          return `<span class="badge badge-active">Goedgekeurd</span>`;
-  if (s === "afgekeurd")            return `<span class="badge badge-changes">Afgekeurd</span>`;
+  if (s === "afgekeurd")            return `<span class="badge badge-danger">Afgekeurd</span>`;
   if (s === "aanpassingen_vereist") return `<span class="badge badge-changes">Aanpassingen vereist</span>`;
   return `<span class="badge">${status}</span>`;
 }
