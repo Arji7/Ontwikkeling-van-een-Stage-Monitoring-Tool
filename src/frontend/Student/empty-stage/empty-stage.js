@@ -1,5 +1,3 @@
-const API_BASE_URL = API_BASE;
-
 document.addEventListener("DOMContentLoaded", async function () {
 
   // 1. Toon naam van ingelogde gebruiker
@@ -15,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // 3. Stages ophalen van backend
   try {
-    const response = await fetch(API_BASE_URL + "/stages/mijn", {
+    const response = await fetch(API_BASE + "/stages/mijn", {
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -36,6 +34,23 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (pa !== pb) return pa - pb;
       return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
     })[0];
+
+    if ((stage.status === "goedgekeurd" || stage.status === "wacht_op_overeenkomst")
+        && !localStorage.getItem("goedgekeurd_gezien_" + stage.id)) {
+      window.location.href = "../stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html";
+      return;
+    }
+    if (stage.status === "afgekeurd"
+        && !localStorage.getItem("afgekeurd_gezien_" + stage.id)) {
+      window.location.href = "../stage-beoordeling/stage-afgewezen/stage-afgewezen.html";
+      return;
+    }
+    if (stage.status === "aanpassingen_vereist"
+        && !localStorage.getItem("aanpassingen_gezien_" + stage.id)) {
+      window.location.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
+      return;
+    }
+
     // Info tabel altijd vullen
     document.getElementById("tabelBedrijf").textContent  = stage.bedrijf_naam || "—";
     document.getElementById("tabelOpdracht").textContent = stage.omschrijving || "—";
@@ -179,19 +194,4 @@ function updateStepper(state) {
     circles[2].classList.add("step-warning");
     circles[2].textContent = "!";
   }
-}
-
-function humanStatus(s) {
-  const map = {
-    "concept":              "Concept",
-    "ingediend":            "Ingediend, wachten op goedkeuring",
-    "in_beoordeling":       "In behandeling",
-    "goedgekeurd":          "✅ Goedgekeurd",
-    "aanpassingen_vereist": "✏️ Aanpassingen vereist",
-    "afgekeurd":            "❌ Afgekeurd",
-    "wacht_op_overeenkomst":"Wacht op overeenkomst",
-    "actief":               "Stage loopt",
-    "afgerond":             "Afgerond",
-  };
-  return map[s] || s;
 }
