@@ -14,7 +14,7 @@ function statusBadge(status) {
   if (s === "ingediend")              return `<span class="badge badge-pending">wachten op goedkeuring</span>`;
   if (s === "aanpassingen_vereist")   return `<span class="badge badge-changes">Veranderingen Vereist</span>`;
   if (s === "goedgekeurd")            return `<span class="badge badge-active">Goedgekeurd</span>`;
-  if (s === "afgekeurd")              return `<span class="badge badge-changes">Afgewezen</span>`;
+  if (s === "afgekeurd")              return `<span class="badge badge-danger">Afgewezen</span>`;
   if (s === "actief")                 return `<span class="badge badge-active">Actief</span>`;
   if (s === "wacht_op_ondertekening") return `<span class="badge badge-signing">Wacht op ondertekening</span>`;
   if (s === "afgerond")               return `<span class="badge badge-completed">Afgerond</span>`;
