@@ -8,8 +8,8 @@ INSERT INTO gebruiker (voornaam, achternaam, email, wachtwoord_hash, actief) VAL
 
 --- Student profiel aanmaken voor Farouk
 INSERT INTO student (gebruiker_id, studentnummer)
-SELECT id, '2024001' FROM gebruiker WHERE email = 'student@ehb.be'
--- Docent profiel aanmaken 
+SELECT id, '2024001' FROM gebruiker WHERE email = 'student@ehb.be';
+-- Docent profiel aanmaken
 INSERT INTO docent (gebruiker_id)
 SELECT id FROM gebruiker WHERE email = 'docent@ehb.be';
 --docent profiel koppelen aan rol commissielid
