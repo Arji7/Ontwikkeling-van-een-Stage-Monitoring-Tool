@@ -161,13 +161,14 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f4f6fa; }
 /* ── GI items (eindevaluatie) ── */
 .gi-item { border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 16px; background: #fafbfc; }
 .gi-header { font-size: 14px; color: #1a1a2e; margin-bottom: 16px; line-height: 1.5; }
-.gi-scores-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+.gi-scores-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 12px; align-items: stretch; }
 .gi-scores-row-secondary { opacity: 0.7; }
-.gi-field { }
+.gi-field { display: flex; flex-direction: column; }
 .gi-field-label { font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 6px; }
 .gi-field-value {
   background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px;
-  padding: 10px 14px; font-size: 14px; color: #374151; min-height: 40px;
+  padding: 10px 14px; font-size: 14px; color: #374151; min-height: 80px;
+  flex: 1; display: flex; align-items: flex-start;
 }
 .gi-readonly { font-size: 11px; color: #9ca3af; margin-top: 4px; }
 .gi-placeholder { color: #9ca3af; font-size: 13px; }

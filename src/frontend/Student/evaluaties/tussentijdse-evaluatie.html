@@ -39,67 +39,45 @@
       <div class="breadcrumb">
         <a href="evaluaties.html">Evaluaties</a> › Tussentijdse bespreking
       </div>
-      <h1 class="page-title">Tussentijdse bespreking</h1>
-      <p class="page-subtitle">Halverwege jouw stage — feedback en afspraken</p>
+      <h1 class="page-title">Tussentijdse evaluatie</h1>
+      <p class="page-subtitle">Tussentijdse scores, feedback en bijsturing tijdens je stage</p>
 
-      <!-- Info banner -->
-      <div class="info-banner info-banner-blue">
-        <span class="info-banner-icon">💬</span>
-        <div>
-          <strong>Feedbackmoment — niet bindend voor de eindscore</strong><br/>
-          <span class="info-banner-text">Deze bespreking is bedoeld om je voortgang te evalueren en bij te sturen voor de tweede helft van je stage.</span>
+      <!-- Top cards: voortgang + stage info -->
+      <div class="eind-top-grid">
+        <div class="eind-score-card">
+          <div class="eind-score-label">Tussentijdse score</div>
+          <div class="eind-score-num" id="tussenscoreNum">—</div>
+          <div class="eind-score-max">/20</div>
+          <div class="eind-score-mention" id="tussenscoreMention">—</div>
+        </div>
+        <div class="eind-info-card">
+          <table class="eind-info-table">
+            <tr><td class="eind-info-label">Stage</td><td class="eind-info-value" id="infoStage">—</td></tr>
+            <tr><td class="eind-info-label">Periode</td><td class="eind-info-value" id="infoPeriode">—</td></tr>
+            <tr><td class="eind-info-label">Docent</td><td class="eind-info-value" id="infoDocent">—</td></tr>
+            <tr><td class="eind-info-label">Mentor</td><td class="eind-info-value" id="infoMentor">—</td></tr>
+            <tr><td class="eind-info-label">Bespreking</td><td class="eind-info-value" id="infoBespreking">—</td></tr>
+            <tr><td class="eind-info-label">Status</td><td class="eind-info-value" id="infoStatus">—</td></tr>
+          </table>
         </div>
       </div>
 
-      <!-- Info tiles (4 kolommen) -->
-      <div class="info-grid info-grid-4">
-        <div class="info-tile">
-          <div class="info-tile-label">Datum bespreking</div>
-          <div class="info-tile-value" id="infoDatum">—</div>
+      <!-- Competenties sidebar + detail -->
+      <div class="eval-detail-layout">
+        <div class="comp-sidebar" id="compSidebar">
+          <div class="comp-sidebar-title">Competenties</div>
+          <div id="compSidebarList"></div>
         </div>
-        <div class="info-tile">
-          <div class="info-tile-label">Type</div>
-          <div class="info-tile-value" id="infoType">—</div>
-        </div>
-        <div class="info-tile">
-          <div class="info-tile-label">Week stage</div>
-          <div class="info-tile-value" id="infoWeek">—</div>
-        </div>
-        <div class="info-tile">
-          <div class="info-tile-label">Status</div>
-          <div class="info-tile-value" id="infoStatus">—</div>
+        <div class="comp-detail" id="compDetail">
+          <div class="loading">Scores laden…</div>
         </div>
       </div>
 
-      <!-- Feedback van de begeleiders -->
-      <div class="section-title">Feedback van de begeleiders</div>
-
-      <div class="feedback-card feedback-card-green" id="sterkePuntenWrap">
-        <div class="feedback-card-label">✓ Sterke punten — <span id="feedbackAuthors">docent &amp; mentor</span></div>
-        <div class="feedback-card-text" id="sterkePunten">Nog niet ingevuld door je docent.</div>
-      </div>
-
-      <div class="feedback-card feedback-card-orange" id="verbeterpuntenWrap">
-        <div class="feedback-card-label">⚠ Verbeterpunten</div>
-        <div class="feedback-card-text" id="verbeterpunten">Nog niet ingevuld door je docent.</div>
-      </div>
-
-      <div class="feedback-card feedback-card-blue" id="algWrap" style="display:none;">
-        <div class="feedback-card-label">📋 Algemene appreciatie</div>
-        <div class="feedback-card-text" id="algApprec">—</div>
-      </div>
-
-      <!-- Tussentijdse scoring per competentie -->
-      <div class="section-title" style="margin-top:32px;">Tussentijdse scoring per competentie <span style="font-weight:400;color:#9ca3af;font-size:13px;">(optioneel — informatief)</span></div>
-
-      <div id="competentiesContainer">
-        <div class="loading">Scores laden…</div>
-      </div>
-
-      <!-- Terug -->
-      <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px;">
-        <a href="evaluaties.html" class="btn btn-secondary">← Terug naar evaluaties</a>
-        <a href="rubriek.html" class="btn btn-secondary btn-sm">📐 Rubriek bekijken</a>
+      <!-- Action buttons -->
+      <div class="eind-actions">
+        <a href="rubriek.html" class="btn btn-dark">Bekijk rubriek</a>
+        <button class="btn btn-primary" id="btnReflectie" style="display:none;">Zelfreflectie opslaan</button>
+        <a href="evaluaties.html" class="btn btn-secondary">Terug naar evaluaties</a>
       </div>
     </main>
   </div>
