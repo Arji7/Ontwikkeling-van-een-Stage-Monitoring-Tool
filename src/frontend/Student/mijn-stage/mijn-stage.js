@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     } catch (e) {}
 
     vulPaginaIn(detail);
+    await vulOvereenkomstKaart(token, detail.status);
     // Content pas tonen nu hij ingevuld is — voorkomt flits
     document.getElementById("mainContent").style.visibility = "visible";
 
@@ -54,6 +55,41 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.error("Fout bij ophalen stage:", err);
   }
 });
+
+async function vulOvereenkomstKaart(token, stageStatus) {
+  const subEl = document.getElementById("overeenkomstSubtitle");
+  const badgeEl = document.getElementById("overeenkomstBadge");
+  if (!subEl || !badgeEl) return;
+
+  try {
+    const res = await fetch(API_BASE + "/stages/overeenkomst-document", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) return;
+    const d = await res.json();
+    const tekens = d.ondertekenaars || [];
+    const studentGetekend = tekens.some(t => t.rol === "Student" && t.status === "ondertekend");
+    const mentorGetekend  = tekens.some(t => t.rol === "Stagementor" && t.status === "ondertekend");
+
+    if (stageStatus === "actief" || (studentGetekend && mentorGetekend)) {
+      subEl.textContent = "Ondertekend door alle partijen";
+      badgeEl.textContent = "Ondertekend";
+      badgeEl.className = "card-badge badge-green";
+    } else if (studentGetekend && !mentorGetekend) {
+      subEl.textContent = "Wacht op ondertekening van mentor";
+      badgeEl.textContent = "In afwachting";
+      badgeEl.className = "card-badge badge-orange";
+    } else if (!studentGetekend && mentorGetekend) {
+      subEl.textContent = "Mentor heeft getekend — jouw handtekening ontbreekt nog";
+      badgeEl.textContent = "Actie nodig";
+      badgeEl.className = "card-badge badge-orange";
+    } else {
+      subEl.textContent = "Nog niet ondertekend — vereist voor verzekering";
+      badgeEl.textContent = "Actie nodig";
+      badgeEl.className = "card-badge badge-orange";
+    }
+  } catch (e) {}
+}
 
 function vulPaginaIn(d) {
   const bedrijf = d.bedrijf_naam || "—";
