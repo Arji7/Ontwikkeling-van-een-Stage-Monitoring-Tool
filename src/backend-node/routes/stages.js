@@ -1,8 +1,13 @@
 
 const express = require('express');
 const router  = express.Router();
+const fs      = require('fs');
+const path    = require('path');
 const db      = require('../db');
 const { authMiddleware, hasRole } = require('../middleware/authMiddelware');
+
+const OVEREENKOMST_DIR = path.join(__dirname, '..', 'uploads', 'overeenkomsten');
+if (!fs.existsSync(OVEREENKOMST_DIR)) fs.mkdirSync(OVEREENKOMST_DIR, { recursive: true });
 
 
 // Hulpfunctie: gebruiker_id omzetten naar student_id
@@ -115,13 +120,49 @@ router.get('/overeenkomst-document', authMiddleware, async (req, res) => {
         locatie: r.bedrijf_naam || '—'
       },
       artikels: ARTIKEL_TEKSTEN,
-      ondertekenaars: []
+      ondertekenaars: await getOndertekenaars(r.stage_id, req.user.id, r)
     });
   } catch (err) {
     console.error('Overeenkomst document ophalen fout:', err);
     res.status(500).json({ error: 'Serverfout.' });
   }
 });
+
+async function getOndertekenaars(stageId, currentGebruikerId, r) {
+  const [tekens] = await db.query(
+    `SELECT oh.rol, oh.ondertekend_op, oh.gebruiker_id, g.voornaam, g.achternaam
+     FROM overeenkomst_handtekening oh
+     JOIN stageovereenkomst so ON so.id = oh.overeenkomst_id
+     LEFT JOIN gebruiker g ON g.id = oh.gebruiker_id
+     WHERE so.stage_id = ?`,
+    [stageId]
+  );
+
+  const studentNaam = ((r.student_voornaam || '') + ' ' + (r.student_achternaam || '')).trim() || '—';
+  const mentorNaam = r.contact_naam || '—';
+
+  function bouw(rol, naam) {
+    const t = tekens.find(t => t.rol === rol);
+    if (t) {
+      return {
+        naam: ((t.voornaam || '') + ' ' + (t.achternaam || '')).trim() || naam,
+        rol: rol === 'student' ? 'Student' : (rol === 'mentor' ? 'Stagementor' : 'Schoolbegeleider'),
+        status: 'ondertekend',
+        datum: t.ondertekend_op ? new Date(t.ondertekend_op).toLocaleDateString('nl-BE') : '',
+        isHuidigeGebruiker: t.gebruiker_id === currentGebruikerId
+      };
+    }
+    return {
+      naam: naam,
+      rol: rol === 'student' ? 'Student' : 'Stagementor',
+      status: 'in_afwachting',
+      datum: '',
+      isHuidigeGebruiker: false
+    };
+  }
+
+  return [bouw('student', studentNaam), bouw('mentor', mentorNaam)];
+}
 
 // POST /api/stages — stagevoorstel indienen
 router.post('/', authMiddleware, async (req, res) => {
@@ -432,6 +473,100 @@ router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'),
 
   } catch (err) {
     console.error('Beslissing opslaan fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// POST /api/stages/:id/onderteken — student of mentor ondertekent met canvas-PNG
+router.post('/:id/onderteken', authMiddleware, async (req, res) => {
+  const stageId = Number(req.params.id);
+  const { handtekening } = req.body;
+
+  if (!handtekening || typeof handtekening !== 'string' || !handtekening.startsWith('data:image/png;base64,')) {
+    return res.status(400).json({ error: 'Ongeldige handtekening (verwacht data:image/png;base64,...).' });
+  }
+
+  try {
+    const [stageRows] = await db.query(
+      `SELECT s.id, s.student_id, s.contact_email, s.status,
+              st.gebruiker_id AS student_gebruiker_id
+       FROM stage s
+       LEFT JOIN student st ON st.id = s.student_id
+       WHERE s.id = ?`,
+      [stageId]
+    );
+    if (stageRows.length === 0) return res.status(404).json({ error: 'Stage niet gevonden.' });
+    const stage = stageRows[0];
+
+    if (!['goedgekeurd', 'wacht_op_overeenkomst'].includes(stage.status)) {
+      return res.status(400).json({ error: 'Stage status laat ondertekenen niet toe.' });
+    }
+
+    const rollen = req.user.rollen || [];
+    let rol = null;
+    if (rollen.includes('student') && stage.student_gebruiker_id === req.user.id) {
+      rol = 'student';
+    } else if (rollen.includes('mentor') && req.user.email && stage.contact_email && req.user.email.toLowerCase() === stage.contact_email.toLowerCase()) {
+      rol = 'mentor';
+    }
+    if (!rol) return res.status(403).json({ error: 'Niet bevoegd om deze stage te ondertekenen.' });
+
+    let [overeenkomstRows] = await db.query(
+      'SELECT id FROM stageovereenkomst WHERE stage_id = ?', [stageId]
+    );
+    let overeenkomstId;
+    if (overeenkomstRows.length === 0) {
+      const [result] = await db.query(
+        `INSERT INTO stageovereenkomst (stage_id, status, ondertekening_methode)
+         VALUES (?, 'wacht_op_ondertekening', 'handtekening')`,
+        [stageId]
+      );
+      overeenkomstId = result.insertId;
+    } else {
+      overeenkomstId = overeenkomstRows[0].id;
+    }
+
+    const [bestaand] = await db.query(
+      'SELECT id FROM overeenkomst_handtekening WHERE overeenkomst_id = ? AND rol = ?',
+      [overeenkomstId, rol]
+    );
+    if (bestaand.length > 0) {
+      return res.status(400).json({ error: 'Deze rol heeft al getekend.' });
+    }
+
+    const base64 = handtekening.replace(/^data:image\/png;base64,/, '');
+    const bestand = path.join(OVEREENKOMST_DIR, stageId + '-' + rol + '.png');
+    fs.writeFileSync(bestand, Buffer.from(base64, 'base64'));
+
+    await db.query(
+      `INSERT INTO overeenkomst_handtekening (overeenkomst_id, gebruiker_id, rol, methode, ip_adres)
+       VALUES (?, ?, ?, 'handtekening', ?)`,
+      [overeenkomstId, req.user.id, rol, req.ip || null]
+    );
+
+    const [alleTekens] = await db.query(
+      'SELECT rol FROM overeenkomst_handtekening WHERE overeenkomst_id = ?',
+      [overeenkomstId]
+    );
+    const rollenGetekend = alleTekens.map(t => t.rol);
+    const alleGetekend = rollenGetekend.includes('student') && rollenGetekend.includes('mentor');
+
+    if (alleGetekend) {
+      await db.query("UPDATE stage SET status = 'actief' WHERE id = ?", [stageId]);
+      await db.query(
+        "UPDATE stageovereenkomst SET status = 'ondertekend', ondertekend_op = NOW() WHERE id = ?",
+        [overeenkomstId]
+      );
+      await db.query(
+        `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
+         VALUES (?, ?, 'actief', 'Overeenkomst door alle partijen ondertekend', ?)`,
+        [stageId, stage.status, req.user.id]
+      );
+    }
+
+    res.json({ ok: true, rol, alleGetekend, nieuweStatus: alleGetekend ? 'actief' : stage.status });
+  } catch (err) {
+    console.error('Onderteken fout:', err);
     res.status(500).json({ error: 'Serverfout.' });
   }
 });
