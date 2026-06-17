@@ -14,10 +14,10 @@ function formatDate(d) {
 
 function statusBadge(status) {
   const s = (status || "").toLowerCase();
-  if (s === "ingediend")            return `<span class="badge badge-pending">wachten op goedkeuring</span>`;
-  if (s === "aanpassingen_vereist") return `<span class="badge badge-changes">veranderingen vereist</span>`;
+  if (s === "ingediend")            return `<span class="badge badge-pending">Wachten op goedkeuring</span>`;
+  if (s === "aanpassingen_vereist") return `<span class="badge badge-changes">Wachten op aanpassing</span>`;
   if (s === "goedgekeurd")          return `<span class="badge badge-active">Goedgekeurd</span>`;
-  if (s === "afgekeurd")            return `<span class="badge badge-changes">Afgewezen</span>`;
+  if (s === "afgekeurd")            return `<span class="badge badge-danger">Afgewezen</span>`;
   return `<span class="badge">${status}</span>`;
 }
 
@@ -63,6 +63,7 @@ async function laadAanvragen() {
     alleStages = stages.filter(s =>
       ["ingediend", "aanpassingen_vereist", "goedgekeurd", "afgekeurd"].includes(s.status)
     );
+    // ingediend ouder dan 24u is al gefilterd door de backend
     updateTabCounts();
     renderTabel();
   } catch (err) {
@@ -100,6 +101,7 @@ function renderTabel() {
     .sort((a, b) => new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op))
     .map(s => {
       const naam   = `${s.student_voornaam ?? ""} ${s.student_achternaam ?? ""}`.trim() || "—";
+      const mentor = s.mentor_naam || s.contact_naam || "—";
       const docent = (s.docent_voornaam || s.docent_achternaam)
         ? `${s.docent_voornaam ?? ""} ${s.docent_achternaam ?? ""}`.trim() : "—";
       const periode = (s.startdatum && s.einddatum)
@@ -107,6 +109,7 @@ function renderTabel() {
       return `<tr onclick="window.location.href='../aanvraag-detail/aanvraag-detail.html?id=${s.id}'">
         <td>${naam}</td>
         <td>${s.bedrijf_naam ?? "—"}</td>
+        <td>${mentor}</td>
         <td>${docent}</td>
         <td>${periode}</td>
         <td>${statusBadge(s.status)}</td>
