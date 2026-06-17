@@ -84,8 +84,13 @@ function renderTabel() {
   if (huidigFilter !== "alle") gefilterd = gefilterd.filter(s => s.status === huidigFilter);
   if (zoekterm) {
     gefilterd = gefilterd.filter(s => {
-      const naam = `${s.student_voornaam ?? ""} ${s.student_achternaam ?? ""}`.toLowerCase();
-      return naam.includes(zoekterm) || (s.bedrijf_naam ?? "").toLowerCase().includes(zoekterm);
+      const naam   = `${s.student_voornaam ?? ""} ${s.student_achternaam ?? ""}`.toLowerCase();
+      const mentor = (s.mentor_naam || s.contact_naam || "").toLowerCase();
+      const docent = `${s.docent_voornaam ?? ""} ${s.docent_achternaam ?? ""}`.toLowerCase();
+      return naam.includes(zoekterm)
+          || (s.bedrijf_naam ?? "").toLowerCase().includes(zoekterm)
+          || mentor.includes(zoekterm)
+          || docent.includes(zoekterm);
     });
   }
 
@@ -99,6 +104,7 @@ function renderTabel() {
     .sort((a, b) => new Date(b.startdatum) - new Date(a.startdatum))
     .map(s => {
       const naam   = `${s.student_voornaam ?? ""} ${s.student_achternaam ?? ""}`.trim() || "—";
+      const mentor = s.mentor_naam || s.contact_naam || "—";
       const docent = (s.docent_voornaam || s.docent_achternaam)
         ? `${s.docent_voornaam ?? ""} ${s.docent_achternaam ?? ""}`.trim() : "—";
       const periode = (s.startdatum && s.einddatum)
@@ -106,10 +112,10 @@ function renderTabel() {
       return `<tr>
         <td>${naam}</td>
         <td>${s.bedrijf_naam ?? "—"}</td>
+        <td>${mentor}</td>
         <td>${docent}</td>
         <td>${periode}</td>
         <td>${statusBadge(s.status)}</td>
-        <td>${formatDate(s.startdatum)}</td>
       </tr>`;
     }).join("");
 }
