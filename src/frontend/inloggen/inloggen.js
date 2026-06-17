@@ -8,7 +8,7 @@ const CONFIG = {
   DEMO_MODE: false,
   DASHBOARD_BY_ROLE: {
     student:      "../Student/empty-stage/empty-stage.html",
-    docent:       "../Student/empty-stage/empty-stage.html",
+    docent:       "../Docent/dashboard/dashboard.html",
     admin:        "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
     mentor:       "../Student/empty-stage/empty-stage.html",
     commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const rollen = data.gebruiker.rollen || [];
     // Kies hoogste rol uit de prioriteitslijst
     const rol = CONFIG.ROL_PRIORITEIT.find(function (r) { return rollen.includes(r); }) || "student";
-    return { email: data.gebruiker.email, role: rol, name: data.gebruiker.voornaam + " " + data.gebruiker.achternaam, token: data.token };
+    return { email: data.gebruiker.email, role: rol, rollen: rollen, name: data.gebruiker.voornaam + " " + data.gebruiker.achternaam, token: data.token };
   }
 
   async function demoLogin(email, password) {

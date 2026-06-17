@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docent Dashboard – StageMonitorage</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Docent</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <h1 class="page-title">Welkom terug, <span id="welkomNaam">...</span></h1>
+        <p class="page-subtitle">Stagejaar 2025-2026 · <span id="aantalStudenten">0</span> actieve studenten</p>
+      </header>
+
+      <!-- Stat cards -->
+      <div class="stat-row">
+        <div class="stat-card stat-warning">
+          <div class="stat-label">Logboeken te beoordelen</div>
+          <div class="stat-value orange" id="statLogboeken">0</div>
+          <div class="stat-sub" id="statLogboekenSub">van 0 studenten</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Evaluaties open</div>
+          <div class="stat-value" id="statEvaluaties">0</div>
+          <div class="stat-sub">Komt binnenkort</div>
+        </div>
+        <div class="stat-card stat-success">
+          <div class="stat-label">Actief in stage</div>
+          <div class="stat-value green" id="statActief">0</div>
+          <div class="stat-sub" id="statAfgerondSub">0 afgerond</div>
+        </div>
+      </div>
+
+      <!-- Opstaande taken -->
+      <h2 class="section-title">Opstaande taken — acties die op je wachten</h2>
+      <div class="taken-list" id="takenList"></div>
+
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-icon">✅</div>
+        <div class="empty-title">Geen opstaande taken</div>
+        <div class="empty-text">Alle logboeken zijn beoordeeld. Goed bezig!</div>
+      </div>
+    </main>
+  </div>
+
+  <script>window.SIDEBAR_PAGE = 'docent-dashboard'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../../sidebar-builder.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

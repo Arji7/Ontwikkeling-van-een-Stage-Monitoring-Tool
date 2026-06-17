@@ -127,6 +127,42 @@ router.get('/mijn', authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/stages/docent/mijn — alle stages toegewezen aan ingelogde docent
+router.get('/docent/mijn', authMiddleware, async (req, res) => {
+  try {
+    // Zoek docent_id op basis van gebruiker_id
+    const [docentRows] = await db.query(
+      'SELECT id FROM docent WHERE gebruiker_id = ?',
+      [req.user.id]
+    );
+    if (docentRows.length === 0) {
+      return res.status(403).json({ error: 'Geen docentprofiel gevonden.' });
+    }
+    const docent_id = docentRows[0].id;
+
+    const [rows] = await db.query(
+      `SELECT s.*,
+              b.naam        AS bedrijf_naam,
+              b.sector,
+              sg.voornaam   AS student_voornaam,
+              sg.achternaam AS student_achternaam,
+              sg.email      AS student_email
+       FROM stage s
+       LEFT JOIN bedrijf   b  ON b.id  = s.bedrijf_id
+       LEFT JOIN student   st ON st.id = s.student_id
+       LEFT JOIN gebruiker sg ON sg.id = st.gebruiker_id
+       WHERE s.docent_id = ?
+       ORDER BY s.aangemaakt_op DESC`,
+      [docent_id]
+    );
+    res.json(rows);
+
+  } catch (err) {
+    console.error('Docent stages fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
 // GET /api/stages/:id — één specifieke stage ophalen (met alle JOINs voor admin/commissie)
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
