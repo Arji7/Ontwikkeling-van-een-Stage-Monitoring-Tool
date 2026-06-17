@@ -12,11 +12,7 @@
     <aside class="sidebar">
       <div class="sidebar-brand">StageMonitorage</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
-      <nav class="sidebar-nav">
-        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
-        <a href="../mijn-studenten/mijn-studenten.html" class="nav-item active">Mijn studenten</a>
-        <a href="#" class="nav-item" onclick="document.querySelector('[data-tab=evaluaties]').click(); return false;">Evaluaties</a>
-      </nav>
+      <nav class="sidebar-nav"></nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
           <div class="user-avatar" id="userAvatar">??</div>
@@ -215,6 +211,8 @@
     </main>
   </div>
 
+  <script>window.SIDEBAR_PAGE = 'student-detail'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../../sidebar-builder.js"></script>
   <script src="student-detail.js"></script>
 </body>
 </html>

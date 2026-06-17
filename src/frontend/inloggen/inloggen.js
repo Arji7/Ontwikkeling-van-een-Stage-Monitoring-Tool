@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const rollen = data.gebruiker.rollen || [];
     // Kies hoogste rol uit de prioriteitslijst
     const rol = CONFIG.ROL_PRIORITEIT.find(function (r) { return rollen.includes(r); }) || "student";
-    return { email: data.gebruiker.email, role: rol, name: data.gebruiker.voornaam + " " + data.gebruiker.achternaam, token: data.token };
+    return { email: data.gebruiker.email, role: rol, rollen: rollen, name: data.gebruiker.voornaam + " " + data.gebruiker.achternaam, token: data.token };
   }
 
   async function demoLogin(email, password) {

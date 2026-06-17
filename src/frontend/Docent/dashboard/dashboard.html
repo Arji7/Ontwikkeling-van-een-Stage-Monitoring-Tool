@@ -12,11 +12,7 @@
     <aside class="sidebar">
       <div class="sidebar-brand">StageMonitorage</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
-      <nav class="sidebar-nav">
-        <a href="dashboard.html" class="nav-item active">Dashboard</a>
-        <a href="../mijn-studenten/mijn-studenten.html" class="nav-item">Mijn studenten</a>
-        <a href="../student-detail/student-detail.html" class="nav-item">Evaluaties</a>
-      </nav>
+      <nav class="sidebar-nav"></nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
           <div class="user-avatar" id="userAvatar">??</div>
@@ -67,6 +63,8 @@
     </main>
   </div>
 
+  <script>window.SIDEBAR_PAGE = 'docent-dashboard'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../../sidebar-builder.js"></script>
   <script src="dashboard.js"></script>
 </body>
 </html>
