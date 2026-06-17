@@ -19,9 +19,7 @@ async function checkStageAccess(user, stageId) {
   return rows.length > 0 && rows[0].student_id === studentId;
 }
 
-// ────────────────────────────────────────────────────────────
 // GET /api/evaluaties/stage/:stageId — alle evaluaties voor een stage
-// ────────────────────────────────────────────────────────────
 router.get('/stage/:stageId', authMiddleware, async (req, res) => {
   try {
     if (!(await checkStageAccess(req.user, req.params.stageId))) {
@@ -52,9 +50,7 @@ router.get('/stage/:stageId', authMiddleware, async (req, res) => {
   }
 });
 
-// ────────────────────────────────────────────────────────────
 // GET /api/evaluaties/competenties/rubriek — volledige rubriek
-// ────────────────────────────────────────────────────────────
 router.get('/competenties/rubriek', authMiddleware, async (req, res) => {
   try {
     const [competenties] = await db.query(
@@ -83,9 +79,31 @@ router.get('/competenties/rubriek', authMiddleware, async (req, res) => {
   }
 });
 
-// ────────────────────────────────────────────────────────────
+// GET /api/evaluaties/student/mijn — evaluaties van ingelogde student
+router.get('/student/mijn', authMiddleware, async (req, res) => {
+  try {
+    const studentId = await getStudentId(req.user.id);
+    if (!studentId) return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
+
+    const [evaluaties] = await db.query(
+      `SELECT e.*, s.titel AS stage_titel, b.naam AS bedrijf_naam,
+              s.startdatum, s.einddatum
+       FROM evaluatie e
+       JOIN stage s ON s.id = e.stage_id
+       LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
+       WHERE s.student_id = ?
+       ORDER BY e.aangemaakt_op DESC`,
+      [studentId]
+    );
+
+    res.json(evaluaties);
+  } catch (err) {
+    console.error('Student evaluaties fout:', err);
+    res.status(500).json({ error: 'Interne serverfout' });
+  }
+});
+
 // GET /api/evaluaties/:id — enkele evaluatie met scores per competentie
-// ────────────────────────────────────────────────────────────
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const [evaluaties] = await db.query('SELECT * FROM evaluatie WHERE id = ?', [req.params.id]);
@@ -154,35 +172,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// ────────────────────────────────────────────────────────────
-// GET /api/evaluaties/student/mijn — evaluaties van ingelogde student
-// ────────────────────────────────────────────────────────────
-router.get('/student/mijn', authMiddleware, async (req, res) => {
-  try {
-    const studentId = await getStudentId(req.user.id);
-    if (!studentId) return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
-
-    const [evaluaties] = await db.query(
-      `SELECT e.*, s.titel AS stage_titel, b.naam AS bedrijf_naam,
-              s.startdatum, s.einddatum
-       FROM evaluatie e
-       JOIN stage s ON s.id = e.stage_id
-       LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
-       WHERE s.student_id = ?
-       ORDER BY e.aangemaakt_op DESC`,
-      [studentId]
-    );
-
-    res.json(evaluaties);
-  } catch (err) {
-    console.error('Student evaluaties fout:', err);
-    res.status(500).json({ error: 'Interne serverfout' });
-  }
-});
-
-// ────────────────────────────────────────────────────────────
 // PUT /api/evaluaties/:id/reflectie — student vult reflectie in
-// ────────────────────────────────────────────────────────────
 router.put('/:id/reflectie', authMiddleware, async (req, res) => {
   const { reflecties } = req.body;
 
@@ -196,7 +186,6 @@ router.put('/:id/reflectie', authMiddleware, async (req, res) => {
 
     const evaluatie = evaluaties[0];
 
-    // Check dat de ingelogde gebruiker de student is van deze stage
     const studentId = await getStudentId(req.user.id);
     const [stageRows] = await db.query('SELECT student_id FROM stage WHERE id = ?', [evaluatie.stage_id]);
     if (stageRows.length === 0 || stageRows[0].student_id !== studentId) {
@@ -219,9 +208,7 @@ router.put('/:id/reflectie', authMiddleware, async (req, res) => {
   }
 });
 
-// ────────────────────────────────────────────────────────────
 // POST /api/evaluaties — evaluatie aanmaken (docent/admin)
-// ────────────────────────────────────────────────────────────
 router.post('/', authMiddleware, hasRole('docent', 'admin'), async (req, res) => {
   const { stage_id, type, week_nummer } = req.body;
 
@@ -258,9 +245,7 @@ router.post('/', authMiddleware, hasRole('docent', 'admin'), async (req, res) =>
   }
 });
 
-// ────────────────────────────────────────────────────────────
 // PUT /api/evaluaties/:id/scores — scores bijwerken (docent)
-// ────────────────────────────────────────────────────────────
 router.put('/:id/scores', authMiddleware, hasRole('docent', 'admin'), async (req, res) => {
   const { scores, officieel_eindcijfer, globale_feedback } = req.body;
 
@@ -302,9 +287,7 @@ router.put('/:id/scores', authMiddleware, hasRole('docent', 'admin'), async (req
   }
 });
 
-// ────────────────────────────────────────────────────────────
 // PUT /api/evaluaties/:id/mentor-scores — scores bijwerken (mentor)
-// ────────────────────────────────────────────────────────────
 router.put('/:id/mentor-scores', authMiddleware, hasRole('mentor', 'admin'), async (req, res) => {
   const { scores } = req.body;
 
@@ -337,9 +320,7 @@ router.put('/:id/mentor-scores', authMiddleware, hasRole('mentor', 'admin'), asy
   }
 });
 
-// ────────────────────────────────────────────────────────────
 // POST /api/evaluaties/:id/indienen — evaluatie indienen (docent)
-// ────────────────────────────────────────────────────────────
 router.post('/:id/indienen', authMiddleware, hasRole('docent', 'admin'), async (req, res) => {
   try {
     const [evaluaties] = await db.query('SELECT * FROM evaluatie WHERE id = ?', [req.params.id]);
@@ -357,9 +338,7 @@ router.post('/:id/indienen', authMiddleware, hasRole('docent', 'admin'), async (
   }
 });
 
-// ────────────────────────────────────────────────────────────
 // POST /api/evaluaties/:id/feedback — feedback plaatsen
-// ────────────────────────────────────────────────────────────
 router.post('/:id/feedback', authMiddleware, async (req, res) => {
   const { feedback } = req.body;
   if (!feedback) return res.status(400).json({ error: 'Feedback is verplicht.' });

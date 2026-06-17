@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Frontend statische bestanden serveren
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
 // Geüploade bestanden serveren (zoals logboek bijlagen)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

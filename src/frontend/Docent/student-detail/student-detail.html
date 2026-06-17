@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student detail – StageMonitorage</title>
+  <link rel="stylesheet" href="../dashboard/dashboard.css" />
+  <link rel="stylesheet" href="student-detail.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitorage</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Docent</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="breadcrumb">
+        <a href="../mijn-studenten/mijn-studenten.html">Mijn studenten</a> › <span id="bcrNaam">...</span>
+      </div>
+
+      <!-- Profile header -->
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileAvatar">??</div>
+        <div class="profile-info">
+          <h1 class="profile-name" id="profileNaam">...</h1>
+          <p class="profile-email" id="profileEmail">...</p>
+          <p class="profile-meta" id="profileOpleiding">—</p>
+          <p class="profile-meta" id="profileBedrijf"></p>
+          <p class="profile-meta profile-week" id="profileWeek"></p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="tabs">
+        <button class="tab active" data-tab="stages">Stages</button>
+        <button class="tab" data-tab="logboeken">Logboeken</button>
+        <button class="tab" data-tab="evaluaties">Evaluaties</button>
+        <button class="tab" data-tab="documenten">Documenten</button>
+      </nav>
+
+      <!-- Stages tab -->
+      <div class="tab-content active" id="tab-stages">
+        <div class="stage-card huidige">
+          <div class="stage-card-header">
+            <span class="dot dot-active"></span>
+            <span class="stage-bedrijf" id="stageBedrijf">—</span>
+            <span class="stage-titel"> — <span id="stageTitel">—</span></span>
+            <span class="huidige-tag">HUIDIGE STAGE</span>
+            <div class="week-info">
+              <div class="week-num" id="weekNum">Week — / —</div>
+              <div class="week-pct" id="weekPct">— voltooid</div>
+            </div>
+          </div>
+          <div class="stage-meta-row" id="stageMetaRow">—</div>
+
+          <div class="stage-grid">
+            <div class="stage-grid-item">
+              <span class="label">Stagementor</span>
+              <span class="value" id="stageMentor">—</span>
+              <span class="sub" id="stageMentorEmail">—</span>
+            </div>
+            <div class="stage-grid-item">
+              <span class="label">Opdracht</span>
+              <span class="value" id="stageOpdracht">—</span>
+            </div>
+            <div class="stage-grid-item">
+              <span class="label">Status</span>
+              <span class="value" id="stageStatus">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logboeken tab -->
+      <div class="tab-content" id="tab-logboeken">
+        <!-- Stat cards -->
+        <div class="logboeken-stats" id="logboekenStats">
+          <div class="lb-stat-card">
+            <span class="lb-stat-label">Ingediend</span>
+            <span class="lb-stat-value" id="lbStatIngediend">— / —</span>
+          </div>
+          <div class="lb-stat-card">
+            <span class="lb-stat-label">Door jou bekeken</span>
+            <span class="lb-stat-value" id="lbStatBekeken">—</span>
+          </div>
+          <div class="lb-stat-card">
+            <span class="lb-stat-label">Wacht op jou</span>
+            <span class="lb-stat-value" id="lbStatWacht">—</span>
+          </div>
+          <div class="lb-stat-card">
+            <span class="lb-stat-label">Totaal uren</span>
+            <span class="lb-stat-value" id="lbStatUren">—</span>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="logboeken-filters" id="logboekenFilters">
+          <button class="lb-filter active" data-filter="alle">Alle (<span id="filterAlleCount">0</span>)</button>
+          <button class="lb-filter" data-filter="bekeken">Bekeken (<span id="filterBekekenCount">0</span>)</button>
+          <button class="lb-filter" data-filter="niet-bekeken">Nog niet bekeken (<span id="filterNietBekekenCount">0</span>)</button>
+        </div>
+
+        <!-- Logboek cards -->
+        <div id="logboekenList"></div>
+
+        <!-- Toon alle link -->
+        <div class="lb-toon-alle" id="lbToonAlle" style="display:none;">
+          <a href="#">toon alle</a>
+        </div>
+
+        <div class="empty-state" id="logboekenEmpty" style="display:none;">
+          <div class="empty-icon">📓</div>
+          <div class="empty-title">Nog geen logboeken</div>
+          <div class="empty-text">Deze student heeft nog geen logboeken ingediend.</div>
+        </div>
+      </div>
+
+      <!-- Evaluaties tab -->
+      <div class="tab-content" id="tab-evaluaties">
+        <!-- Evaluatie sub-tabs -->
+        <div class="eval-subtabs" id="evalSubtabs">
+          <button class="eval-subtab active" data-eval-type="tussentijds">
+            <span class="eval-dot eval-dot-orange"></span> Tussentijdse evaluatie
+          </button>
+          <button class="eval-subtab" data-eval-type="eind">
+            <span class="eval-dot eval-dot-yellow"></span> Eindbeoordeling
+          </button>
+        </div>
+
+        <!-- Status banner -->
+        <div class="eval-banner" id="evalBanner" style="display:none;"></div>
+
+        <!-- Score cards -->
+        <div class="eval-scores" id="evalScores">
+          <div class="eval-score-card eval-score-mentor">
+            <span class="eval-score-label" id="evalMentorLabel">Mentor — tussentijds</span>
+            <span class="eval-score-value" id="evalMentorScore">—/20</span>
+            <span class="eval-score-sub" id="evalMentorSub">ingevuld door mentor</span>
+          </div>
+          <div class="eval-score-card eval-score-docent">
+            <span class="eval-score-label" id="evalDocentLabel">Jouw tussentijdse score</span>
+            <span class="eval-score-value" id="evalDocentScore">—/20</span>
+            <span class="eval-score-sub" id="evalDocentSub">berekend uit competenties</span>
+          </div>
+        </div>
+
+        <!-- Main evaluatie area: competenties sidebar + scores -->
+        <div class="eval-main" id="evalMain">
+          <div class="eval-competenties-sidebar">
+            <h3 class="eval-comp-title">Competenties</h3>
+            <div class="eval-comp-list" id="evalCompList"></div>
+          </div>
+          <div class="eval-detail" id="evalDetail">
+            <p class="eval-detail-placeholder">Selecteer een competentie om de scores in te vullen.</p>
+          </div>
+        </div>
+
+        <!-- Officieel eindcijfer -->
+        <div class="eval-eindcijfer-card" id="evalEindcijferCard">
+          <h2 class="eval-eindcijfer-title" id="evalEindcijferTitle">Officieel eindcijfer</h2>
+          <p class="eval-eindcijfer-sub" id="evalEindcijferSub">Het cijfer dat de student officieel krijgt. Standaard berekend uit de competenties, aanpasbaar indien gemotiveerd.</p>
+          <div class="eval-eindcijfer-row">
+            <input type="number" class="eval-eindcijfer-input" id="evalEindcijferInput" min="0" max="20" step="0.5" placeholder="—" />
+            <span class="eval-eindcijfer-max">/ 20</span>
+          </div>
+        </div>
+
+        <!-- Globale feedback -->
+        <div class="eval-feedback-card" id="evalFeedbackCard">
+          <label class="eval-feedback-label">Globale eindfeedback <span class="eval-required">verplicht</span></label>
+          <textarea class="eval-feedback-textarea" id="evalFeedbackTextarea" rows="3" placeholder="Schrijf hier je globale feedback..."></textarea>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="eval-actions" id="evalActions">
+          <button class="btn btn-dark" id="btnBekijkRubriek" onclick="openRubriek()">BEKIJK RUBRIEK</button>
+          <button class="btn btn-primary" id="btnEvalIndienen" onclick="evalIndienen()">Tussentijdse indienen</button>
+        </div>
+
+        <!-- Empty state als er geen evaluatie is -->
+        <div class="empty-state" id="evalEmpty" style="display:none;">
+          <div class="empty-icon">⭐</div>
+          <div class="empty-title">Geen evaluatie beschikbaar</div>
+          <div class="empty-text">Er is nog geen evaluatie aangemaakt voor deze student.</div>
+          <button class="btn btn-primary" style="margin-top:16px;" onclick="maakEvaluatie('tussentijds')">Tussentijdse evaluatie starten</button>
+          <button class="btn btn-primary" style="margin-top:8px;" onclick="maakEvaluatie('eind')">Eindbeoordeling starten</button>
+        </div>
+      </div>
+
+      <!-- Documenten tab -->
+      <div class="tab-content" id="tab-documenten">
+        <div class="empty-state">
+          <div class="empty-icon">📄</div>
+          <div class="empty-title">Geen documenten</div>
+          <div class="empty-text">Documenten verschijnen hier zodra de student ze oplaadt.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>window.SIDEBAR_PAGE = 'student-detail'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../../sidebar-builder.js"></script>
+  <script src="student-detail.js"></script>
+</body>
+</html>
