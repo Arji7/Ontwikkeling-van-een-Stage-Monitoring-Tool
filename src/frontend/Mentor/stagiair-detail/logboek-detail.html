@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logboek detail – Stagementor | StageMonitor</title>
+  <link rel="stylesheet" href="../mentor.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-stagiaires/mijn-stagiaires.html" class="nav-item active">Mijn stagiaires</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Mentor</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="breadcrumb" id="breadcrumb">
+        <a href="../mijn-stagiaires/mijn-stagiaires.html">Mijn stagiaires</a>
+        <span>›</span>
+        <a href="#" id="bcStudent">...</a>
+        <span>›</span>
+        <a href="#" id="bcLogboeken">Logboeken</a>
+        <span>›</span>
+        <span id="bcWeek">Week ?</span>
+      </div>
+
+      <div id="mainContent">
+        <div class="loading-state"><div class="spinner"></div><div>Logboek laden...</div></div>
+      </div>
+
+      <div class="bottom-actions">
+        <button class="btn-terug" onclick="history.back()">← Terug</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="../mentor-guard.js"></script>
+  <script src="../../config.js"></script>
+  <script src="logboek-detail.js"></script>
+</body>
+</html>

@@ -141,12 +141,14 @@ router.get('/mentor/mijn', authMiddleware, async (req, res) => {
               sg.email      AS student_email,
               o.naam        AS opleiding_naam,
               IFNULL((SELECT MAX(l.week_nummer) FROM logboek l WHERE l.stage_id = s.id), 0) AS huidige_week,
-              IFNULL(s.totaal_weken, 14) AS totaal_weken
+              IFNULL(s.totaal_weken, 14) AS totaal_weken,
+              so2.status    AS overeenkomst_status
        FROM stage s
-       LEFT JOIN bedrijf   b  ON b.id  = s.bedrijf_id
-       LEFT JOIN student   st ON st.id = s.student_id
-       LEFT JOIN gebruiker sg ON sg.id = st.gebruiker_id
-       LEFT JOIN opleiding  o ON o.id  = st.opleiding_id
+       LEFT JOIN bedrijf          b   ON b.id   = s.bedrijf_id
+       LEFT JOIN student          st  ON st.id  = s.student_id
+       LEFT JOIN gebruiker        sg  ON sg.id  = st.gebruiker_id
+       LEFT JOIN opleiding         o  ON o.id   = st.opleiding_id
+       LEFT JOIN stageovereenkomst so2 ON so2.stage_id = s.id
        WHERE s.contact_email = ?
        ORDER BY s.aangemaakt_op DESC`,
       [gebruiker.email]
@@ -171,15 +173,17 @@ router.get('/:id', authMiddleware, async (req, res) => {
               o.naam        AS opleiding_naam,
               aj.naam       AS academiejaar_naam,
               dg.voornaam   AS docent_voornaam,
-              dg.achternaam AS docent_achternaam
+              dg.achternaam AS docent_achternaam,
+              so2.status    AS overeenkomst_status
        FROM stage s
-       LEFT JOIN bedrijf      b  ON b.id  = s.bedrijf_id
-       LEFT JOIN student      st ON st.id = s.student_id
-       LEFT JOIN gebruiker    sg ON sg.id = st.gebruiker_id
-       LEFT JOIN opleiding    o  ON o.id  = st.opleiding_id
-       LEFT JOIN academiejaar aj ON aj.id = s.academiejaar_id
-       LEFT JOIN docent       d  ON d.id  = s.docent_id
-       LEFT JOIN gebruiker    dg ON dg.id = d.gebruiker_id
+       LEFT JOIN bedrijf           b   ON b.id   = s.bedrijf_id
+       LEFT JOIN student           st  ON st.id  = s.student_id
+       LEFT JOIN gebruiker         sg  ON sg.id  = st.gebruiker_id
+       LEFT JOIN opleiding          o  ON o.id   = st.opleiding_id
+       LEFT JOIN academiejaar       aj ON aj.id  = s.academiejaar_id
+       LEFT JOIN docent             d  ON d.id   = s.docent_id
+       LEFT JOIN gebruiker          dg ON dg.id  = d.gebruiker_id
+       LEFT JOIN stageovereenkomst so2 ON so2.stage_id = s.id
        WHERE s.id = ?`,
       [req.params.id]
     );

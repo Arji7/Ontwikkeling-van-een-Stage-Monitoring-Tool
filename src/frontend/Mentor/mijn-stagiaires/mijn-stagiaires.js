@@ -16,20 +16,20 @@
     return KLEUREN[c % KLEUREN.length];
   }
 
-  function filterCategorie(s) {
-    if (s.status === 'actief')      return 'actief';
-    if (s.status === 'goedgekeurd') return 'ondertekening';
-    if (s.status === 'afgerond')    return 'afgerond';
-    return 'overig';
+  function stageCategorie(s) {
+    if (s.status === 'afgerond') return 'afgerond';
+    var ov = s.overeenkomst_status;
+    if (ov === 'ondertekend' || ov === 'goedgekeurd') return 'actief';
+    return 'ondertekening';
   }
 
-  function badge(status) {
-    switch (status) {
-      case 'actief':      return '<span class="badge badge-actief">Actief</span>';
-      case 'goedgekeurd': return '<span class="badge badge-ondertekening">Wacht op ondertekening</span>';
-      case 'afgerond':    return '<span class="badge badge-afgerond">Afgerond</span>';
-      default:            return '<span class="badge badge-ingediend">' + esc(status) + '</span>';
-    }
+  function filterCategorie(s) { return stageCategorie(s); }
+
+  function badge(s) {
+    var cat = stageCategorie(s);
+    if (cat === 'afgerond')     return '<span class="badge" style="background:#14532d;color:#fff">Afgerond</span>';
+    if (cat === 'actief')       return '<span class="badge badge-actief">Actief</span>';
+    return '<span class="badge badge-ondertekening">Wacht op ondertekening</span>';
   }
 
   function esc(s) {
@@ -71,7 +71,8 @@
       var huidig   = s.huidige_week  || 0;
       var totaal   = s.totaal_weken  || 14;
       var pct      = Math.min(100, Math.round((huidig / totaal) * 100));
-      var pgKlasse = s.status === 'actief' ? 'actief' : s.status === 'afgerond' ? 'afgerond' : 'inactief';
+      var cat      = stageCategorie(s);
+      var pgKlasse = cat === 'actief' ? 'actief' : cat === 'afgerond' ? 'afgerond' : 'inactief';
 
       html +=
         '<tr>' +
@@ -85,7 +86,7 @@
             '<div class="progress-label">Week ' + huidig + ' / ' + totaal + '</div>' +
             '<div class="progress-bar"><div class="progress-fill ' + pgKlasse + '" style="width:' + pct + '%"></div></div>' +
           '</div></td>' +
-          '<td>' + badge(s.status) + '</td>' +
+          '<td>' + badge(s) + '</td>' +
           '<td><a class="btn-bekijk" href="../stagiair-detail/stagiair-detail.html?stage_id=' + s.id + '">Bekijk</a></td>' +
         '</tr>';
     });
