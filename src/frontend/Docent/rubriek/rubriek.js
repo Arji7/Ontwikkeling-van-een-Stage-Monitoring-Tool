@@ -14,7 +14,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const params = new URLSearchParams(window.location.search);
   const stageId = params.get("stage_id");
-  if (stageId) await laadStageInfo(stageId);
+  if (stageId) {
+    await laadStageInfo(stageId);
+    document.getElementById("btnTerug").href = `../student-detail/student-detail.html?stage_id=${stageId}`;
+  }
 
   await laadRubriek();
 });

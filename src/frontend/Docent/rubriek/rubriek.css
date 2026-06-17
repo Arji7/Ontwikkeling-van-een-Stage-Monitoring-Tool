@@ -1,3 +1,12 @@
+/* Terug knop */
+.btn-terug {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #3b82f6; border: none; border-radius: 8px;
+  padding: 10px 20px; font-size: 14px; font-weight: 600; color: #fff;
+  cursor: pointer; margin-bottom: 20px; text-decoration: none; transition: background 0.2s;
+}
+.btn-terug:hover { background: #2563eb; }
+
 /* Student info bar */
 .rubriek-info-bar {
   display: grid; grid-template-columns: repeat(4, 1fr);
