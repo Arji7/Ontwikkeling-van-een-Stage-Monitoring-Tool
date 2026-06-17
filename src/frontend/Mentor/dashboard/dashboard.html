@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Stagementor | StageMonitor</title>
+  <link rel="stylesheet" href="../mentor.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item active">Dashboard</a>
+        <a href="../mijn-stagiaires/mijn-stagiaires.html" class="nav-item">Mijn stagiaires</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Mentor</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="page-header">
+        <h1 id="welcomeTitle">Welkom terug</h1>
+        <p id="welcomeSub">Stagejaar 2025-2026</p>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card stat-yellow">
+          <div class="stat-label">Logboeken af te checken</div>
+          <div class="stat-value" id="statLogboeken">—</div>
+          <div class="stat-sub">Wachten op jouw aftekening</div>
+        </div>
+        <div class="stat-card stat-blue">
+          <div class="stat-label">Stagiaires toegewezen</div>
+          <div class="stat-value" id="statStagiaires">—</div>
+          <div class="stat-sub">Dit academiejaar</div>
+        </div>
+        <div class="stat-card stat-green">
+          <div class="stat-label">Evaluaties open</div>
+          <div class="stat-value" id="statEvaluaties">0</div>
+          <div class="stat-sub" id="statEvalSub">0 tussentijds · 0 eindbeoordeling</div>
+        </div>
+      </div>
+
+      <div class="section-title">Openstaande taken</div>
+      <div class="section-sub">Acties die op jouw aandacht wachten</div>
+      <div id="takenContainer">
+        <div class="loading-state"><div class="spinner"></div><div>Taken laden...</div></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../mentor-guard.js"></script>
+  <script src="../../config.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

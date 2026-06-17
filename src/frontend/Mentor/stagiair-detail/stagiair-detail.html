@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stagiair detail – Stagementor | StageMonitor</title>
+  <link rel="stylesheet" href="../mentor.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-stagiaires/mijn-stagiaires.html" class="nav-item active">Mijn stagiaires</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Mentor</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+
+      <!-- Student header -->
+      <div class="detail-header">
+        <div class="detail-avatar" id="studentAvatar">??</div>
+        <div style="flex:1;">
+          <div class="detail-naam" id="studentNaam">Laden…</div>
+          <div class="detail-meta" id="studentMeta">—</div>
+          <span id="stageBadge" class="badge">—</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="detail-tabs">
+        <div class="detail-tab active" data-tab="stages">Stages</div>
+        <div class="detail-tab locked" data-tab="logboeken" id="tabLogboeken">Logboeken 🔒</div>
+        <div class="detail-tab locked" data-tab="evaluaties" id="tabEvaluaties">Evaluaties 🔒</div>
+      </div>
+
+      <!-- Tab: Stages -->
+      <div class="tab-panel active" id="panel-stages">
+        <div id="stageContainer">
+          <div class="loading-state"><div class="spinner"></div><div>Stage laden...</div></div>
+        </div>
+      </div>
+
+      <!-- Tab: Logboeken -->
+      <div class="tab-panel" id="panel-logboeken">
+        <div class="locked-panel">
+          <div class="lock-icon">🔒</div>
+          <h3>Logboeken niet beschikbaar</h3>
+          <p>Logboeken zijn enkel beschikbaar nadat de stageovereenkomst is getekend en de stage actief is.</p>
+        </div>
+      </div>
+
+      <!-- Tab: Evaluaties -->
+      <div class="tab-panel" id="panel-evaluaties">
+        <div class="locked-panel">
+          <div class="lock-icon">🔒</div>
+          <h3>Evaluaties niet beschikbaar</h3>
+          <p>Evaluaties zijn enkel beschikbaar nadat de stageovereenkomst is getekend en de stage actief is.</p>
+        </div>
+      </div>
+
+      <div class="bottom-actions">
+        <button class="btn-terug" onclick="history.back()">← Terug</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="../mentor-guard.js"></script>
+  <script src="../../config.js"></script>
+  <script src="stagiair-detail.js"></script>
+</body>
+</html>
