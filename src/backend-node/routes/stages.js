@@ -127,6 +127,37 @@ router.get('/mijn', authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/stages/mentor/mijn — stages van ingelogde mentor (via contact_email)
+router.get('/mentor/mijn', authMiddleware, async (req, res) => {
+  try {
+    const [[gebruiker]] = await db.query('SELECT email FROM gebruiker WHERE id = ?', [req.user.id]);
+    if (!gebruiker) return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
+
+    const [rows] = await db.query(
+      `SELECT s.*,
+              b.naam        AS bedrijf_naam,
+              sg.voornaam   AS student_voornaam,
+              sg.achternaam AS student_achternaam,
+              sg.email      AS student_email,
+              o.naam        AS opleiding_naam,
+              IFNULL((SELECT MAX(l.week_nummer) FROM logboek l WHERE l.stage_id = s.id), 0) AS huidige_week,
+              IFNULL(s.totaal_weken, 14) AS totaal_weken
+       FROM stage s
+       LEFT JOIN bedrijf   b  ON b.id  = s.bedrijf_id
+       LEFT JOIN student   st ON st.id = s.student_id
+       LEFT JOIN gebruiker sg ON sg.id = st.gebruiker_id
+       LEFT JOIN opleiding  o ON o.id  = st.opleiding_id
+       WHERE s.contact_email = ?
+       ORDER BY s.aangemaakt_op DESC`,
+      [gebruiker.email]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Mentor stages fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
 // GET /api/stages/:id — één specifieke stage ophalen (met alle JOINs voor admin/commissie)
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
