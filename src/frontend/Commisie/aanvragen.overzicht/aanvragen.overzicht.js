@@ -63,6 +63,10 @@ async function loadStudents() {
             naam:       (s.student_voornaam || '') + ' ' + (s.student_achternaam || ''),
             email:      s.student_email || '',
             bedrijf:    s.bedrijf_naam   || '-',
+            mentor:     s.mentor_naam || s.contact_naam || '—',
+            docent:     (s.docent_voornaam || s.docent_achternaam)
+                          ? ((s.docent_voornaam || '') + ' ' + (s.docent_achternaam || '')).trim()
+                          : '—',
             startdatum: s.startdatum,
             einddatum:  s.einddatum,
             status:     s.status,
@@ -141,6 +145,14 @@ function createStudentCard(student) {
                 <span class="detail-value">${student.bedrijf}</span>
             </div>
             <div class="detail-row">
+                <span class="detail-label">Mentor:</span>
+                <span class="detail-value">${student.mentor}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Docent:</span>
+                <span class="detail-value">${student.docent}</span>
+            </div>
+            <div class="detail-row">
                 <span class="detail-label">Periode:</span>
                 <span class="detail-value">${formatDate(student.startdatum)} tot ${formatDate(student.einddatum)}</span>
             </div>
@@ -168,10 +180,10 @@ function viewStudent(stageId) {
 // ========== HELPER FUNCTIONS ==========
 function getStatusText(status) {
     const statusMap = {
-        'ingediend':            'In afwachting',
+        'ingediend':            'Wachten op goedkeuring',
         'goedgekeurd':          'Goedgekeurd',
         'afgekeurd':            'Afgewezen',
-        'aanpassingen_vereist': 'Aanpassingen vereist'
+        'aanpassingen_vereist': 'Wachten op aanpassing',
     };
     return statusMap[status] || status;
 }
