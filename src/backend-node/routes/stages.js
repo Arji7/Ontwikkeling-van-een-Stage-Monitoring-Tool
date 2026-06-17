@@ -96,6 +96,7 @@ router.get('/overeenkomst-document', authMiddleware, async (req, res) => {
       : '—';
 
     res.json({
+      stage_id: r.stage_id,
       academiejaar: r.academiejaar_naam || '—',
       referentie: 'STG-' + (r.academiejaar_naam || 'XXXX') + '-' + r.stage_id,
       student: {
