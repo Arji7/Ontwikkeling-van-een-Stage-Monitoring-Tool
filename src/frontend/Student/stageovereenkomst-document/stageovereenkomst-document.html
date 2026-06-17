@@ -179,6 +179,20 @@
     </main>
   </div>
 
+  <div class="sign-modal" id="signModal" hidden>
+    <div class="sign-modal-box">
+      <h3 class="sign-modal-title">Plaats je handtekening</h3>
+      <p class="sign-modal-sub">Teken met je muis of vinger in het vak hieronder.</p>
+      <canvas id="signCanvas" class="sign-canvas" width="600" height="200"></canvas>
+      <div class="sign-modal-actions">
+        <button class="btn btn-secondary" id="btnWissen" type="button">Wissen</button>
+        <button class="btn btn-secondary" id="btnAnnuleer" type="button">Annuleren</button>
+        <button class="btn btn-primary" id="btnBevestig" type="button">Bevestigen</button>
+      </div>
+      <p class="sign-modal-error" id="signError" hidden></p>
+    </div>
+  </div>
+
   <script src="../../config.js"></script>
   <script src="stageovereenkomst-document.js"></script>
   <script>

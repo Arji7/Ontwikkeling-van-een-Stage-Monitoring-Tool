@@ -20,17 +20,23 @@
 // POST /api/stages/overeenkomst-document/ondertekenen
 // ============================================================
 
+let huidigeStageId = null;
+
 document.addEventListener("DOMContentLoaded", function () {
   const token = sessionStorage.getItem("token");
   if (!token) {
-    console.warn("Geen token — scherm blijft leeg tot login werkt.");
+    window.location.href = "../../inloggen/inloggen.html";
     return;
   }
 
   laadOvereenkomst(token);
+  initCanvas(token);
 
-  document.getElementById("btnOndertekenen").addEventListener("click", function () {
-    ondertekenen(token);
+  document.getElementById("btnOndertekenen").addEventListener("click", openModal);
+  document.getElementById("btnAnnuleer").addEventListener("click", sluitModal);
+  document.getElementById("btnWissen").addEventListener("click", wisCanvas);
+  document.getElementById("btnBevestig").addEventListener("click", function () {
+    bevestigOndertekening(token);
   });
 });
 
@@ -54,6 +60,7 @@ async function laadOvereenkomst(token) {
 }
 
 function vulDocumentIn(d) {
+  huidigeStageId = d.stage_id;
   document.getElementById("academiejaar").textContent = d.academiejaar;
   document.getElementById("academiejaarSub").textContent = d.academiejaar;
   document.getElementById("referentie").textContent = d.referentie;
@@ -126,26 +133,109 @@ function vulOndertekenaarsIn(ondertekenaars) {
   }
 }
 
-async function ondertekenen(token) {
-  const btn = document.getElementById("btnOndertekenen");
-  btn.disabled = true;
-  btn.textContent = "Bezig...";
+let canvasCtx = null;
+let canvasHeeftTekening = false;
+
+function initCanvas(token) {
+  const canvas = document.getElementById("signCanvas");
+  canvasCtx = canvas.getContext("2d");
+  canvasCtx.lineWidth = 2;
+  canvasCtx.lineCap = "round";
+  canvasCtx.strokeStyle = "#0f172a";
+
+  let tekenen = false;
+
+  function pos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    return {
+      x: x * (canvas.width / rect.width),
+      y: y * (canvas.height / rect.height)
+    };
+  }
+
+  function start(e) {
+    e.preventDefault();
+    tekenen = true;
+    canvasHeeftTekening = true;
+    const p = pos(e);
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(p.x, p.y);
+  }
+  function beweeg(e) {
+    if (!tekenen) return;
+    e.preventDefault();
+    const p = pos(e);
+    canvasCtx.lineTo(p.x, p.y);
+    canvasCtx.stroke();
+  }
+  function stop() { tekenen = false; }
+
+  canvas.addEventListener("mousedown", start);
+  canvas.addEventListener("mousemove", beweeg);
+  canvas.addEventListener("mouseup", stop);
+  canvas.addEventListener("mouseleave", stop);
+  canvas.addEventListener("touchstart", start);
+  canvas.addEventListener("touchmove", beweeg);
+  canvas.addEventListener("touchend", stop);
+}
+
+function openModal() {
+  document.getElementById("signError").hidden = true;
+  document.getElementById("signModal").hidden = false;
+  wisCanvas();
+}
+
+function sluitModal() {
+  document.getElementById("signModal").hidden = true;
+}
+
+function wisCanvas() {
+  const canvas = document.getElementById("signCanvas");
+  canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+  canvasHeeftTekening = false;
+}
+
+async function bevestigOndertekening(token) {
+  const errEl = document.getElementById("signError");
+  errEl.hidden = true;
+
+  if (!canvasHeeftTekening) {
+    errEl.textContent = "Plaats eerst een handtekening.";
+    errEl.hidden = false;
+    return;
+  }
+  if (!huidigeStageId) {
+    errEl.textContent = "Geen stage gevonden.";
+    errEl.hidden = false;
+    return;
+  }
+
+  const bevestigBtn = document.getElementById("btnBevestig");
+  bevestigBtn.disabled = true;
+  bevestigBtn.textContent = "Bezig...";
 
   try {
-    const res = await fetch(API_BASE + "/stages/overeenkomst-document/ondertekenen", {
+    const png = document.getElementById("signCanvas").toDataURL("image/png");
+    const res = await fetch(API_BASE + "/stages/" + huidigeStageId + "/onderteken", {
       method: "POST",
-      headers: { Authorization: "Bearer " + token },
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ handtekening: png })
     });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Ondertekenen mislukt.");
 
-    if (!res.ok) throw new Error("Ondertekenen mislukt.");
-
-    // Doorsturen naar bevestigingsscherm
-   window.location.href = "../stageovereenkomst-ondertekend/stageovereenkomst-ondertekend.html";
-
+    window.location.href = "../stageovereenkomst-ondertekend/stageovereenkomst-ondertekend.html";
   } catch (err) {
     console.error("Kon niet ondertekenen:", err);
-    btn.disabled = false;
-    btn.textContent = "Ondertekenen";
+    errEl.textContent = err.message || "Er ging iets mis.";
+    errEl.hidden = false;
+    bevestigBtn.disabled = false;
+    bevestigBtn.textContent = "Bevestigen";
   }
 }
 
