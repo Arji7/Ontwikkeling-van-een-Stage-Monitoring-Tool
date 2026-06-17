@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eindevaluatie – StageMonitor</title>
+  <link rel="stylesheet" href="evaluaties.css" />
+</head>
+<body>
+  <div class="app">
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
+        <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
+        <a href="evaluaties.html" class="nav-item active">Evaluaties</a>
+        <a href="tussentijdse-evaluatie.html" class="nav-sub-item">Tussentijds</a>
+        <a href="eind-evaluatie.html" class="nav-sub-item active">→ Eindevaluatie</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content" id="mainContent" style="visibility:hidden;">
+      <div class="breadcrumb">
+        <a href="evaluaties.html">Evaluaties</a> › Eindevaluatie
+      </div>
+      <h1 class="page-title">⭕ Eindevaluatie</h1>
+      <p class="page-subtitle">Definitieve scores en feedback van je begeleiders</p>
+
+      <!-- Top cards: eindscore + stage info -->
+      <div class="eind-top-grid">
+        <div class="eind-score-card">
+          <div class="eind-score-label">Eindscore</div>
+          <div class="eind-score-num" id="eindscoreNum">—</div>
+          <div class="eind-score-max">/20</div>
+          <div class="eind-score-mention" id="eindscoreMention">—</div>
+        </div>
+        <div class="eind-info-card">
+          <table class="eind-info-table">
+            <tr><td class="eind-info-label">Stage</td><td class="eind-info-value" id="infoStage">—</td></tr>
+            <tr><td class="eind-info-label">Periode</td><td class="eind-info-value" id="infoPeriode">—</td></tr>
+            <tr><td class="eind-info-label">Docent</td><td class="eind-info-value" id="infoDocent">—</td></tr>
+            <tr><td class="eind-info-label">Mentor</td><td class="eind-info-value" id="infoMentor">—</td></tr>
+            <tr><td class="eind-info-label">Afgerond op</td><td class="eind-info-value" id="infoAfgerond">—</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Competenties sidebar + detail -->
+      <div class="eval-detail-layout">
+        <div class="comp-sidebar" id="compSidebar">
+          <div class="comp-sidebar-title">Competenties</div>
+          <div id="compSidebarList"></div>
+        </div>
+        <div class="comp-detail" id="compDetail">
+          <div class="loading">Scores laden…</div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="eind-actions">
+        <a href="rubriek.html" class="btn btn-dark">Bekijk rubriek</a>
+        <button class="btn btn-primary" id="btnReflectie" style="display:none;">Reflectie definitief indienen</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script src="eind-evaluatie.js"></script>
+  <script>
+    (function () {
+      document.getElementById("sidebarToggle").addEventListener("click", function () {
+        document.getElementById("sidebar").classList.toggle("mobile-open");
+      });
+      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+    })();
+  </script>
+</body>
+</html>

@@ -32,6 +32,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       window.location.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
       return;
     }
+    if (stage.status === "afgekeurd") {
+      window.location.href = "../stage-aanvraag/stage-aanvraag.html";
+      return;
+    }
     if (stage.status !== "goedgekeurd" && stage.status !== "actief" && stage.status !== "wacht_op_overeenkomst") {
       window.location.href = "../stage-aanvraag/stage-aanvraag.html?id=" + stage.id;
       return;
