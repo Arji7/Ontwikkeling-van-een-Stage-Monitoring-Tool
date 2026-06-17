@@ -422,49 +422,71 @@ body {
 }
 .btn-rubriek:hover { border-color: var(--primary); color: var(--primary); }
 
-/* Rubriek modal */
-.rubriek-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000;
-  display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.rubriek-modal {
-  background: var(--white); border-radius: 12px; max-width: 760px; width: 100%;
-  max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,.2);
-}
-.rubriek-modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 24px; border-bottom: 1px solid var(--border);
-}
-.rubriek-modal-header h2 { font-size: 17px; font-weight: 700; color: var(--heading); }
-.rubriek-sluit {
-  width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--light-bg);
-  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+/* Rubriek inline — accordion patroon (zelfde als student) */
+.btn-rubriek.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+.btn-alles-open {
+  padding: 6px 14px; background: var(--white); border: 1px solid var(--border);
+  border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit;
   color: var(--text-muted); transition: var(--transition);
 }
-.rubriek-sluit:hover { background: #fee2e2; color: var(--danger); }
-.rubriek-modal-body { overflow-y: auto; padding: 20px 24px; }
-.rubriek-comp { margin-bottom: 20px; }
-.rubriek-comp-titel {
-  font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 8px;
-  padding: 6px 12px; background: var(--primary-soft); border-radius: 6px; color: var(--primary);
+.btn-alles-open:hover { background: var(--light-bg); }
+
+.rubriek-inline { margin-top: 4px; }
+
+/* Score chips (niveau-legenda) */
+.score-chip { display: inline-block; font-weight: 600; }
+.score-chip.score-1 { background: #fee2e2; color: #991b1b; }
+.score-chip.score-2 { background: #fef3c7; color: #92400e; }
+.score-chip.score-3 { background: #dbeafe; color: #1e40af; }
+.score-chip.score-4 { background: #dcfce7; color: #166534; }
+.score-chip.score-5 { background: #ede9fe; color: #5b21b6; }
+
+/* Competentie accordion */
+.rubriek-comp { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.rubriek-comp-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; background: var(--white); cursor: pointer;
+  transition: background 0.12s; user-select: none;
 }
-.rubriek-gi { display: flex; gap: 10px; align-items: baseline; padding: 5px 8px; font-size: 13.5px; }
-.rubriek-gi:hover { background: #f8fafc; border-radius: 4px; }
-.rubriek-gi-code { font-weight: 700; color: var(--text-muted); min-width: 60px; font-size: 12px; }
-.rubriek-gi-naam { color: var(--text-dark); line-height: 1.5; }
-.rubriek-schaal { margin-top: 24px; padding-top: 20px; border-top: 2px solid var(--border); }
-.rubriek-schaal-titel { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .04em; }
-.rubriek-niveaus { display: flex; gap: 8px; flex-wrap: wrap; }
-.rubriek-niveau {
-  flex: 1; min-width: 100px; padding: 10px 12px; border-radius: 8px;
-  font-size: 13px; font-weight: 600; text-align: center;
+.rubriek-comp-header:hover { background: #f8fafc; }
+.rubriek-comp-num {
+  width: 30px; height: 30px; border-radius: 7px; background: var(--heading);
+  color: #fff; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.rubriek-niveau span { display: block; font-size: 22px; font-weight: 800; margin-bottom: 2px; }
-.rubriek-niveau.n1 { background: #fee2e2; color: #991b1b; }
-.rubriek-niveau.n2 { background: #fef3c7; color: #92400e; }
-.rubriek-niveau.n3 { background: #dbeafe; color: #1e40af; }
-.rubriek-niveau.n4 { background: #dcfce7; color: #166534; }
-.rubriek-niveau.n5 { background: #ede9fe; color: #5b21b6; }
+.rubriek-comp-name { font-size: 14px; font-weight: 700; color: var(--heading); flex: 1; }
+.rubriek-comp-count { font-size: 12px; color: var(--text-light); }
+.rubriek-comp-toggle { color: var(--text-light); font-size: 18px; transition: transform 0.2s; }
+.rubriek-comp-toggle.open { transform: rotate(90deg); }
+.rubriek-comp-body { display: none; border-top: 1px solid var(--border); }
+.rubriek-comp-body.open { display: block; }
+
+.rubriek-subcomp { border-bottom: 1px solid #f3f4f6; padding: 18px; }
+.rubriek-subcomp:last-child { border-bottom: none; }
+.rubriek-subcomp-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.rubriek-subcomp-code {
+  font-size: 11px; font-weight: 700; color: #fff; background: #6b7280;
+  padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
+}
+.rubriek-subcomp-name { font-size: 14px; font-weight: 600; color: var(--heading); }
+
+.niveau-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.niveau-cell { border-radius: 8px; padding: 10px 8px; font-size: 12px; border: 1px solid transparent; }
+.niveau-cell.niveau-1 { background: #fff5f5; border-color: #fecaca; }
+.niveau-cell.niveau-2 { background: #fffbeb; border-color: #fde68a; }
+.niveau-cell.niveau-3 { background: #eff6ff; border-color: #bfdbfe; }
+.niveau-cell.niveau-4 { background: #f0fdf4; border-color: #bbf7d0; }
+.niveau-cell.niveau-5 { background: #f5f3ff; border-color: #ddd6fe; }
+.niveau-cell-header { margin-bottom: 6px; }
+.niveau-num { font-size: 18px; font-weight: 800; line-height: 1; margin-bottom: 2px; }
+.niveau-cell.niveau-1 .niveau-num { color: #dc2626; }
+.niveau-cell.niveau-2 .niveau-num { color: #d97706; }
+.niveau-cell.niveau-3 .niveau-num { color: #2563eb; }
+.niveau-cell.niveau-4 .niveau-num { color: #16a34a; }
+.niveau-cell.niveau-5 .niveau-num { color: #7c3aed; }
+.niveau-label { font-size: 11px; font-weight: 700; color: var(--text-dark); }
+.niveau-sublabel { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+.niveau-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; margin-top: 4px; }
 
 .eval-subtabs { display: flex; gap: 8px; flex-wrap: wrap; }
 .eval-subtab {
