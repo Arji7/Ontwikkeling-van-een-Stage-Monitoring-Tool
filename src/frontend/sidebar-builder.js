@@ -20,7 +20,6 @@
       addLabel(nav, 'Docent');
       addLink(nav, root + 'Docent/dashboard/dashboard.html',          'Dashboard',       currentPage === 'docent-dashboard');
       addLink(nav, root + 'Docent/mijn-studenten/mijn-studenten.html','Mijn studenten',  ['mijn-studenten','logboek-inkijken','student-detail','rubriek'].indexOf(currentPage) !== -1);
-      addLink(nav, root + 'Docent/student-detail/student-detail.html','Evaluaties',      currentPage === 'evaluaties');
       addLabel(nav, 'Stagecommissie');
       addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Stageaanvragen', ['commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
       addLink(nav, '#', 'Lopende stages', false);
@@ -28,7 +27,6 @@
     } else if (isDocent) {
       addLink(nav, root + 'Docent/dashboard/dashboard.html',          'Dashboard',      currentPage === 'docent-dashboard');
       addLink(nav, root + 'Docent/mijn-studenten/mijn-studenten.html','Mijn studenten', ['mijn-studenten','logboek-inkijken','student-detail','rubriek'].indexOf(currentPage) !== -1);
-      addLink(nav, root + 'Docent/student-detail/student-detail.html','Evaluaties',     currentPage === 'evaluaties');
 
     } else if (isCommissie) {
       addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',    ['commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
