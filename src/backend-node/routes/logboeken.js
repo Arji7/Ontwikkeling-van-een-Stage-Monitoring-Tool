@@ -175,6 +175,34 @@ router.get('/stage/:stageId', authMiddleware, async (req, res) => {
 });
 
 // ────────────────────────────────────────────────────────────
+// GET /api/logboeken/mentor/te-beoordelen — logboeken voor de ingelogde mentor
+// ────────────────────────────────────────────────────────────
+router.get('/mentor/te-beoordelen', authMiddleware, async (req, res) => {
+  try {
+    const [[gebruiker]] = await db.query('SELECT email FROM gebruiker WHERE id = ?', [req.user.id]);
+    if (!gebruiker) return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
+
+    const [rows] = await db.query(
+      `SELECT l.id, l.week_nummer, l.ingediend_op, l.status, l.totaal_uren, l.stage_id,
+              sg.voornaam AS student_voornaam, sg.achternaam AS student_achternaam
+       FROM logboek l
+       JOIN stage     s  ON s.id  = l.stage_id
+       JOIN student   st ON st.id = s.student_id
+       JOIN gebruiker sg ON sg.id = st.gebruiker_id
+       WHERE s.contact_email = ?
+         AND l.status IN ('ingediend', 'wacht_op_mentor')
+       ORDER BY l.ingediend_op ASC`,
+      [gebruiker.email]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('Mentor logboeken fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
 // GET /api/logboeken/:id — enkel logboek met dagen + reacties
 // ────────────────────────────────────────────────────────────
 router.get('/:id', authMiddleware, async (req, res) => {
