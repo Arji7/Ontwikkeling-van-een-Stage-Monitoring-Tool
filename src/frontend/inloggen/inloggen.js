@@ -10,7 +10,7 @@ const CONFIG = {
     student:      "../Student/empty-stage/empty-stage.html",
     docent:       "../Student/empty-stage/empty-stage.html",
     admin:        "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
-    mentor:       "../Student/empty-stage/empty-stage.html",
+    mentor:       "../Mentor/dashboard/dashboard.html",
     commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
   },
   // Prioriteit bij meerdere rollen (hoogste eerst)
