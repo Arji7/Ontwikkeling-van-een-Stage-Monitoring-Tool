@@ -3,23 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lopende stages – StageMonitor</title>
+  <title>Lopende Stages – Stagecommissie | StageMonitor</title>
+  <link rel="stylesheet" href="../aanvragen.overzicht/aanvragen.overzicht.css" />
   <link rel="stylesheet" href="lopende-stages.css" />
 </head>
 <body>
   <div class="container">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-brand">StageMonitor</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
       <nav class="sidebar-nav"></nav>
-
       <div class="sidebar-footer">
-        <div class="sidebar-role-label">
-          Actieve rollen:<br />
-          <strong id="sidebarRoles">—</strong>
-        </div>
         <div class="sidebar-user">
           <div class="user-avatar" id="sidebarUserAvatar">??</div>
           <div class="user-info">
@@ -34,31 +29,26 @@
       </div>
     </aside>
 
-    <!-- MAIN -->
     <main class="main-content">
       <header class="page-header">
-        <h1>Lopende stages</h1>
-        <p>Overzicht van alle actieve stages dit academiejaar</p>
+        <h1>Lopende Stages</h1>
+        <p>Overzicht van de aanvragen dit academiejaar</p>
       </header>
 
       <section class="controls">
         <div class="search-box">
-          <input type="text" id="searchInput" placeholder="🔍 Zoek student, bedrijf of docent…" />
+          <input type="text" id="searchInput" placeholder="🔍 Zoek student, bedrijf of docent..." />
+        </div>
+        <div class="filter-buttons">
+          <button class="filter-btn active" data-filter="alle">Alle <span id="cnt-alle"></span></button>
+          <button class="filter-btn" data-filter="actief">Actief <span id="cnt-actief"></span></button>
+          <button class="filter-btn" data-filter="afgerond">Afgerond <span id="cnt-afgerond"></span></button>
         </div>
       </section>
 
-      <div id="statsRow" class="stats-row"></div>
-
-      <section class="students-grid">
-        <div id="stagesContainer" class="grid"></div>
+      <section class="table-section">
+        <div id="tableContainer"></div>
       </section>
-
-      <div id="loadingSpinner" class="loading">
-        <div class="spinner"></div>
-        <p>Stages laden…</p>
-      </div>
-
-      <div id="errorMessage" class="error-message"></div>
     </main>
   </div>
 
