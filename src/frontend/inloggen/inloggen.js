@@ -9,7 +9,7 @@ const CONFIG = {
   DASHBOARD_BY_ROLE: {
     student:      "../Student/empty-stage/empty-stage.html",
     docent:       "../Student/empty-stage/empty-stage.html",
-    admin:        "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
+    admin:        "../Admin/Dashboard/dashboard.html",
     mentor:       "../Student/empty-stage/empty-stage.html",
     commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
   },
