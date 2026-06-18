@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mijn stagiaires – Stagementor | StageMonitor</title>
+  <link rel="stylesheet" href="../mentor.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
+        <a href="mijn-stagiaires.html" class="nav-item active">Mijn stagiaires</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">...</span>
+            <span class="user-role">Mentor</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="page-header">
+        <h1>Mijn stagiaires</h1>
+        <p>Overzicht van de stagiairs die je begeleidt dit academiejaar</p>
+      </div>
+
+      <div class="controls">
+        <div class="search-box">
+          <input type="text" id="zoekInput" placeholder="🔍 Zoek stagiair of bedrijf..." />
+        </div>
+      </div>
+
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="alle">Alle <span class="tab-count" id="cnt-alle"></span></button>
+        <button class="filter-tab" data-filter="actief">Actief <span class="tab-count" id="cnt-actief"></span></button>
+        <button class="filter-tab" data-filter="ondertekening">Wacht op ondertekening <span class="tab-count" id="cnt-ondertekening"></span></button>
+        <button class="filter-tab" data-filter="afgerond">Afgerond <span class="tab-count" id="cnt-afgerond"></span></button>
+      </div>
+
+      <div id="tabelContainer">
+        <div class="loading-state"><div class="spinner"></div><div>Stagiaires laden...</div></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../mentor-guard.js"></script>
+  <script src="../../config.js"></script>
+  <script src="mijn-stagiaires.js"></script>
+</body>
+</html>
