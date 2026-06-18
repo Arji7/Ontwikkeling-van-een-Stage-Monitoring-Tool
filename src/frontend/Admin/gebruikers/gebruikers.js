@@ -97,7 +97,7 @@
         <td>${statusBadge}</td>
         <td>
           <div class="actions">
-            <button class="btn-action btn-edit">Bewerken</button>
+            <a href="gebruiker-bewerken.html?id=${g.id}" class="btn-action btn-edit">Bewerken</a>
             ${actiefKnop}
           </div>
         </td>
