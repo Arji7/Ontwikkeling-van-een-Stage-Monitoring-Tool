@@ -76,14 +76,17 @@
     document.getElementById('prevStatus').textContent = document.getElementById('veldStatus').value || '—';
   }
 
-  window.slaanOp = function () {
+  window.slaanOp = async function () {
     var feedback = document.getElementById('feedbackMsg');
     feedback.className = 'feedback-msg';
     feedback.textContent = '';
 
-    var docent = document.getElementById('veldDocent').value.trim();
-    var start  = document.getElementById('veldStart').value;
-    var einde  = document.getElementById('veldEinde').value;
+    var docent      = document.getElementById('veldDocent').value.trim();
+    var mentor      = document.getElementById('veldMentor').value.trim();
+    var mentorEmail = document.getElementById('veldMentorEmail').value.trim();
+    var start       = document.getElementById('veldStart').value;
+    var einde       = document.getElementById('veldEinde').value;
+    var status      = document.getElementById('veldStatus').value;
 
     if (!docent) {
       feedback.textContent = 'Vul de begeleider (docent) in.';
@@ -97,12 +100,38 @@
       return;
     }
 
-    feedback.textContent = 'Wijzigingen opgeslagen.';
-    feedback.className   = 'feedback-msg succes';
+    try {
+      var res = await fetch(API_BASE + '/stages/' + stageId + '/bewerken', {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          docent: docent,
+          mentor: mentor,
+          mentorEmail: mentorEmail,
+          startdatum: start,
+          einddatum: einde,
+          status: status
+        })
+      });
 
-    setTimeout(function () {
-      window.location.href = 'lopende-stages.html';
-    }, 1500);
+      if (!res.ok) {
+        var data = await res.json();
+        throw new Error(data.error || 'Fout bij opslaan');
+      }
+
+      feedback.textContent = 'Wijzigingen opgeslagen.';
+      feedback.className   = 'feedback-msg succes';
+
+      setTimeout(function () {
+        window.location.href = 'lopende-stages.html';
+      }, 1500);
+    } catch (e) {
+      feedback.textContent = e.message || 'Fout bij opslaan.';
+      feedback.className   = 'feedback-msg fout';
+    }
   };
 
   function setEl(id, val) {

@@ -217,14 +217,14 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// PUT /api/stages/:id — stage bewerken (commissie/admin)
-router.put('/:id', authMiddleware, async (req, res) => {
+// PUT /api/stages/:id/bewerken — stage bewerken (commissie/admin)
+router.put('/:id/bewerken', authMiddleware, async (req, res) => {
   try {
     const rollen = req.user.rollen || [];
     const magBewerken = ['commissielid', 'admin'].some(r => rollen.includes(r));
     if (!magBewerken) return res.status(403).json({ error: 'Geen toegang.' });
 
-    const { docent, mentor, mentorEmail, startdatum, einddatum, status, notities } = req.body;
+    const { docent, mentor, mentorEmail, startdatum, einddatum, status } = req.body;
 
     await db.query(
       `UPDATE stage SET contact_naam = ?, contact_email = ?, startdatum = ?, einddatum = ?, status = ?
