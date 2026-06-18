@@ -217,6 +217,39 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+// PUT /api/stages/:id — stage bewerken (commissie/admin)
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const rollen = req.user.rollen || [];
+    const magBewerken = ['commissielid', 'admin'].some(r => rollen.includes(r));
+    if (!magBewerken) return res.status(403).json({ error: 'Geen toegang.' });
+
+    const { docent, mentor, mentorEmail, startdatum, einddatum, status, notities } = req.body;
+
+    await db.query(
+      `UPDATE stage SET contact_naam = ?, contact_email = ?, startdatum = ?, einddatum = ?, status = ?
+       WHERE id = ?`,
+      [mentor || null, mentorEmail || null, startdatum || null, einddatum || null, status || 'actief', req.params.id]
+    );
+
+    if (docent) {
+      const [docenten] = await db.query(
+        `SELECT d.id FROM docent d JOIN gebruiker g ON g.id = d.gebruiker_id
+         WHERE CONCAT(g.voornaam, ' ', g.achternaam) = ?`,
+        [docent]
+      );
+      if (docenten.length > 0) {
+        await db.query('UPDATE stage SET docent_id = ? WHERE id = ?', [docenten[0].id, req.params.id]);
+      }
+    }
+
+    res.json({ message: 'Stage bijgewerkt.' });
+  } catch (err) {
+    console.error('Stage bewerken fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
 // GET /api/stages/mijn — alle stages van de ingelogde student
 router.get('/mijn', authMiddleware, async (req, res) => {
   try {
