@@ -89,11 +89,9 @@
       telling[m] = (telling[m] || 0) + 1;
     });
 
-    var aanwezig = maanden.filter(function (m) { return telling[m] > 0; });
-    var zichtbaar = aanwezig.length > 0 ? aanwezig : maanden.slice(0, 6);
-    var max = Math.max.apply(null, zichtbaar.map(function (m) { return telling[m] || 0; })) || 1;
+    var max = Math.max.apply(null, maanden.map(function (m) { return telling[m] || 0; })) || 1;
 
-    var html = zichtbaar.map(function (m) {
+    var html = maanden.map(function (m) {
       var v = telling[m] || 0;
       var h = Math.max(4, Math.round((v / max) * 110));
       return '<div class="bar-col">' +
