@@ -11,20 +11,7 @@
     <aside class="sidebar">
       <div class="sidebar-brand">StageMonitoring</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
-      <nav class="sidebar-nav">
-        <span class="nav-group-label">Algemeen</span>
-        <a href="../dashboard/dashboard.html" class="nav-item">Dashboard</a>
-        <span class="nav-group-label">Stagecommissie</span>
-        <a href="aanvragen.html" class="nav-item active">Aanvragen</a>
-        <a href="../lopende-stages/lopende-stages.html" class="nav-item">Lopende stages</a>
-        <a href="#" class="nav-item">Evaluaties</a>
-        <a href="#" class="nav-item">Competenties</a>
-        <span class="nav-group-label">Beheer</span>
-        <a href="#" class="nav-item">Gebruikers</a>
-        <a href="#" class="nav-item">Bedrijven</a>
-        <a href="#" class="nav-item">Systeem</a>
-        <a href="#" class="nav-item">Rapporten</a>
-      </nav>
+      <nav class="sidebar-nav"></nav>
       <div class="sidebar-footer">
         <div class="sidebar-role-label">
           Actieve rollen:<br />
@@ -88,6 +75,8 @@
   </div>
 
   <script src="../../config.js"></script>
+  <script>window.SIDEBAR_PAGE = 'aanvragen'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../sidebar-builder.js"></script>
   <script src="aanvragen.js"></script>
 </body>
 </html>
