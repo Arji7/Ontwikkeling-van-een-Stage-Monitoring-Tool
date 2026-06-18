@@ -19,8 +19,8 @@
       addLink(nav, root + 'Admin/Dashboard/dashboard.html', 'Dashboard', currentPage === 'dashboard');
 
       addLabel(nav, 'Stagecommissie');
-      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',      currentPage === 'aanvragen');
-      addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html',           'Lopende stages', currentPage === 'lopende-stages');
+      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',      currentPage === 'aanvragen' || currentPage === 'commissie-aanvragen');
+      addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html',           'Lopende stages', currentPage === 'lopende-stages' || currentPage === 'commissie-lopende-stages');
       addLink(nav, '#', 'Evaluaties',   currentPage === 'evaluaties');
       addLink(nav, '#', 'Competenties', currentPage === 'competenties');
 
@@ -32,8 +32,8 @@
       addLink(nav, '#', 'Rapporten', currentPage === 'rapporten');
     } else {
       // ── Commissielid menu (zonder admin) ────────────────────
-      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',      currentPage === 'aanvragen');
-      addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html',           'Lopende stages', currentPage === 'lopende-stages');
+      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',      currentPage === 'aanvragen' || currentPage === 'commissie-aanvragen');
+      addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html',           'Lopende stages', currentPage === 'lopende-stages' || currentPage === 'commissie-lopende-stages');
       addLink(nav, '#', 'Evaluaties', currentPage === 'evaluaties');
     }
 
