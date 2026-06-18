@@ -1,18 +1,5 @@
 (function () {
-  // Mockdata — te vervangen zodra backend endpoint beschikbaar is
-  const mockGebruikers = [
-    { id: 1,  naam: 'Sara Janssens',     email: 'sara.janssens@ehb.be',      actief: true,  rollen: ['student'] },
-    { id: 2,  naam: 'Thomas Vermeulen',  email: 'thomas.vermeulen@ehb.be',   actief: true,  rollen: ['student'] },
-    { id: 3,  naam: 'Prof. Tom Aertsens',email: 'tom.aertsens@ehb.be',       actief: true,  rollen: ['docent'] },
-    { id: 4,  naam: 'Prof. Jonas Martens',email:'jonas.martens@ehb.be',      actief: true,  rollen: ['docent'] },
-    { id: 5,  naam: 'Karel Devos',       email: 'k.devos@techcorp.be',       actief: true,  rollen: ['stagementor'] },
-    { id: 6,  naam: 'Laura Vos',         email: 'l.vos@dataworks.be',        actief: true,  rollen: ['stagementor'] },
-    { id: 7,  naam: 'Marie Pieters',     email: 'm.pieters@ehb.be',          actief: true,  rollen: ['commissielid'] },
-    { id: 8,  naam: 'Roos Baert',        email: 'roos.baert@ehb.be',         actief: false, rollen: ['student'] },
-    { id: 9,  naam: 'Els Verheyen',      email: 'els.verheyen@ehb.be',       actief: true,  rollen: ['admin', 'commissielid'] },
-  ];
-
-  let allGebruikers = mockGebruikers;
+  let allGebruikers = [];
 
   const tableBody    = document.getElementById('tableBody');
   const table        = document.getElementById('gebruikersTable');
@@ -23,7 +10,30 @@
   const rolFilter    = document.getElementById('rolFilter');
   const statusFilter = document.getElementById('statusFilter');
 
-  document.addEventListener('DOMContentLoaded', () => {
+  var token = sessionStorage.getItem('token');
+
+  async function laadGebruikers() {
+    try {
+      var res = await fetch(API_BASE + '/admin/gebruikers', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      var data = res.ok ? await res.json() : [];
+      allGebruikers = data.map(function (g) {
+        return {
+          id: g.id,
+          naam: (g.voornaam || '') + ' ' + (g.achternaam || ''),
+          email: g.email,
+          actief: g.actief === 1 || g.actief === true,
+          rollen: g.rollen ? g.rollen.split(', ') : []
+        };
+      });
+    } catch (e) {
+      allGebruikers = [];
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await laadGebruikers();
     spinner.style.display = 'none';
     vulStats();
     render();
@@ -104,9 +114,19 @@
       </tr>`;
   }
 
-  window.toggleStatus = function (id, actief) {
-    const g = allGebruikers.find(u => u.id === id);
-    if (g) { g.actief = actief; vulStats(); render(); }
+  window.toggleStatus = async function (id, actief) {
+    try {
+      await fetch(API_BASE + '/admin/gebruikers/' + id, {
+        method: actief ? 'PUT' : 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actief: actief })
+      });
+      await laadGebruikers();
+      vulStats();
+      render();
+    } catch (e) {
+      alert('Fout bij status wijzigen.');
+    }
   };
 
   function rolBadgeClass(rol) {

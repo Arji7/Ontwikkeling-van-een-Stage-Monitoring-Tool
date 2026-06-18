@@ -1,20 +1,9 @@
 (function () {
-  var mockEvaluaties = [
-    { id: 1, student: 'Ramdani A.',  opleiding: 'TI3 · 2025–26', bedrijf: 'TechCorp BV',      docent: 'J. Martens', type: 'tussentijds',   status: 'ingediend',   score: 78 },
-    { id: 2, student: 'Ramdani A.',  opleiding: 'TI3 · 2025–26', bedrijf: 'TechCorp BV',      docent: 'J. Martens', type: 'eindevaluatie', status: 'afgerond',    score: 85 },
-    { id: 3, student: 'Bogaert K.',  opleiding: 'TI3 · 2025–26', bedrijf: 'Cronos Group',     docent: 'J. Martens', type: 'tussentijds',   status: 'behandeling', score: null },
-    { id: 4, student: 'Nguyen T.',   opleiding: 'TI3 · 2025–26', bedrijf: 'Deloitte Belgium', docent: 'A. Claes',   type: 'eindevaluatie', status: 'afgerond',    score: 91 },
-    { id: 5, student: 'Verbeke M.',  opleiding: 'TI3 · 2025–26', bedrijf: 'Elia Group',       docent: 'S. Peeters', type: 'tussentijds',   status: 'behandeling', score: null },
-    { id: 6, student: 'De Smedt L.', opleiding: 'TI2 · 2025–26', bedrijf: 'Belfius Bank',     docent: 'A. Claes',   type: 'tussentijds',   status: 'ingediend',   score: 72 },
-    { id: 7, student: 'Okonkwo F.',  opleiding: 'TI3 · 2025–26', bedrijf: 'Proximus',         docent: 'J. Martens', type: 'eindevaluatie', status: 'afgerond',    score: 88 },
-    { id: 8, student: 'Claes R.',    opleiding: 'TI2 · 2025–26', bedrijf: 'ING België',       docent: 'S. Peeters', type: 'tussentijds',   status: 'wacht',       score: null },
-    { id: 9, student: 'Janssens S.', opleiding: 'TI3 · 2025–26', bedrijf: 'UCB Pharma',       docent: 'A. Claes',   type: 'tussentijds',   status: 'ingediend',   score: 65 },
-    { id: 10, student: 'Mertens B.', opleiding: 'TI2 · 2025–26', bedrijf: 'Solvay',           docent: 'J. Martens', type: 'eindevaluatie', status: 'afgerond',    score: 79 },
-  ];
+  var token = sessionStorage.getItem('token');
+  var alleRijen = [];
 
-  var alleRijen = mockEvaluaties;
-
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', async function () {
+    await laadEvaluaties();
     tekenStats();
     render();
 
@@ -22,6 +11,29 @@
     document.getElementById('filterType').addEventListener('change', render);
     document.getElementById('filterStatus').addEventListener('change', render);
   });
+
+  async function laadEvaluaties() {
+    try {
+      var res = await fetch(API_BASE + '/admin/evaluaties', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      var data = res.ok ? await res.json() : [];
+      alleRijen = data.map(function (e) {
+        return {
+          id: e.id,
+          student: (e.student_voornaam || '') + ' ' + (e.student_achternaam || ''),
+          opleiding: '',
+          bedrijf: e.bedrijf_naam || '—',
+          docent: e.docent_voornaam ? e.docent_voornaam + ' ' + e.docent_achternaam : '—',
+          type: e.type === 'eind' ? 'eindevaluatie' : 'tussentijds',
+          status: e.status || 'open',
+          score: null
+        };
+      });
+    } catch (e) {
+      alleRijen = [];
+    }
+  }
 
   function tekenStats() {
     var actief      = new Set(alleRijen.map(function (r) { return r.student; })).size;
@@ -84,6 +96,7 @@
       afgerond:    ['badge-afgerond',    '✓ Afgerond'],
       behandeling: ['badge-behandeling', '⏳ In behandeling'],
       wacht:       ['badge-wacht',       '⏳ Wacht op docent'],
+      open:        ['badge-wacht',       '⏳ Open'],
     };
     var info = map[status] || ['badge', status];
     return '<span class="badge ' + info[0] + '">' + info[1] + '</span>';

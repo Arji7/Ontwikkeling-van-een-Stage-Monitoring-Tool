@@ -1,15 +1,7 @@
 (function () {
-  const mockBedrijven = [
-    { id: 1, naam: 'TechCorp BV',      rechtsvorm: 'BV',   sector: 'IT & Software',  website: 'techcorp.be',   btw: 'BE0123.456.789', straat: 'Wetstraat 12',      postcode: '1000', gemeente: 'Brussel',   contact: 'Karel Devos',  functie: 'Team Lead Backend', email: 'k.devos@techcorp.be',    tel: '+32 499 12 34 56', status: 'erkend' },
-    { id: 2, naam: 'DataWorks NV',     rechtsvorm: 'NV',   sector: 'Data & Analyse', website: 'dataworks.be',  btw: '',               straat: 'Korenmarkt 5',      postcode: '9000', gemeente: 'Gent',      contact: 'Laura Vos',    functie: 'Data Manager',      email: 'l.vos@dataworks.be',    tel: '',                 status: 'erkend' },
-    { id: 3, naam: 'CloudSoft BVBA',   rechtsvorm: 'BVBA', sector: 'Cloud & DevOps', website: 'cloudsoft.be',  btw: '',               straat: 'Meir 30',           postcode: '2000', gemeente: 'Antwerpen', contact: 'Mark Peters',  functie: 'CTO',               email: 'm.peters@cloudsoft.be', tel: '+32 476 55 66 77', status: 'in_beoordeling' },
-    { id: 4, naam: 'DigitalInc',       rechtsvorm: 'BV',   sector: 'IT Consulting',  website: 'digitalinc.be', btw: '',               straat: 'Bondgenotenlaan 1', postcode: '3000', gemeente: 'Leuven',    contact: 'Sophie Leys',  functie: 'HR Manager',        email: 's.leys@digitalinc.be',  tel: '',                 status: 'erkend' },
-    { id: 5, naam: 'NetSec Solutions', rechtsvorm: 'BV',   sector: 'Cybersecurity',  website: 'netsec.be',     btw: '',               straat: 'Kanaalstraat 8',    postcode: '1000', gemeente: 'Brussel',   contact: 'Jan Claes',    functie: 'Security Lead',     email: 'j.claes@netsec.be',     tel: '',                 status: 'in_beoordeling' },
-    { id: 6, naam: 'SoftBase',         rechtsvorm: 'BV',   sector: 'IT & Software',  website: 'softbase.be',   btw: '',               straat: 'Genkersteenweg 4',  postcode: '3500', gemeente: 'Hasselt',   contact: 'Anne Willems', functie: 'Office Manager',    email: 'a.willems@softbase.be', tel: '',                 status: 'erkend' },
-  ];
-
+  var token = sessionStorage.getItem('token');
   const params = new URLSearchParams(window.location.search);
-  const bedrijf = mockBedrijven.find(b => b.id === parseInt(params.get('id'), 10));
+  const bedrijfId = params.get('id');
 
   const naamEl        = document.getElementById('naam');
   const rechtsvormEl  = document.getElementById('rechtsvorm');
@@ -26,47 +18,59 @@
   const feedbackMsg   = document.getElementById('feedbackMsg');
   const submitBtn     = document.getElementById('submitBtn');
 
-  document.addEventListener('DOMContentLoaded', () => {
-    if (!bedrijf) {
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!bedrijfId) {
+      toonFeedback('Geen bedrijf-ID opgegeven.', 'error');
+      submitBtn.disabled = true;
+      return;
+    }
+
+    try {
+      var res = await fetch(API_BASE + '/admin/bedrijven/' + bedrijfId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) throw new Error();
+      var bedrijf = await res.json();
+
+      naamEl.value        = bedrijf.naam || '';
+      sectorEl.value      = bedrijf.sector || '';
+      websiteEl.value     = bedrijf.website || '';
+      btwEl.value         = bedrijf.btw_nummer || '';
+      straatEl.value      = bedrijf.adres || '';
+      postcodeEl.value    = bedrijf.postcode || '';
+      gemeenteEl.value    = bedrijf.stad || '';
+
+      if (document.getElementById('breadcrumbNaam')) {
+        document.getElementById('breadcrumbNaam').textContent = bedrijf.naam;
+      }
+
+      updatePreview();
+    } catch (e) {
       toonFeedback('Bedrijf niet gevonden.', 'error');
       submitBtn.disabled = true;
       return;
     }
 
-    naamEl.value        = bedrijf.naam;
-    rechtsvormEl.value  = bedrijf.rechtsvorm;
-    sectorEl.value      = bedrijf.sector;
-    websiteEl.value     = bedrijf.website;
-    btwEl.value         = bedrijf.btw;
-    straatEl.value      = bedrijf.straat;
-    postcodeEl.value    = bedrijf.postcode;
-    gemeenteEl.value    = bedrijf.gemeente;
-    contactNaamEl.value = bedrijf.contact;
-    contactFuncEl.value = bedrijf.functie;
-    contactMailEl.value = bedrijf.email;
-    contactTelEl.value  = bedrijf.tel;
-
-    const statusRadio = document.querySelector(`input[name="status"][value="${bedrijf.status}"]`);
-    if (statusRadio) statusRadio.checked = true;
-
-    document.getElementById('breadcrumbNaam').textContent = bedrijf.naam;
-
-    updatePreview();
-
-    [naamEl, sectorEl, gemeenteEl, contactNaamEl].forEach(el => el.addEventListener('input', updatePreview));
-    document.querySelectorAll('input[name="status"]').forEach(r => r.addEventListener('change', updatePreview));
-    [straatEl, postcodeEl, contactMailEl].forEach(el => el.addEventListener('input', updateChecklist));
+    [naamEl, sectorEl, gemeenteEl].forEach(function (el) {
+      if (el) el.addEventListener('input', updatePreview);
+    });
+    if (contactNaamEl) contactNaamEl.addEventListener('input', updatePreview);
+    document.querySelectorAll('input[name="status"]').forEach(function (r) { r.addEventListener('change', updatePreview); });
+    [straatEl, postcodeEl, contactMailEl].forEach(function (el) {
+      if (el) el.addEventListener('input', updateChecklist);
+    });
   });
 
   function updatePreview() {
-    document.getElementById('prevNaam').textContent    = naamEl.value        || '—';
-    document.getElementById('prevSector').textContent  = sectorEl.value      || '—';
-    document.getElementById('prevGemeente').textContent = gemeenteEl.value   || '—';
-    document.getElementById('prevContact').textContent = contactNaamEl.value  || '—';
+    var el;
+    el = document.getElementById('prevNaam');    if (el) el.textContent = naamEl.value || '—';
+    el = document.getElementById('prevSector');  if (el) el.textContent = sectorEl.value || '—';
+    el = document.getElementById('prevGemeente');if (el) el.textContent = gemeenteEl.value || '—';
+    el = document.getElementById('prevContact'); if (el) el.textContent = (contactNaamEl ? contactNaamEl.value : '') || '—';
 
-    const gekozenStatus = document.querySelector('input[name="status"]:checked');
-    const prevStatusEl  = document.getElementById('prevStatus');
-    if (gekozenStatus) {
+    var gekozenStatus = document.querySelector('input[name="status"]:checked');
+    var prevStatusEl  = document.getElementById('prevStatus');
+    if (gekozenStatus && prevStatusEl) {
       prevStatusEl.textContent = gekozenStatus.value === 'erkend' ? 'Erkend' : 'In beoordeling';
       prevStatusEl.className   = gekozenStatus.value === 'erkend' ? 'badge badge-erkend' : 'badge badge-beoordeling';
     }
@@ -76,22 +80,43 @@
 
   function updateChecklist() {
     setCheck('chk-naam',    !!naamEl.value.trim());
-    setCheck('chk-sector',  !!sectorEl.value.trim());
+    setCheck('chk-sector',  !!(sectorEl && sectorEl.value.trim()));
     setCheck('chk-adres',   !!(straatEl.value.trim() && postcodeEl.value.trim() && gemeenteEl.value.trim()));
-    setCheck('chk-contact', !!(contactNaamEl.value.trim() && contactMailEl.value.trim()));
+    setCheck('chk-contact', !!(contactNaamEl && contactNaamEl.value.trim() && contactMailEl && contactMailEl.value.trim()));
   }
 
   function setCheck(id, ok) {
-    const el = document.getElementById(id);
+    var el = document.getElementById(id);
     if (el) el.classList.toggle('done', ok);
   }
 
-  document.getElementById('bewerkenForm').addEventListener('submit', (e) => {
+  document.getElementById('bewerkenForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     submitBtn.disabled    = true;
     submitBtn.textContent = 'Opslaan…';
-    toonFeedback('Wijzigingen opgeslagen! Terug naar overzicht…', 'success');
-    setTimeout(() => { window.location.href = 'bedrijven.html'; }, 1500);
+
+    try {
+      var res = await fetch(API_BASE + '/admin/bedrijven/' + bedrijfId, {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          naam: naamEl.value,
+          sector: sectorEl.value,
+          adres: straatEl.value,
+          postcode: postcodeEl.value,
+          stad: gemeenteEl.value,
+          website: websiteEl.value,
+          btw_nummer: btwEl.value
+        })
+      });
+      if (!res.ok) throw new Error();
+      toonFeedback('Wijzigingen opgeslagen! Terug naar overzicht…', 'success');
+      setTimeout(function () { window.location.href = 'bedrijven.html'; }, 1500);
+    } catch (err) {
+      toonFeedback('Fout bij opslaan.', 'error');
+      submitBtn.disabled    = false;
+      submitBtn.textContent = 'Wijzigingen opslaan';
+    }
   });
 
   function toonFeedback(msg, type) {
