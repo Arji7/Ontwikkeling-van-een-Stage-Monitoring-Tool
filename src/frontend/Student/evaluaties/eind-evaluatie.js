@@ -147,8 +147,8 @@ function renderCompDetail(comp) {
     html += '</div>';
 
     html += '<div class="gi-field">';
-    html += '<div class="gi-field-label">Feedback</div>';
-    html += '<div class="gi-field-value"><span class="gi-placeholder">Wordt ingevuld door docent</span></div>';
+    html += '<div class="gi-field-label">Feedback (Mentor)</div>';
+    html += '<div class="gi-field-value">' + (s.feedback_mentor ? escHtml(s.feedback_mentor) : '<span class="gi-placeholder">Wordt ingevuld door mentor</span>') + '</div>';
     html += '<div class="gi-readonly">🔒 Read-only</div>';
     html += '</div>';
 
