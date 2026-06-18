@@ -60,22 +60,20 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Status dynamisch vullen
     var statusEl = document.getElementById("tabelStatus");
-    var verwachteRow = document.getElementById("rowVerwachteBeslissing");
     var statusMap = {
-      "ingediend":            { tekst: "⏱ Wacht op goedkeuring",    klasse: "info-value status-pending", toonVerwachte: true },
-      "in_beoordeling":       { tekst: "⏱ In beoordeling",          klasse: "info-value status-pending", toonVerwachte: true },
-      "goedgekeurd":          { tekst: "✓ Goedgekeurd",              klasse: "info-value status-success", toonVerwachte: false },
-      "actief":               { tekst: "✓ Stage loopt",              klasse: "info-value status-success", toonVerwachte: false },
-      "afgekeurd":            { tekst: "✕ Afgekeurd",                klasse: "info-value status-danger",  toonVerwachte: false },
-      "aanpassingen_vereist": { tekst: "✏ Aanpassingen vereist",     klasse: "info-value status-warning", toonVerwachte: false },
-      "wacht_op_overeenkomst":{ tekst: "📄 Wacht op overeenkomst",    klasse: "info-value status-success", toonVerwachte: false },
+      "ingediend":            { tekst: "⏱ Wacht op goedkeuring",    klasse: "info-value status-pending" },
+      "in_beoordeling":       { tekst: "⏱ In beoordeling",          klasse: "info-value status-pending" },
+      "goedgekeurd":          { tekst: "✓ Goedgekeurd",              klasse: "info-value status-success" },
+      "actief":               { tekst: "✓ Stage loopt",              klasse: "info-value status-success" },
+      "afgekeurd":            { tekst: "✕ Afgekeurd",                klasse: "info-value status-danger" },
+      "aanpassingen_vereist": { tekst: "✏ Aanpassingen vereist",     klasse: "info-value status-warning" },
+      "wacht_op_overeenkomst":{ tekst: "📄 Wacht op overeenkomst",    klasse: "info-value status-success" },
     };
-    var s = statusMap[stage.status] || { tekst: stage.status, klasse: "info-value", toonVerwachte: false };
+    var s = statusMap[stage.status] || { tekst: stage.status, klasse: "info-value" };
     if (statusEl) {
       statusEl.textContent = s.tekst;
       statusEl.className = s.klasse;
     }
-    if (verwachteRow) verwachteRow.style.display = s.toonVerwachte ? "" : "none";
 
     var bekijkBtn = document.getElementById("bekijkBtn");
     if (bekijkBtn) bekijkBtn.href = "../voorstel-bekijken/voorstel-bekijken.html";
