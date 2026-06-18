@@ -50,9 +50,12 @@
   font-weight: 600;
 }
 
-.badge-actief     { background: #dcfce7; color: #166534; }
-.badge-afgerond   { background: #e0e7ff; color: #3730a3; }
-.badge-goedgekeurd { background: #fef3c7; color: #92400e; }
+.badge-actief       { background: #dcfce7; color: #166534; }
+.badge-afgerond     { background: #e0e7ff; color: #3730a3; }
+.badge-goedgekeurd  { background: #fef3c7; color: #92400e; }
+.badge-ingediend    { background: #e5e7eb; color: #4b5563; }
+.badge-afgekeurd    { background: #fee2e2; color: #b91c1c; }
+.badge-aanpassingen { background: #fff3e0; color: #e65100; }
 
 .empty-state {
   text-align: center;

@@ -3,72 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aanvragen Overzicht - Stagecommissie</title>
+    <title>Stageaanvragen – Stagecommissie | StageMonitor</title>
+    <link rel="stylesheet" href="../lopende-stages/lopende-stages.css">
     <link rel="stylesheet" href="aanvragen.overzicht.css">
 </head>
 <body>
     <div class="container">
-        <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar-brand">StageMonitor</div>
-      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
-      <nav class="sidebar-nav"></nav>
 
-      <div class="sidebar-footer">
-        <div class="sidebar-role-label">
-          Actieve rollen:<br />
-          <strong id="sidebarRoles">—</strong>
-        </div>
-        <div class="sidebar-user">
-          <div class="user-avatar" id="sidebarUserAvatar">??</div>
-          <div class="user-info">
-            <span class="user-name" id="sidebarUserName">...</span>
-            <span class="user-role" id="sidebarUserRole">Stagecommissie</span>
+        <aside class="sidebar">
+          <div class="sidebar-brand">StageMonitor</div>
+          <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+          <nav class="sidebar-nav"></nav>
+          <div class="sidebar-footer">
+            <div class="sidebar-user">
+              <div class="user-avatar" id="sidebarUserAvatar">??</div>
+              <div class="user-info">
+                <span class="user-name" id="sidebarUserName">...</span>
+                <span class="user-role" id="sidebarUserRole">Stagecommissie</span>
+              </div>
+            </div>
+            <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+               onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+              🔓 Uitloggen
+            </a>
           </div>
-        </div>
-        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
-      </div>
-    </aside>
+        </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="main-content">
-            <!-- HEADER -->
             <header class="page-header">
                 <h1>Stageaanvragen</h1>
                 <p>Beheer en beoordeel alle inkomende stageaanvragen</p>
             </header>
 
-            <!-- FILTERS & ZOEK -->
             <section class="controls">
                 <div class="search-box">
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        placeholder="🔍 Zoek student of bedrijf..."
-                    >
+                    <input type="text" id="searchInput" placeholder="🔍 Zoek student of bedrijf...">
                 </div>
-
                 <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="alle">Alle</button>
-                    <button class="filter-btn" data-filter="ingediend">Wachten op goedkeuring</button>
-                    <button class="filter-btn" data-filter="aanpassingen_vereist">Wachten op aanpassing</button>
-                    <button class="filter-btn" data-filter="goedgekeurd">Goedgekeurd</button>
-                    <button class="filter-btn" data-filter="afgekeurd">Afgewezen</button>
+                    <button class="filter-btn active" data-filter="alle">Alle <span id="cnt-alle"></span></button>
+                    <button class="filter-btn" data-filter="ingediend">Wachten op goedkeuring <span id="cnt-ingediend"></span></button>
+                    <button class="filter-btn" data-filter="aanpassingen_vereist">Wachten op aanpassing <span id="cnt-aanpassing"></span></button>
+                    <button class="filter-btn" data-filter="goedgekeurd">Goedgekeurd <span id="cnt-goedgekeurd"></span></button>
+                    <button class="filter-btn" data-filter="afgekeurd">Afgewezen <span id="cnt-afgekeurd"></span></button>
                 </div>
             </section>
 
-            <!-- STUDENTS GRID -->
-            <section class="students-grid">
-                <div id="studentsContainer" class="grid">
-                    <!-- Students worden hier ingeladen via JS -->
-                </div>
+            <section class="table-section">
+                <div id="tableContainer"></div>
             </section>
-
-            <!-- LOADING & ERROR STATES -->
-            <div id="loadingSpinner" class="loading">
-                <div class="spinner"></div>
-                <p>Studenten laden...</p>
-            </div>
 
             <div id="errorMessage" class="error-message"></div>
         </main>
