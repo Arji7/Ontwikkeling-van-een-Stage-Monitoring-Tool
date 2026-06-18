@@ -29,7 +29,7 @@
       addLink(nav, root + 'Admin/bedrijven/bedrijven.html', 'Bedrijven', currentPage === 'bedrijven');
 
       addLabel(nav, 'Systeem');
-      addLink(nav, '#', 'Rapporten', currentPage === 'rapporten');
+      addLink(nav, root + 'Admin/rapporten/rapporten.html', 'Rapporten', currentPage === 'rapporten');
     } else {
       // ── Commissielid menu (zonder admin) ────────────────────
       addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',      currentPage === 'aanvragen' || currentPage === 'commissie-aanvragen');

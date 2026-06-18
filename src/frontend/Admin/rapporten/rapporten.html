@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rapporten – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="rapporten.css" />
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles"></span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h1>Rapporten &amp; Statistieken</h1>
+        <p class="page-sub">Overzicht van alle stagegegevens en voortgang</p>
+      </div>
+      <div id="laadStatus" class="laad-status">Gegevens laden…</div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <span class="filter-label">Filters:</span>
+      <select id="filterAcademiejaar" class="filter-chip">
+        <option value="">Academiejaar 2025–2026</option>
+      </select>
+      <select id="filterStatus" class="filter-chip">
+        <option value="">Alle statussen</option>
+        <option value="ingediend">Ingediend</option>
+        <option value="goedgekeurd">Goedgekeurd</option>
+        <option value="actief">Actief</option>
+        <option value="afgerond">Afgerond</option>
+        <option value="afgekeurd">Afgekeurd</option>
+      </select>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Totaal stages</div>
+        <div class="stat-value" id="statTotaal">—</div>
+        <div class="stat-desc">Huidig academiejaar</div>
+        <div class="stat-trend" id="trendTotaal"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Actieve stages</div>
+        <div class="stat-value stat-blue" id="statActief">—</div>
+        <div class="stat-desc">Momenteel lopend</div>
+        <div class="stat-trend" id="trendActief"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Slaagpercentage</div>
+        <div class="stat-value stat-green" id="statSlaag">—</div>
+        <div class="stat-desc">Afgeronde stages</div>
+        <div class="stat-trend" id="trendSlaag"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Wachten op goedkeuring</div>
+        <div class="stat-value stat-orange" id="statWacht">—</div>
+        <div class="stat-desc">Openstaande aanvragen</div>
+        <div class="stat-trend" id="trendWacht"></div>
+      </div>
+    </div>
+
+    <!-- GRAFIEKEN RIJ -->
+    <div class="charts-row">
+
+      <!-- STAAFGRAFIEK: stages per maand -->
+      <div class="chart-card chart-wide">
+        <div class="chart-header">
+          <h2>Stages per maand</h2>
+        </div>
+        <div class="bar-chart" id="barChart">
+          <div class="chart-loading">Laden…</div>
+        </div>
+      </div>
+
+      <!-- TAARTDIAGRAM: statusverdeling -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2>Statusverdeling</h2>
+        </div>
+        <div class="pie-wrap">
+          <svg id="pieChart" viewBox="0 0 160 160" width="160" height="160"></svg>
+          <ul class="pie-legend" id="pieLegend"></ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ONDERSTEKENING STATUS -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2>Ondertekeningsstatus</h2>
+      </div>
+      <div class="progress-list" id="ondertekeningList">
+        <div class="chart-loading">Laden…</div>
+      </div>
+    </div>
+
+    <!-- TOP STAGES TABEL -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2>Recente stages</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Bedrijf</th>
+              <th>Docent</th>
+              <th>Stageperiode</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="stagesBody">
+            <tr><td colspan="5" class="table-empty">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'rapporten'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../sidebar-builder.js"></script>
+<script src="rapporten.js"></script>
+</body>
+</html>
