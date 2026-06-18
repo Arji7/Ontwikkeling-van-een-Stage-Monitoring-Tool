@@ -60,7 +60,7 @@ async function laadStages() {
 
     const stages = await res.json();
     alleStages = stages.filter(s =>
-      ["actief", "wacht_op_ondertekening", "afgerond"].includes(s.status)
+      ["actief", "afgerond"].includes(s.status)
     );
     updateTabCounts();
     renderTabel();
@@ -73,10 +73,10 @@ async function laadStages() {
 
 function updateTabCounts() {
   document.getElementById("tabAlleCount").textContent = alleStages.length;
-  document.getElementById("tabWachtCount").textContent =
-    alleStages.filter(s => s.status === "wacht_op_ondertekening").length;
   document.getElementById("tabActiefCount").textContent =
     alleStages.filter(s => s.status === "actief").length;
+  document.getElementById("tabAfgerondCount").textContent =
+    alleStages.filter(s => s.status === "afgerond").length;
 }
 
 function renderTabel() {
