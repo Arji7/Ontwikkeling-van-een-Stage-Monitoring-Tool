@@ -41,6 +41,8 @@ body {
 .nav-item.active { background: var(--sidebar-active-bg); font-weight: 600; color: #fff; }
 
 .sidebar-footer { padding: 16px 0 0; border-top: 1px solid rgba(255,255,255,0.12); margin-top: auto; }
+.sidebar-role-label { font-size: 10px; color: rgba(255,255,255,0.5); padding: 0 22px 10px; text-align: center; line-height: 1.5; }
+.sidebar-role-label strong { color: rgba(255,255,255,0.75); display: block; }
 .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 10px 22px; background: rgba(0,0,0,0.12); }
 .user-avatar {
   width: 32px; height: 32px; border-radius: 50%;
