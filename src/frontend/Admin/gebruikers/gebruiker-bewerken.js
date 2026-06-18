@@ -115,7 +115,8 @@
           voornaam: voornaamEl.value,
           achternaam: achternaamEl.value,
           email: emailEl.value,
-          actief: actief
+          actief: actief,
+          wachtwoord: (document.getElementById('nieuwWachtwoord') || {}).value || undefined
         })
       });
       if (!res.ok) throw new Error();

@@ -105,7 +105,7 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
 // PUT /api/admin/gebruikers/:id — gebruiker bewerken
 router.put('/gebruikers/:id', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { voornaam, achternaam, email, actief } = req.body;
+    const { voornaam, achternaam, email, actief, wachtwoord } = req.body;
     if (voornaam && achternaam && email) {
       await db.query(
         'UPDATE gebruiker SET voornaam = ?, achternaam = ?, email = ?, actief = ? WHERE id = ?',
@@ -113,6 +113,10 @@ router.put('/gebruikers/:id', authMiddleware, hasRole('admin'), async (req, res)
       );
     } else {
       await db.query('UPDATE gebruiker SET actief = ? WHERE id = ?', [actief, req.params.id]);
+    }
+    if (wachtwoord && wachtwoord.length >= 8) {
+      const hash = await bcrypt.hash(wachtwoord, 10);
+      await db.query('UPDATE gebruiker SET wachtwoord_hash = ? WHERE id = ?', [hash, req.params.id]);
     }
     res.json({ message: 'Gebruiker bijgewerkt.' });
   } catch (err) {
