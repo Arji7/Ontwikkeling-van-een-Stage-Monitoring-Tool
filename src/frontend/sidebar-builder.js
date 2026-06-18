@@ -23,7 +23,6 @@
       addLabel(nav, 'Stagecommissie');
       addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Stageaanvragen', ['commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
       addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html', 'Lopende stages', currentPage === 'commissie-lopende-stages');
-      addLink(nav, root + 'Commisie/evaluaties/evaluaties.html', 'Evaluaties', currentPage === 'commissie-evaluaties');
 
     } else if (isDocent) {
       addLink(nav, root + 'Docent/dashboard/dashboard.html',          'Dashboard',      currentPage === 'docent-dashboard');
@@ -32,7 +31,6 @@
     } else if (isCommissie) {
       addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',    ['commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
       addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html', 'Lopende stages', currentPage === 'commissie-lopende-stages');
-      addLink(nav, root + 'Commisie/evaluaties/evaluaties.html', 'Evaluaties', currentPage === 'commissie-evaluaties');
     }
 
     // Rolnaam in sidebar footer aanpassen
