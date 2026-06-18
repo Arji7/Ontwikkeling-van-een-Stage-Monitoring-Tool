@@ -21,8 +21,8 @@
       addLabel(nav, 'Stagecommissie');
       addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',      currentPage === 'aanvragen' || currentPage === 'commissie-aanvragen');
       addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html',           'Lopende stages', currentPage === 'lopende-stages' || currentPage === 'commissie-lopende-stages');
-      addLink(nav, '#', 'Evaluaties',   currentPage === 'evaluaties');
-      addLink(nav, '#', 'Competenties', currentPage === 'competenties');
+      addLink(nav, root + 'Admin/evaluaties/evaluaties.html',     'Evaluaties',   currentPage === 'evaluaties');
+      addLink(nav, root + 'Admin/evaluaties/competenties.html',   'Competenties', currentPage === 'competenties');
 
       addLabel(nav, 'Beheer');
       addLink(nav, root + 'Admin/gebruikers/gebruikers.html', 'Gebruikers', currentPage === 'gebruikers');
