@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bedrijfsbeheer – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="bedrijven.css" />
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles">Actieve rollen: —</span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Bedrijfsbeheer</h1>
+      <p class="page-sub">Beheer alle erkende stagebedrijven</p>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-top"><span class="stat-label">Totaal bedrijven</span><span class="stat-icon">🏢</span></div>
+        <div class="stat-value" id="statTotaal">—</div>
+        <div class="stat-desc">Alle statussen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><span class="stat-label">Erkend</span><span class="stat-icon">✅</span></div>
+        <div class="stat-value stat-green" id="statErkend">—</div>
+        <div class="stat-desc">Goedgekeurd</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><span class="stat-label">In beoordeling</span><span class="stat-icon">⏳</span></div>
+        <div class="stat-value stat-orange" id="statBeoordeling">—</div>
+        <div class="stat-desc">Wacht op goedkeuring</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><span class="stat-label">Actief met stagiair</span><span class="stat-icon">🎓</span></div>
+        <div class="stat-value stat-blue" id="statActief">—</div>
+        <div class="stat-desc">Huidig stagejaar</div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <input type="text" id="searchInput" class="search-input" placeholder="Zoek op bedrijfsnaam of sector..." />
+      <select id="statusFilter" class="filter-select">
+        <option value="">Alle statussen</option>
+        <option value="erkend">Erkend</option>
+        <option value="in_beoordeling">In beoordeling</option>
+      </select>
+      <select id="sectorFilter" class="filter-select">
+        <option value="">Alle sectoren</option>
+        <option value="IT & Software">IT &amp; Software</option>
+        <option value="Data & Analyse">Data &amp; Analyse</option>
+        <option value="Cloud & DevOps">Cloud &amp; DevOps</option>
+        <option value="IT Consulting">IT Consulting</option>
+        <option value="Cybersecurity">Cybersecurity</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Finance">Finance</option>
+        <option value="HR">HR</option>
+      </select>
+      <a href="bedrijf-toevoegen.html" class="btn-add">+ Bedrijf toevoegen</a>
+    </div>
+
+    <!-- TABEL -->
+    <div class="table-wrap">
+      <table id="bedrijvenTable" class="data-table">
+        <thead>
+          <tr>
+            <th>Bedrijf</th>
+            <th>Sector</th>
+            <th>Contactpersoon</th>
+            <th>Adres</th>
+            <th>Status</th>
+            <th>Acties</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyMsg" class="empty-msg" style="display:none;">Geen bedrijven gevonden.</div>
+    </div>
+
+    <div class="table-footer" id="tableFooter"></div>
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'bedrijven'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../sidebar-builder.js"></script>
+<script src="bedrijven.js"></script>
+</body>
+</html>

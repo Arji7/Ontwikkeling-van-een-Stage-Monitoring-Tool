@@ -1,201 +1,114 @@
-// ========== VARIABELEN ==========
-let allStudents = [];
-let currentFilter = 'alle';
+(function () {
+  var token = sessionStorage.getItem('token');
+  if (!token) { window.location.href = '../../inloggen/inloggen.html'; return; }
 
-// ========== DOM ELEMENTEN ==========
-const studentsContainer = document.getElementById('studentsContainer');
-const loadingSpinner = document.getElementById('loadingSpinner');
-const errorMessage = document.getElementById('errorMessage');
-const searchInput = document.getElementById('searchInput');
-const filterButtons = document.querySelectorAll('.filter-btn');
+  var alleStages = [];
+  var huidigFilter = 'alle';
 
-// ========== INITIALISATIE ==========
-document.addEventListener('DOMContentLoaded', () => {
-    loadStudents();
-    setupEventListeners();
-});
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ========== EVENT LISTENERS ==========
-function setupEventListeners() {
-    // Zoekfunctie
-    searchInput.addEventListener('input', (e) => {
-        filterAndDisplayStudents();
+  function fmtDatum(d) {
+    if (!d) return '--';
+    return new Date(d).toLocaleDateString('nl-BE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  }
+
+  function badge(status) {
+    if (status === 'ingediend')            return '<span class="badge badge-ingediend">Wachten op goedkeuring</span>';
+    if (status === 'goedgekeurd')          return '<span class="badge badge-goedgekeurd">Goedgekeurd</span>';
+    if (status === 'afgekeurd')            return '<span class="badge badge-afgekeurd">Afgewezen</span>';
+    if (status === 'aanpassingen_vereist') return '<span class="badge badge-aanpassingen">Wachten op aanpassing</span>';
+    return '<span class="badge">' + esc(status) + '</span>';
+  }
+
+  function render() {
+    var zoek = (document.getElementById('searchInput').value || '').toLowerCase();
+
+    var relevant = alleStages.filter(function (s) {
+      return ['ingediend', 'goedgekeurd', 'afgekeurd', 'aanpassingen_vereist'].includes(s.status);
     });
 
-    // Filter knoppen
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.getAttribute('data-filter');
-            filterAndDisplayStudents();
-        });
+    var gefilterd = relevant.filter(function (s) {
+      var naam    = ((s.student_voornaam || '') + ' ' + (s.student_achternaam || '')).toLowerCase();
+      var bedrijf = (s.bedrijf_naam || '').toLowerCase();
+      var email   = (s.student_email || '').toLowerCase();
+      var matchZ  = !zoek || naam.includes(zoek) || bedrijf.includes(zoek) || email.includes(zoek);
+      var matchF  = huidigFilter === 'alle' || s.status === huidigFilter;
+      return matchZ && matchF;
     });
 
-}
+    var c = { ingediend: 0, goedgekeurd: 0, afgekeurd: 0, aanpassingen_vereist: 0 };
+    relevant.forEach(function (s) { if (c[s.status] !== undefined) c[s.status]++; });
 
-// ========== FETCH STAGES VAN DATABASE ==========
-async function loadStudents() {
-    showLoading(true);
-    hideError();
+    document.getElementById('cnt-alle').textContent        = '(' + relevant.length + ')';
+    document.getElementById('cnt-ingediend').textContent   = '(' + c.ingediend + ')';
+    document.getElementById('cnt-aanpassing').textContent  = '(' + c.aanpassingen_vereist + ')';
+    document.getElementById('cnt-goedgekeurd').textContent = '(' + c.goedgekeurd + ')';
+    document.getElementById('cnt-afgekeurd').textContent   = '(' + c.afgekeurd + ')';
 
-    const token = sessionStorage.getItem('token');
-    if (!token) {
-        showError('Niet ingelogd. Log opnieuw in.');
-        showLoading(false);
-        return;
+    if (gefilterd.length === 0) {
+      document.getElementById('tableContainer').innerHTML =
+        '<div class="empty-state"><div class="empty-icon">📋</div>' +
+        '<div class="empty-title">Geen aanvragen gevonden</div>' +
+        '<div class="empty-text">Er zijn geen aanvragen die overeenkomen met je filter.</div></div>';
+      return;
     }
 
+    var html = '<table class="data-table"><thead><tr>' +
+      '<th>Student</th><th>Bedrijf</th><th>Mentor</th><th>Stageperiode</th><th>Status</th><th>Ingediend op</th>' +
+      '</tr></thead><tbody>';
+
+    gefilterd.forEach(function (s) {
+      var naam      = esc((s.student_voornaam || '') + ' ' + (s.student_achternaam || ''));
+      var mentor    = (s.mentor_naam || s.contact_naam) ? esc(s.mentor_naam || s.contact_naam) : '--';
+      var periode   = fmtDatum(s.startdatum) + ' – ' + fmtDatum(s.einddatum);
+      var ingediend = fmtDatum(s.aangemaakt_op);
+
+      html +=
+        '<tr class="row-clickable" data-id="' + s.id + '">' +
+          '<td><span class="student-naam">' + naam + '</span></td>' +
+          '<td>' + esc(s.bedrijf_naam || '--') + '</td>' +
+          '<td>' + mentor + '</td>' +
+          '<td>' + periode + '</td>' +
+          '<td>' + badge(s.status) + '</td>' +
+          '<td>' + ingediend + '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('tableContainer').innerHTML = html;
+
+    document.querySelectorAll('.row-clickable').forEach(function (row) {
+      row.addEventListener('click', function () {
+        window.location.href = '../stage-beoordeling/commissie.aanvraag-beoordeling.html?id=' + row.dataset.id;
+      });
+    });
+  }
+
+  async function laad() {
     try {
-        const response = await fetch(API_BASE + '/stages', {
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const stages = await response.json();
-
-        // Backend velden omzetten naar wat de UI verwacht
-        allStudents = stages.map(s => ({
-            id:         s.id,
-            naam:       (s.student_voornaam || '') + ' ' + (s.student_achternaam || ''),
-            email:      s.student_email || '',
-            bedrijf:    s.bedrijf_naam   || '-',
-            startdatum: s.startdatum,
-            einddatum:  s.einddatum,
-            status:     s.status,
-        }));
-
-        console.log('Stages geladen:', allStudents);
-
-        filterAndDisplayStudents();
-        showLoading(false);
-
-    } catch (error) {
-        console.error('Error:', error);
-        showError('Kon stages niet laden. Zorg dat je server draait op http://localhost:3000');
-        showLoading(false);
+      var res = await fetch(API_BASE + '/stages', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      alleStages = res.ok ? await res.json() : [];
+      if (!Array.isArray(alleStages)) alleStages = [];
+    } catch (e) {
+      alleStages = [];
+      document.getElementById('errorMessage').textContent = 'Kon stages niet laden. Staat de server aan?';
+      document.getElementById('errorMessage').classList.add('show');
     }
-}
+    render();
+  }
 
-// ========== FILTER & DISPLAY ==========
-function filterAndDisplayStudents() {
-    const searchValue = searchInput.value.toLowerCase();
+  document.getElementById('searchInput').addEventListener('input', render);
 
-    let filtered = allStudents.filter(student => {
-        // Statusfilter
-        const statusMatch = currentFilter === 'alle' || student.status === currentFilter;
+  document.querySelector('.filter-buttons').addEventListener('click', function (e) {
+    var btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    huidigFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    render();
+  });
 
-        // Zoekfilter
-        const searchMatch = 
-            student.naam.toLowerCase().includes(searchValue) ||
-            student.email.toLowerCase().includes(searchValue) ||
-            student.bedrijf.toLowerCase().includes(searchValue);
-
-        return statusMatch && searchMatch;
-    });
-
-    displayStudents(filtered);
-}
-
-// ========== DISPLAY STUDENTS ==========
-function displayStudents(students) {
-    studentsContainer.innerHTML = '';
-
-    if (students.length === 0) {
-        studentsContainer.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
-                <p style="color: var(--text-light); font-size: 1.1em;">
-                    ❌ Geen studenten gevonden
-                </p>
-            </div>
-        `;
-        return;
-    }
-
-    students.forEach(student => {
-        const card = createStudentCard(student);
-        studentsContainer.appendChild(card);
-    });
-}
-
-// ========== CREATE STUDENT CARD ==========
-function createStudentCard(student) {
-    const card = document.createElement('div');
-    card.className = `student-card status-${student.status}`;
-
-    const statusText = getStatusText(student.status);
-    const statusBadgeClass = student.status;
-
-    card.innerHTML = `
-        <div class="student-header">
-            <div class="student-name">${student.naam}</div>
-            <div class="student-email">${student.email}</div>
-        </div>
-
-        <div class="student-details">
-            <div class="detail-row">
-                <span class="detail-label">Bedrijf:</span>
-                <span class="detail-value">${student.bedrijf}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Periode:</span>
-                <span class="detail-value">${formatDate(student.startdatum)} tot ${formatDate(student.einddatum)}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Status:</span>
-                <span class="status-badge ${statusBadgeClass}">${statusText}</span>
-            </div>
-        </div>
-
-        <div class="student-actions">
-            <button class="btn-view" onclick="viewStudent(${student.id})">
-                Bekijken →
-            </button>
-        </div>
-    `;
-
-    return card;
-}
-
-// ========== VIEW STUDENT DETAIL ==========
-function viewStudent(stageId) {
-    window.location.href = '../stage-beoordeling/commissie.aanvraag-beoordeling.html?id=' + stageId;
-}
-
-// ========== HELPER FUNCTIONS ==========
-function getStatusText(status) {
-    const statusMap = {
-        'ingediend':            'In afwachting',
-        'goedgekeurd':          'Goedgekeurd',
-        'afgekeurd':            'Afgewezen',
-        'aanpassingen_vereist': 'Aanpassingen vereist'
-    };
-    return statusMap[status] || status;
-}
-
-function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('nl-NL', options);
-}
-
-function showLoading(show) {
-    if (show) {
-        loadingSpinner.style.display = 'flex';
-        studentsContainer.style.display = 'none';
-    } else {
-        loadingSpinner.style.display = 'none';
-        studentsContainer.style.display = 'grid';
-    }
-}
-
-function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.classList.add('show');
-}
-
-function hideError() {
-    errorMessage.classList.remove('show');
-}
+  laad();
+})();
