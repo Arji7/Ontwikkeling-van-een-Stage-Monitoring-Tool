@@ -1,0 +1,95 @@
+.breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-muted); margin-bottom: 20px;
+}
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+
+.form-layout {
+  display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start;
+}
+
+.form-main h1 { font-size: 22px; font-weight: 700; color: var(--heading); margin-bottom: 4px; }
+
+.form-section {
+  background: var(--white); border-radius: 12px;
+  padding: 24px; box-shadow: var(--shadow); margin-bottom: 16px;
+}
+.form-section h2  { font-size: 15px; font-weight: 700; color: var(--heading); margin-bottom: 4px; }
+.section-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field label { font-size: 13px; font-weight: 600; color: var(--text); }
+.req { color: #ef4444; }
+.field input, .field select {
+  padding: 9px 12px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; outline: none;
+  transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--primary); box-shadow: 0 0 0 3px #e8f0ff;
+}
+.field-hint { font-size: 11px; color: var(--text-muted); }
+
+/* ROL KEUZE */
+.rol-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rol-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border: 2px solid var(--border);
+  border-radius: 10px; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+}
+.rol-option:hover { border-color: var(--primary); background: #f0f4ff; }
+.rol-option input[type="radio"] { accent-color: var(--primary); width: 16px; height: 16px; }
+.rol-option input[type="radio"]:checked + .rol-label { font-weight: 700; color: var(--primary); }
+.rol-option:has(input:checked) { border-color: var(--primary); background: #eff6ff; }
+.rol-label { font-size: 14px; font-weight: 500; color: var(--text); }
+
+/* FORM ACTIES */
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+.btn-back {
+  padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  background: var(--white); color: var(--text); border: 1px solid var(--border);
+  text-decoration: none; transition: background 0.15s;
+}
+.btn-back:hover { background: #f3f4f6; }
+.btn-submit {
+  padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  background: var(--primary); color: #fff; border: none; cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-submit:hover   { background: var(--primary-hover); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ZIJPANEEL */
+.aside-card {
+  background: var(--white); border-radius: 12px;
+  padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 14px;
+}
+.aside-card h3 { font-size: 13px; font-weight: 700; color: var(--heading); margin-bottom: 14px; }
+.aside-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.aside-row:last-child { border-bottom: none; }
+.aside-row span:last-child { font-weight: 600; color: var(--text); }
+
+/* CHECKLIST */
+.checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.checklist li {
+  font-size: 12px; color: var(--text-muted);
+  padding-left: 20px; position: relative;
+}
+.checklist li::before { content: '○'; position: absolute; left: 0; color: #d1d5db; }
+.checklist li.done { color: #15803d; }
+.checklist li.done::before { content: '✓'; color: #15803d; }
+
+/* FEEDBACK */
+.feedback-msg {
+  display: none; padding: 12px 16px; border-radius: 8px;
+  font-size: 13px; margin-bottom: 16px;
+}
+.feedback-msg.success { display: block; background: #dcfce7; color: #15803d; }
+.feedback-msg.error   { display: block; background: #fee2e2; color: #b91c1c; }
