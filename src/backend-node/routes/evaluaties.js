@@ -346,4 +346,29 @@ router.post('/:id/feedback', authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/evaluaties/alle — alle evaluaties (commissie/admin)
+router.get('/alle', authMiddleware, hasRole('commissielid', 'admin'), async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT e.id, e.type, e.status, e.eindscore, e.aangemaakt_op, e.ingediend_op,
+              g.voornaam AS student_voornaam, g.achternaam AS student_achternaam,
+              b.naam AS bedrijf_naam,
+              dg.voornaam AS docent_voornaam, dg.achternaam AS docent_achternaam,
+              s.startdatum, s.einddatum, s.id AS stage_id
+       FROM evaluatie e
+       JOIN stage s ON s.id = e.stage_id
+       JOIN student st ON st.id = s.student_id
+       JOIN gebruiker g ON g.id = st.gebruiker_id
+       LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
+       LEFT JOIN docent d ON d.id = s.docent_id
+       LEFT JOIN gebruiker dg ON dg.id = d.gebruiker_id
+       ORDER BY e.aangemaakt_op DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Alle evaluaties ophalen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
 module.exports = router;

@@ -440,11 +440,17 @@ router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, re
               b.sector,
               g.voornaam    AS student_voornaam,
               g.achternaam  AS student_achternaam,
-              g.email       AS student_email
+              g.email       AS student_email,
+              dg.voornaam   AS docent_voornaam,
+              dg.achternaam AS docent_achternaam,
+              so2.status    AS overeenkomst_status
        FROM stage s
        LEFT JOIN bedrijf  b  ON b.id  = s.bedrijf_id
        LEFT JOIN student  st ON st.id = s.student_id
        LEFT JOIN gebruiker g ON g.id  = st.gebruiker_id
+       LEFT JOIN docent    d ON d.id  = s.docent_id
+       LEFT JOIN gebruiker dg ON dg.id = d.gebruiker_id
+       LEFT JOIN stageovereenkomst so2 ON so2.stage_id = s.id
        ORDER BY s.aangemaakt_op DESC`
     );
     res.json(rows);
