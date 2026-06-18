@@ -172,7 +172,8 @@ body {
   font-size: 12px; font-weight: 600; white-space: nowrap;
 }
 .badge-pending  { background: #fff3cd; color: #92400e; }
-.badge-changes  { background: #fee2e2; color: #b91c1c; }
+.badge-changes  { background: #fff3e0; color: #e65100; }
+.badge-danger   { background: #fee2e2; color: #b91c1c; }
 .badge-active   { background: #dcfce7; color: #166534; }
 .badge-completed{ background: #e0e7ff; color: #3730a3; }
 
