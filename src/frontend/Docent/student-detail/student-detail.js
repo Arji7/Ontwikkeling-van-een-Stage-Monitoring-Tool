@@ -197,6 +197,7 @@ function setupTabs() {
       document.getElementById(id).classList.add("active");
       if (tab.getAttribute("data-tab") === "logboeken") laadLogboeken();
       if (tab.getAttribute("data-tab") === "evaluaties") laadEvaluaties();
+      if (tab.getAttribute("data-tab") === "documenten") laadDocumenten();
     });
   });
 }
@@ -211,13 +212,18 @@ let evalCompetentiesData = [];
 let activeCompId = null;
 
 async function laadEvaluaties() {
+  console.log("laadEvaluaties() called, stageId:", stageId);
+  if (!stageId) { console.warn("Geen stageId!"); return; }
+  evalCompetentiesData = [];
   try {
     const res = await fetch(API_BASE_URL + "/evaluaties/stage/" + stageId, { headers: authHeader() });
-    if (!res.ok) return;
+    console.log("Evaluaties response status:", res.status);
+    if (!res.ok) { console.error("Evaluaties fetch mislukt:", res.status); return; }
     evalData = await res.json();
+    console.log("evalData geladen:", evalData.length, "evaluaties");
 
     setupEvalSubtabs();
-    selectEvalType(currentEvalType);
+    await selectEvalType(currentEvalType);
   } catch (err) {
     console.error("Evaluaties fout:", err);
   }
@@ -225,17 +231,19 @@ async function laadEvaluaties() {
 
 function setupEvalSubtabs() {
   document.querySelectorAll(".eval-subtab").forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       document.querySelectorAll(".eval-subtab").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       currentEvalType = btn.getAttribute("data-eval-type");
-      selectEvalType(currentEvalType);
+      await selectEvalType(currentEvalType);
     };
   });
 }
 
-function selectEvalType(type) {
+async function selectEvalType(type) {
+  console.log("selectEvalType:", type, "evalData:", evalData);
   currentEval = evalData.find(e => e.type === type) || null;
+  console.log("currentEval:", currentEval ? "id=" + currentEval.id : "null");
   const empty = document.getElementById("evalEmpty");
   const scores = document.getElementById("evalScores");
   const main = document.getElementById("evalMain");
@@ -245,6 +253,7 @@ function selectEvalType(type) {
   const banner = document.getElementById("evalBanner");
 
   if (!currentEval) {
+    console.log("Geen evaluatie gevonden voor type:", type);
     empty.style.display = "block";
     scores.style.display = "none";
     main.style.display = "none";
@@ -279,11 +288,9 @@ function selectEvalType(type) {
   document.getElementById("btnEvalIndienen").textContent = isTussen ? "Tussentijdse indienen" : "Eindbeoordeling definitief indienen";
   document.getElementById("btnEvalIndienen").className = isTussen ? "btn btn-primary" : "btn btn-danger";
 
-  // Scores
+  // Load detail then render scores
+  await laadEvalDetail();
   renderEvalScores();
-
-  // Load detail
-  laadEvalDetail();
 }
 
 function renderEvalScores() {
@@ -319,12 +326,15 @@ function renderEvalScores() {
 }
 
 async function laadEvalDetail() {
-  if (!currentEval) return;
+  if (!currentEval) { evalCompetentiesData = []; return; }
   try {
+    console.log("laadEvalDetail voor evaluatie id:", currentEval.id);
     const res = await fetch(API_BASE_URL + "/evaluaties/" + currentEval.id, { headers: authHeader() });
-    if (!res.ok) return;
+    console.log("Eval detail response status:", res.status);
+    if (!res.ok) { console.error("Eval detail fetch mislukt:", res.status); return; }
     const detail = await res.json();
     evalCompetentiesData = detail.competenties || [];
+    console.log("evalCompetentiesData geladen:", evalCompetentiesData.length, "competenties");
     renderCompSidebar();
     if (evalCompetentiesData.length > 0) {
       selectComp(evalCompetentiesData[0].competentie_id);
@@ -477,6 +487,183 @@ async function maakEvaluatie(type) {
     await laadEvaluaties();
   } catch (err) {
     console.error("Evaluatie aanmaken fout:", err);
+  }
+}
+
+// ═══════════════════════════════════════════
+// DOCUMENTEN
+// ═══════════════════════════════════════════
+let docData = { documenten: [], overeenkomst: null };
+let docFilter = "alle";
+
+async function laadDocumenten() {
+  try {
+    const res = await fetch(API_BASE_URL + "/documenten/stage/" + stageId, { headers: authHeader() });
+    if (!res.ok) return;
+    docData = await res.json();
+    renderOvereenkomst();
+    setupDocFilters();
+    renderDocumenten();
+  } catch (err) {
+    console.error("Documenten fout:", err);
+  }
+}
+
+function renderOvereenkomst() {
+  const ovk = docData.overeenkomst;
+  const card = document.getElementById("docOvereenkomstCard");
+  const empty = document.getElementById("docOvkEmpty");
+
+  if (!ovk) {
+    card.style.display = "none";
+    empty.style.display = "block";
+    return;
+  }
+  card.style.display = "";
+  empty.style.display = "none";
+
+  document.getElementById("docOvkNaam").textContent = ovk.bestandsnaam || "Stageovereenkomst";
+  const grootte = ovk.bestandsgrootte ? (ovk.bestandsgrootte / 1024).toFixed(0) + " KB" : "";
+  const datum = ovk.geupload_op ? formatLong(ovk.geupload_op) : "";
+  document.getElementById("docOvkMeta").textContent = [grootte, datum].filter(Boolean).join(" · ");
+
+  const statusEl = document.getElementById("docOvkStatus");
+  const statusMap = {
+    "niet_opgeladen": { tekst: "Niet opgeladen", cls: "doc-status-niet" },
+    "wacht_op_ondertekening": { tekst: "Wacht op ondertekening", cls: "doc-status-wacht" },
+    "ondertekend": { tekst: "Ondertekend", cls: "doc-status-ondertekend" },
+    "goedgekeurd": { tekst: "Goedgekeurd", cls: "doc-status-goedgekeurd" }
+  };
+  const s = statusMap[ovk.status] || { tekst: ovk.status, cls: "doc-status-niet" };
+  statusEl.textContent = s.tekst;
+  statusEl.className = "doc-overeenkomst-status " + s.cls;
+
+  const htContainer = document.getElementById("docOvkHandtekeningen");
+  htContainer.innerHTML = "";
+  if (ovk.handtekeningen && ovk.handtekeningen.length > 0) {
+    ovk.handtekeningen.forEach(h => {
+      htContainer.innerHTML +=
+        '<div class="doc-handtekening">' +
+        '<span class="doc-handtekening-check">✓</span>' +
+        '<span class="doc-handtekening-naam">' + h.voornaam + ' ' + h.achternaam + '</span>' +
+        '<span class="doc-handtekening-rol">(' + h.rol + ')</span>' +
+        '<span class="doc-handtekening-datum">' + formatLong(h.ondertekend_op) + '</span>' +
+        '</div>';
+    });
+  }
+
+  const actionsEl = document.getElementById("docOvkActions");
+  actionsEl.innerHTML = "";
+  if (ovk.bestandspad) {
+    actionsEl.innerHTML += '<a href="' + API_BASE_URL.replace('/api', '') + ovk.bestandspad + '" target="_blank" class="doc-action-btn download">Downloaden</a>';
+  }
+}
+
+function setupDocFilters() {
+  document.querySelectorAll(".doc-filter").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".doc-filter").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      docFilter = btn.getAttribute("data-filter");
+      renderDocumenten();
+    };
+  });
+}
+
+function renderDocumenten() {
+  let docs = docData.documenten || [];
+  if (docFilter !== "alle") {
+    docs = docs.filter(d => d.type === docFilter);
+  }
+
+  const list = document.getElementById("docList");
+  const empty = document.getElementById("docEmpty");
+
+  if (docs.length === 0) {
+    list.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+
+  list.innerHTML = "";
+  docs.forEach(d => {
+    const icon = docIcon(d.bestandsnaam);
+    const grootte = d.bestandsgrootte ? (d.bestandsgrootte / 1024).toFixed(0) + " KB" : "";
+    const uploader = [d.voornaam, d.achternaam].filter(Boolean).join(" ") || "—";
+    const datum = formatLong(d.geupload_op);
+    const statusBadge = '<span class="doc-status-badge ' + d.status + '">' + docStatusTekst(d.status) + '</span>';
+
+    const card = document.createElement("div");
+    card.className = "doc-card";
+    card.innerHTML =
+      '<span class="doc-icon">' + icon + '</span>' +
+      '<div class="doc-info">' +
+        '<div class="doc-naam">' + (d.bestandsnaam || "Document") + '</div>' +
+        '<div class="doc-meta">' + uploader + ' · ' + datum + ' · ' + grootte + '</div>' +
+      '</div>' +
+      '<span class="doc-type-badge">' + d.type + '</span>' +
+      statusBadge +
+      '<div class="doc-actions">' +
+        (d.bestandspad ? '<a href="' + API_BASE_URL.replace('/api', '') + d.bestandspad + '" target="_blank" class="doc-action-btn download">↓</a>' : '') +
+        (d.status === 'ingediend' ?
+          '<button class="doc-action-btn approve" onclick="docStatus(' + d.id + ',\'goedgekeurd\')">✓</button>' +
+          '<button class="doc-action-btn reject" onclick="docStatus(' + d.id + ',\'afgekeurd\')">✗</button>'
+          : '') +
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+function docIcon(naam) {
+  if (!naam) return '📄';
+  const ext = naam.split('.').pop().toLowerCase();
+  if (['pdf'].includes(ext)) return '📕';
+  if (['doc', 'docx'].includes(ext)) return '📘';
+  if (['xls', 'xlsx'].includes(ext)) return '📗';
+  if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return '🖼️';
+  if (['zip', 'rar'].includes(ext)) return '📦';
+  return '📄';
+}
+
+function docStatusTekst(s) {
+  return { ingediend: "Ingediend", goedgekeurd: "Goedgekeurd", afgekeurd: "Afgekeurd" }[s] || s;
+}
+
+async function uploadDocument() {
+  const input = document.getElementById("docFileInput");
+  if (!input.files.length) return;
+
+  const formData = new FormData();
+  formData.append("bestand", input.files[0]);
+  formData.append("stage_id", stageId);
+  formData.append("type", "andere");
+
+  try {
+    const res = await fetch(API_BASE_URL + "/documenten", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + sessionStorage.getItem("token") },
+      body: formData
+    });
+    if (!res.ok) { const d = await res.json(); return alert(d.error || "Upload mislukt"); }
+    input.value = "";
+    await laadDocumenten();
+  } catch (err) {
+    console.error("Upload fout:", err);
+  }
+}
+
+async function docStatus(docId, status) {
+  try {
+    const res = await fetch(API_BASE_URL + "/documenten/" + docId + "/status", {
+      method: "PUT",
+      headers: { ...authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+    if (!res.ok) { const d = await res.json(); return alert(d.error || "Fout"); }
+    await laadDocumenten();
+  } catch (err) {
+    console.error("Doc status fout:", err);
   }
 }
 

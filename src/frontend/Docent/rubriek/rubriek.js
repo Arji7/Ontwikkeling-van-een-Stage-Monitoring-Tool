@@ -92,7 +92,7 @@ function selectComp(compId) {
       html += '<div class="niveau-info">';
       html += '<div class="niveau-label">' + (n.label || "") + '</div>';
       html += '<div class="niveau-sublabel">' + (n.sublabel || "") + '</div>';
-      html += '<div class="niveau-beschrijving">' + (n.beschrijving || "") + '</div>';
+      html += '<div class="niveau-beschrijving">' + (n.beschrijving || "").replace(/\\n/g, '<br>').replace(/\n/g, '<br>') + '</div>';
       html += '</div></div>';
     });
 
