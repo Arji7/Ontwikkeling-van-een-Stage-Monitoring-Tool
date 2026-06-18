@@ -39,11 +39,11 @@
     var c = { ingediend: 0, goedgekeurd: 0, afgekeurd: 0, aanpassingen_vereist: 0 };
     relevant.forEach(function (s) { if (c[s.status] !== undefined) c[s.status]++; });
 
-    document.getElementById('cnt-alle').textContent       = '(' + relevant.length + ')';
-    document.getElementById('cnt-ingediend').textContent  = '(' + c.ingediend + ')';
-    document.getElementById('cnt-aanpassing').textContent = '(' + c.aanpassingen_vereist + ')';
-    document.getElementById('cnt-goedgekeurd').textContent= '(' + c.goedgekeurd + ')';
-    document.getElementById('cnt-afgekeurd').textContent  = '(' + c.afgekeurd + ')';
+    document.getElementById('cnt-alle').textContent        = '(' + relevant.length + ')';
+    document.getElementById('cnt-ingediend').textContent   = '(' + c.ingediend + ')';
+    document.getElementById('cnt-aanpassing').textContent  = '(' + c.aanpassingen_vereist + ')';
+    document.getElementById('cnt-goedgekeurd').textContent = '(' + c.goedgekeurd + ')';
+    document.getElementById('cnt-afgekeurd').textContent   = '(' + c.afgekeurd + ')';
 
     if (gefilterd.length === 0) {
       document.getElementById('tableContainer').innerHTML =
@@ -58,9 +58,9 @@
       '</tr></thead><tbody>';
 
     gefilterd.forEach(function (s) {
-      var naam     = esc((s.student_voornaam || '') + ' ' + (s.student_achternaam || ''));
-      var mentor   = s.mentor_naam || s.contact_naam ? esc(s.mentor_naam || s.contact_naam) : '--';
-      var periode  = fmtDatum(s.startdatum) + ' – ' + fmtDatum(s.einddatum);
+      var naam      = esc((s.student_voornaam || '') + ' ' + (s.student_achternaam || ''));
+      var mentor    = (s.mentor_naam || s.contact_naam) ? esc(s.mentor_naam || s.contact_naam) : '--';
+      var periode   = fmtDatum(s.startdatum) + ' – ' + fmtDatum(s.einddatum);
       var ingediend = fmtDatum(s.aangemaakt_op);
 
       html +=

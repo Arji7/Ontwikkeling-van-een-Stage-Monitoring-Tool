@@ -1,0 +1,134 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f4f6fa; min-height: 100vh; }
+
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 210px; background: #828d9e; color: #eef1f5;
+  display: flex; flex-direction: column; padding: 22px 0 0;
+  flex-shrink: 0; min-height: 100vh;
+}
+.sidebar-brand { font-size: 18px; font-weight: 700; color: #fff; padding: 0 22px 4px; }
+.sidebar-subbrand { font-size: 11px; color: #c7d0dd; padding: 0 22px 22px; opacity: 0.8; }
+.nav-group-label {
+  display: block; font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: rgba(255,255,255,0.45);
+  padding: 14px 22px 5px; font-weight: 600;
+}
+.sidebar-nav { display: flex; flex-direction: column; flex: 1; }
+.nav-item {
+  display: flex; align-items: center; padding: 10px 22px;
+  color: #eef1f5; text-decoration: none; font-size: 14px;
+  transition: background 0.12s;
+}
+.nav-item:hover { background: rgba(255,255,255,0.10); }
+.nav-item.active { background: rgba(255,255,255,0.18); font-weight: 600; color: #fff; }
+.sidebar-footer { padding: 16px 0 0; border-top: 1px solid rgba(255,255,255,0.12); margin-top: auto; }
+.sidebar-user { display: flex; align-items: center; gap: 10px; padding: 10px 22px; background: rgba(0,0,0,0.12); }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #4b5563; color: #fff;
+  font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.user-info { display: flex; flex-direction: column; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: 10px; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-logout { display: block; padding: 9px 22px; color: #f87171; text-decoration: none; font-size: 12px; font-weight: 500; }
+.sidebar-logout:hover { background: rgba(239,68,68,0.12); }
+
+/* Main */
+.content { flex: 1; padding: 32px 40px; max-width: 1100px; }
+.breadcrumb { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+.page-title { font-size: 24px; font-weight: 700; color: #1f2d4e; margin-bottom: 4px; }
+.page-subtitle { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
+
+/* Stat cards */
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: #fff; border-radius: 10px; padding: 16px 20px; border: 1px solid #e5e7eb; }
+.stat-label { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+.stat-value { font-size: 26px; font-weight: 800; color: #1f2d4e; }
+.stat-value.green { color: #16a34a; }
+.stat-value.orange { color: #d97706; }
+
+/* Filter tabs */
+.filter-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+.filter-tab {
+  padding: 8px 16px; border-radius: 6px; border: 1px solid #e5e7eb;
+  background: #fff; font-size: 13px; font-weight: 500; color: #374151;
+  cursor: pointer; transition: all .15s;
+}
+.filter-tab:hover { background: #f3f4f6; }
+.filter-tab.active { background: #1f2d4e; color: #fff; border-color: #1f2d4e; }
+
+/* Stage cards */
+.stages-list { display: flex; flex-direction: column; gap: 10px; }
+.stage-card {
+  display: flex; align-items: center; gap: 16px;
+  background: #fff; border-radius: 12px; padding: 18px 20px;
+  border: 1px solid #e5e7eb; cursor: pointer; transition: box-shadow .15s;
+  text-decoration: none;
+}
+.stage-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.student-avatar {
+  width: 48px; height: 48px; border-radius: 50%; background: #dbeafe;
+  color: #2563eb; font-weight: 700; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.stage-info { flex: 1; min-width: 0; }
+.stage-student { font-size: 15px; font-weight: 600; color: #1f2d4e; }
+.stage-bedrijf { font-size: 13px; color: #6b7280; margin-top: 2px; }
+.stage-meta { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+.stage-status { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.status-badge {
+  padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  white-space: nowrap;
+}
+.status-badge.goedgekeurd { background: #dcfce7; color: #15803d; }
+.status-badge.actief { background: #dbeafe; color: #1e40af; }
+.status-badge.afgerond { background: #e0e7ff; color: #3730a3; }
+.status-badge.wacht_op_overeenkomst { background: #fef3c7; color: #92400e; }
+.stage-arrow { color: #d1d5db; font-size: 18px; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 80px 20px; }
+.empty-icon { font-size: 64px; margin-bottom: 16px; }
+.empty-title { font-size: 18px; font-weight: 600; color: #1f2d4e; margin-bottom: 8px; }
+.empty-text { font-size: 14px; color: #9ca3af; max-width: 400px; margin: 0 auto; line-height: 1.6; }
+
+/* Nav locked */
+.nav-item.locked { opacity: 0.5; cursor: not-allowed; }
+.lock { font-size: 11px; margin-left: 4px; }
+
+/* Page header */
+.page-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb; }
+
+/* Stat cards uitgebreid */
+.stat-row { grid-template-columns: repeat(3, 1fr); }
+.stat-card { padding: 18px 20px; }
+.stat-card.stat-warning { background: #fef3c7; border-color: #fde68a; }
+.stat-card.stat-success { background: #dcfce7; border-color: #bbf7d0; }
+.stat-sub { font-size: 12px; color: #6b7280; margin-top: 4px; }
+
+/* Section title */
+.section-title { font-size: 15px; font-weight: 600; color: #374151; margin: 16px 0 12px; }
+
+/* Taken lijst */
+.taken-list { display: flex; flex-direction: column; gap: 8px; }
+.taak-item {
+  display: flex; align-items: center; gap: 14px;
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+  padding: 14px 16px; text-decoration: none; color: inherit;
+  transition: box-shadow .15s;
+}
+.taak-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.taak-icon {
+  width: 40px; height: 40px; border-radius: 8px; background: #fef3c7;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.taak-info { flex: 1; min-width: 0; }
+.taak-titel { font-size: 14px; font-weight: 600; color: #1f2d4e; }
+.taak-meta { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+/* Btn */
+.btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-primary:hover { background: #2563eb; }
+

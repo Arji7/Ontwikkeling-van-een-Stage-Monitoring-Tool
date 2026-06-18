@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container">
-
+        <!-- SIDEBAR -->
         <aside class="sidebar">
           <div class="sidebar-brand">StageMonitor</div>
           <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
@@ -23,9 +23,7 @@
               </div>
             </div>
             <a href="../../inloggen/inloggen.html" class="sidebar-logout"
-               onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
-              🔓 Uitloggen
-            </a>
+               onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
           </div>
         </aside>
 
@@ -57,8 +55,18 @@
     </div>
 
     <script src="../../config.js"></script>
-    <script>window.SIDEBAR_PAGE = 'aanvragen'; window.FRONTEND_ROOT = '../../';</script>
-    <script src="../../Admin/sidebar-builder.js"></script>
+    <script>window.SIDEBAR_PAGE = 'commissie-aanvragen'; window.FRONTEND_ROOT = '../../';</script>
+    <script src="../../sidebar-builder.js"></script>
     <script src="aanvragen.overzicht.js"></script>
+    <script>
+      (function () {
+        var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+        var name = u.name || "Commissielid";
+        var nEl = document.getElementById("sidebarUserName");
+        var aEl = document.getElementById("sidebarUserAvatar");
+        if (nEl) nEl.textContent = name;
+        if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+      })();
+    </script>
 </body>
 </html>

@@ -10,8 +10,13 @@ fetch(API_BASE + '/stages/mijn', {
 })
 .then(function(res) { return res.json(); })
 .then(function(stages) {
-  if (!stages || stages.length === 0) return;
-  const stage = stages[0];
+  const stage = (stages || []).find(function(s) { return s.status === 'afgekeurd'; });
+  if (!stage) {
+    window.location.href = '../../empty-stage/empty-stage.html';
+    return;
+  }
+
+  localStorage.setItem("afgekeurd_gezien_" + stage.id, "1");
 
   document.getElementById('bedrijfNaam').textContent  = stage.bedrijf_naam || '-';
   document.getElementById('tabelBedrijf').textContent = stage.bedrijf_naam || '-';

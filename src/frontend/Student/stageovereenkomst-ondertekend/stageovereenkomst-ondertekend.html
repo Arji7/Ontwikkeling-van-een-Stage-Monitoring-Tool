@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stageovereenkomst ondertekend - StageMonitorage</title>
+  <link rel="stylesheet" href="stageovereenkomst-ondertekend.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Zijbalk -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../empty-stage/empty-stage.html" class="nav-item active">Dashboard</a>
+        <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <!-- Hoofdinhoud -->
+    <main class="content">
+      <div class="confirm">
+
+        <div class="check-circle">✓</div>
+        <h1 class="confirm-title">Stageovereenkomst succesvol ondertekend!</h1>
+
+        <div class="status-box">
+          <div class="status-row">
+            <span class="status-label">Status</span>
+            <span class="status-value status-started" id="statusValue">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Ingediend op</span>
+            <span class="status-value" id="ingediendOp">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Bedrijf</span>
+            <span class="status-value" id="bedrijf">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Periode</span>
+            <span class="status-value" id="periode">—</span>
+          </div>
+        </div>
+
+        <div class="confirm-actions">
+          <a href="../empty-stage/empty-stage.html" class="btn btn-danger">Terug naar dashboard</a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script src="stageovereenkomst-ondertekend.js"></script>
+  <script>
+    (function () {
+      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+    })();
+  </script>
+</body>
+</html>

@@ -190,6 +190,8 @@ function initBeslissing() {
   const feedbackEl  = document.querySelector(".feedback-wrap");
   let gekozen       = null;
 
+  const docentWrap = document.querySelector(".docent-wrap");
+
   opties.forEach(opt => {
     opt.addEventListener("click", () => {
       opties.forEach(o => o.classList.remove("selected"));
@@ -198,6 +200,15 @@ function initBeslissing() {
 
       // Schuif feedback-blok onder de gekozen optie
       if (feedbackEl) opt.insertAdjacentElement("afterend", feedbackEl);
+
+      // Docent-select enkel tonen bij goedkeuren
+      if (docentWrap) {
+        docentWrap.style.display = gekozen === "goedkeuren" ? "" : "none";
+        if (gekozen !== "goedkeuren") {
+          const sel = document.getElementById("docentSelect");
+          if (sel) sel.value = "";
+        }
+      }
     });
   });
 

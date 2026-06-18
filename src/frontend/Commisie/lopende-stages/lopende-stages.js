@@ -3,7 +3,6 @@
   if (!token) { window.location.href = '../../inloggen/inloggen.html'; return; }
 
   var alleStages = [];
-  var huidigFilter = 'alle';
 
   function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -13,9 +12,9 @@
   }
 
   function badge(status) {
-    if (status === 'actief')     return '<span class="badge badge-actief">Actief</span>';
-    if (status === 'afgerond')   return '<span class="badge badge-afgerond">Afgerond</span>';
-    if (status === 'goedgekeurd') return '<span class="badge badge-goedgekeurd">Wachten op ondertekening</span>';
+    if (status === 'actief') return '<span class="badge badge-actief">Actief</span>';
+    if (status === 'afgerond') return '<span class="badge badge-afgerond">Afgerond</span>';
+    if (status === 'goedgekeurd') return '<span class="badge badge-goedgekeurd">Goedgekeurd</span>';
     return '<span class="badge">' + esc(status) + '</span>';
   }
 
@@ -23,21 +22,20 @@
     var zoek = (document.getElementById('searchInput').value || '').toLowerCase();
 
     var gefilterd = alleStages.filter(function (s) {
-      if (!['actief', 'afgerond', 'goedgekeurd'].includes(s.status)) return false;
+      if (s.status !== 'actief') return false;
       var naam = ((s.student_voornaam || '') + ' ' + (s.student_achternaam || '')).toLowerCase();
       var bedrijf = (s.bedrijf_naam || '').toLowerCase();
       var matchZ = !zoek || naam.includes(zoek) || bedrijf.includes(zoek);
-      var matchF = huidigFilter === 'alle' || s.status === huidigFilter;
-      return matchZ && matchF;
+      return matchZ;
     });
 
-    var actief   = alleStages.filter(function (s) { return s.status === 'actief'; }).length;
-    var afgerond = alleStages.filter(function (s) { return s.status === 'afgerond'; }).length;
-    var totaal   = actief + afgerond + alleStages.filter(function (s) { return s.status === 'goedgekeurd'; }).length;
-
-    document.getElementById('cnt-alle').textContent    = '(' + totaal + ')';
-    document.getElementById('cnt-actief').textContent  = '(' + actief + ')';
-    document.getElementById('cnt-afgerond').textContent = '(' + afgerond + ')';
+    var actief = alleStages.filter(function (s) { return s.status === 'actief'; }).length;
+    var cntAlle = document.getElementById('cnt-alle');
+    var cntActief = document.getElementById('cnt-actief');
+    var cntAfgerond = document.getElementById('cnt-afgerond');
+    if (cntAlle) cntAlle.textContent = '(' + actief + ')';
+    if (cntActief) cntActief.textContent = '(' + actief + ')';
+    if (cntAfgerond) cntAfgerond.textContent = '(0)';
 
     if (gefilterd.length === 0) {
       document.getElementById('tableContainer').innerHTML =
@@ -48,12 +46,11 @@
     }
 
     var html = '<table class="data-table"><thead><tr>' +
-      '<th>Student</th><th>Bedrijf</th><th>Mentor</th><th>Docent</th><th>Stageperiode</th><th>Status</th><th>Ingediend op</th>' +
+      '<th>Student</th><th>Bedrijf</th><th>Docent</th><th>Stageperiode</th><th>Status</th><th>Laatst bijgewerkt</th>' +
       '</tr></thead><tbody>';
 
     gefilterd.forEach(function (s) {
-      var naam   = esc((s.student_voornaam || '') + ' ' + (s.student_achternaam || ''));
-      var mentor = s.mentor_naam || s.contact_naam ? esc(s.mentor_naam || s.contact_naam) : '--';
+      var naam = esc((s.student_voornaam || '') + ' ' + (s.student_achternaam || ''));
       var docent = s.docent_voornaam ? esc(s.docent_voornaam + ' ' + s.docent_achternaam) : '--';
       var periode = fmtDatum(s.startdatum) + ' – ' + fmtDatum(s.einddatum);
       var updated = fmtDatum(s.aangemaakt_op);
@@ -62,7 +59,6 @@
         '<tr>' +
           '<td><span class="student-naam">' + naam + '</span></td>' +
           '<td>' + esc(s.bedrijf_naam || '--') + '</td>' +
-          '<td>' + mentor + '</td>' +
           '<td>' + docent + '</td>' +
           '<td>' + periode + '</td>' +
           '<td>' + badge(s.status) + '</td>' +
@@ -88,15 +84,6 @@
   }
 
   document.getElementById('searchInput').addEventListener('input', render);
-
-  document.querySelector('.filter-buttons').addEventListener('click', function (e) {
-    var btn = e.target.closest('.filter-btn');
-    if (!btn) return;
-    huidigFilter = btn.dataset.filter;
-    document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    render();
-  });
 
   laad();
 })();
