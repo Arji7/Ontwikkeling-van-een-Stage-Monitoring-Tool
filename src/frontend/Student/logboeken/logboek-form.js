@@ -521,17 +521,17 @@ function setupIndienen() {
   document.getElementById("btnIndienen").addEventListener("click", async function () {
     saveDagToMemory();
 
-    // Mag pas indienen vanaf de laatste werkdag van deze week
-    if (datumTot) {
-      var vandaag = new Date();
-      vandaag.setHours(0, 0, 0, 0);
-      var laatsteWerkdag = new Date(datumTot);
-      laatsteWerkdag.setHours(0, 0, 0, 0);
-      if (vandaag < laatsteWerkdag) {
-        alert("Je kan dit logboek pas indienen vanaf " + formatDateLong(laatsteWerkdag) + " (einde werkweek).");
-        return;
-      }
-    }
+    // [TEST] Mag pas indienen vanaf de laatste werkdag van deze week — uitgeschakeld voor testen
+    // if (datumTot) {
+    //   var vandaag = new Date();
+    //   vandaag.setHours(0, 0, 0, 0);
+    //   var laatsteWerkdag = new Date(datumTot);
+    //   laatsteWerkdag.setHours(0, 0, 0, 0);
+    //   if (vandaag < laatsteWerkdag) {
+    //     alert("Je kan dit logboek pas indienen vanaf " + formatDateLong(laatsteWerkdag) + " (einde werkweek).");
+    //     return;
+    //   }
+    // }
 
     var weekTaken = document.getElementById("weekTaken").value.trim();
     if (!weekTaken) {

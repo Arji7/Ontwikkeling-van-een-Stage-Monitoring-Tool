@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Voorstel ingediend - StageMonitorage</title>
-  <link rel="stylesheet" href="voorstel.ingediend.css" />
+  <title>Stageovereenkomst ondertekend - StageMonitorage</title>
+  <link rel="stylesheet" href="stageovereenkomst-ondertekend.css" />
 </head>
 <body>
   <div class="app">
 
+    <!-- Zijbalk -->
     <aside class="sidebar">
       <div class="sidebar-brand">StageMonitor</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
       <nav class="sidebar-nav">
-        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
-        <a href="#" class="nav-item active">Mijn stage</a>
-        <a href="../logboeken/logboeken.html" class="nav-item">Logboeken</a>
-        <a href="../evaluaties/evaluaties.html" class="nav-item">Evaluaties</a>
+        <a href="../empty-stage/empty-stage.html" class="nav-item active">Dashboard</a>
+        <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
+        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
+        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
@@ -30,37 +31,33 @@
       </div>
     </aside>
 
+    <!-- Hoofdinhoud -->
     <main class="content">
       <div class="confirm">
 
         <div class="check-circle">✓</div>
-        <h1 class="confirm-title">Stagevoorstel succesvol ingediend!</h1>
-        <p class="confirm-text">
-          Je voorstel bij <strong id="bedrijfNaamTekst">...</strong> werd doorgestuurd naar de stagecommissie.
-          Je ontvangt een melding zodra er een beslissing is genomen. Dit duurt gewoonlijk 3 tot 5 werkdagen.
-        </p>
+        <h1 class="confirm-title">Stageovereenkomst succesvol ondertekend!</h1>
 
         <div class="status-box">
           <div class="status-row">
             <span class="status-label">Status</span>
-            <span class="status-value status-pending">⏱ Wacht op goedkeuring</span>
+            <span class="status-value status-started" id="statusValue">—</span>
           </div>
           <div class="status-row">
             <span class="status-label">Ingediend op</span>
-            <span class="status-value" id="ingediendOp">...</span>
+            <span class="status-value" id="ingediendOp">—</span>
           </div>
           <div class="status-row">
             <span class="status-label">Bedrijf</span>
-            <span class="status-value" id="bedrijfNaam">...</span>
+            <span class="status-value" id="bedrijf">—</span>
           </div>
           <div class="status-row">
             <span class="status-label">Periode</span>
-            <span class="status-value" id="periode">...</span>
+            <span class="status-value" id="periode">—</span>
           </div>
         </div>
 
         <div class="confirm-actions">
-          <a href="../voorstel-bekijken/voorstel-bekijken.html" class="btn btn-outline">Bekijk mijn voorstel</a>
           <a href="../empty-stage/empty-stage.html" class="btn btn-danger">Terug naar dashboard</a>
         </div>
 
@@ -69,7 +66,7 @@
   </div>
 
   <script src="../../config.js"></script>
-  <script src="voorstel.ingediend.js"></script>
+  <script src="stageovereenkomst-ondertekend.js"></script>
   <script>
     (function () {
       var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
@@ -80,6 +77,5 @@
       if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
     })();
   </script>
-  <script src="../sidebar-lock.js"></script>
 </body>
 </html>

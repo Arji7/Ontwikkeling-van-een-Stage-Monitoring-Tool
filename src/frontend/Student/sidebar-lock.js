@@ -1,8 +1,8 @@
 // ============================================================
 // sidebar-lock.js
-// Vergrendelt de "Logboeken" link in de sidebar als de student
-// geen actieve/goedgekeurde stage heeft. Wordt door alle student
-// pagina's geïnclude.
+// Vergrendelt Logboeken én Evaluaties als de student geen
+// actieve stage heeft. Beide worden klikbaar zodra de stage
+// op status 'actief' staat.
 // ============================================================
 
 (async function () {
@@ -16,18 +16,18 @@
     if (!res.ok) return;
     var data = await res.json();
 
-    // Wel actieve stage → niets te doen
-    if (data && data.stage_id) return;
+    var heeftActieveStage = !!(data && data.stage_id);
+    if (heeftActieveStage) return;
 
-    // Geen actieve stage → vervang Logboeken link door locked span
+    var teLocken = ["Logboeken", "Evaluaties"];
     var links = document.querySelectorAll(".sidebar-nav a.nav-item");
     links.forEach(function (link) {
-      if (link.textContent.trim() === "Logboeken") {
-        var locked = document.createElement("span");
-        locked.className = "nav-item locked";
-        locked.innerHTML = 'Logboeken <span class="lock">🔒</span>';
-        link.parentNode.replaceChild(locked, link);
-      }
+      var label = link.textContent.trim();
+      if (teLocken.indexOf(label) === -1) return;
+      var locked = document.createElement("span");
+      locked.className = "nav-item locked";
+      locked.innerHTML = label + ' <span class="lock">🔒</span>';
+      link.parentNode.replaceChild(locked, link);
     });
   } catch (err) {
     console.error("Sidebar lock check fout:", err);

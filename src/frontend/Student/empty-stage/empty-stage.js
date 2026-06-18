@@ -1,5 +1,3 @@
-const API_BASE_URL = API_BASE;
-
 document.addEventListener("DOMContentLoaded", async function () {
 
   // 1. Toon naam van ingelogde gebruiker
@@ -15,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // 3. Stages ophalen van backend
   try {
-    const response = await fetch(API_BASE_URL + "/stages/mijn", {
+    const response = await fetch(API_BASE + "/stages/mijn", {
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -29,13 +27,30 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Toon meest relevante stage:
     //   1. Met openstaande actie (aanpassingen_vereist / afgekeurd)
     //   2. Anders: de meest recente
-    const PRIORITEIT = ["aanpassingen_vereist", "afgekeurd", "goedgekeurd", "ingediend", "in_beoordeling", "concept"];
+    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
     const stage = stages.slice().sort(function (a, b) {
       const pa = PRIORITEIT.indexOf(a.status);
       const pb = PRIORITEIT.indexOf(b.status);
       if (pa !== pb) return pa - pb;
       return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
     })[0];
+
+    if ((stage.status === "goedgekeurd" || stage.status === "wacht_op_overeenkomst")
+        && !localStorage.getItem("goedgekeurd_gezien_" + stage.id)) {
+      window.location.href = "../stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html";
+      return;
+    }
+    if (stage.status === "afgekeurd"
+        && !localStorage.getItem("afgekeurd_gezien_" + stage.id)) {
+      window.location.href = "../stage-beoordeling/stage-afgewezen/stage-afgewezen.html";
+      return;
+    }
+    if (stage.status === "aanpassingen_vereist"
+        && !localStorage.getItem("aanpassingen_gezien_" + stage.id)) {
+      window.location.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
+      return;
+    }
+
     // Info tabel altijd vullen
     document.getElementById("tabelBedrijf").textContent  = stage.bedrijf_naam || "—";
     document.getElementById("tabelOpdracht").textContent = stage.omschrijving || "—";
@@ -73,7 +88,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     var btn = document.getElementById("statusBtn");
     var bedrijf = stage.bedrijf_naam || "—";
 
-    if (stage.status === "goedgekeurd") {
+    if (stage.status === "actief") {
+      banner.className = "alert-banner alert-success";
+      icon.textContent = "🚀";
+      title.textContent = "Je stage loopt!";
+      text.textContent = "Je stage bij " + bedrijf + " is actief. Vergeet je wekelijkse logboeken niet in te dienen.";
+      btn.textContent = "Naar mijn stage →";
+      btn.href = "../mijn-stage/mijn-stage.html";
+      btn.style.display = "inline-block";
+      updateStepper("goedgekeurd");
+    } else if (stage.status === "goedgekeurd" || stage.status === "wacht_op_overeenkomst") {
       banner.className = "alert-banner alert-success";
       icon.textContent = "✅";
       title.textContent = "Stagevoorstel goedgekeurd!";
@@ -170,19 +194,4 @@ function updateStepper(state) {
     circles[2].classList.add("step-warning");
     circles[2].textContent = "!";
   }
-}
-
-function humanStatus(s) {
-  const map = {
-    "concept":              "Concept",
-    "ingediend":            "Ingediend, wachten op goedkeuring",
-    "in_beoordeling":       "In behandeling",
-    "goedgekeurd":          "✅ Goedgekeurd",
-    "aanpassingen_vereist": "✏️ Aanpassingen vereist",
-    "afgekeurd":            "❌ Afgekeurd",
-    "wacht_op_overeenkomst":"Wacht op overeenkomst",
-    "actief":               "Stage loopt",
-    "afgerond":             "Afgerond",
-  };
-  return map[s] || s;
 }
