@@ -26,7 +26,7 @@
 
       addLabel(nav, 'Beheer');
       addLink(nav, root + 'Admin/gebruikers/gebruikers.html', 'Gebruikers', currentPage === 'gebruikers');
-      addLink(nav, '#', 'Bedrijven', currentPage === 'bedrijven');
+      addLink(nav, root + 'Admin/bedrijven/bedrijven.html', 'Bedrijven', currentPage === 'bedrijven');
 
       addLabel(nav, 'Systeem');
       addLink(nav, '#', 'Rapporten', currentPage === 'rapporten');
