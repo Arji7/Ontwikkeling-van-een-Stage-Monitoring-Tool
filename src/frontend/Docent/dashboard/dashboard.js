@@ -71,9 +71,9 @@ async function laadTaken() {
         '<div class="taak-icon">📄</div>' +
         '<div class="taak-info">' +
           '<div class="taak-titel">Logboek week ' + t.week_nummer + ' — ' + naam + '</div>' +
-          '<div class="taak-meta">Ingediend op ' + datum + ' · wacht op jouw beoordeling</div>' +
+          '<div class="taak-meta">Ingediend op ' + datum + '</div>' +
         '</div>' +
-        '<button class="btn btn-primary">Beoordeel</button>';
+        '<button class="btn btn-primary">Bekijken</button>';
       lijst.appendChild(item);
     });
   } catch (err) {

@@ -378,15 +378,22 @@ function selectComp(compId) {
     html += '</div>';
 
     html += '<div class="eval-score-row">';
-    // Score
-    html += '<div class="eval-field"><span class="eval-field-label">Score</span>';
+    // Score (docent)
+    html += '<div class="eval-field"><span class="eval-field-label">Score (jouw beoordeling)</span>';
     if (isReadonly) {
       html += '<div class="eval-field-readonly">' + (sc.score_docent || "—") + '</div>';
     } else {
       html += '<input type="number" min="1" max="5" value="' + (sc.score_docent || "") + '" data-sub-id="' + sc.subcompetentie_id + '" class="eval-score-input" placeholder="1-5" />';
     }
     html += '</div>';
-    // Feedback
+    // Score (mentor) — read-only
+    html += '<div class="eval-field"><span class="eval-field-label">Score (mentor)</span>';
+    html += '<div class="eval-field-readonly">' + (sc.score_mentor || "—") + '</div>';
+    html += '</div>';
+    // Student reflectie
+    html += '<div class="eval-field"><span class="eval-field-label">Student reflectie</span>';
+    html += '<div class="eval-field-student">' + (sc.student_reflectie || "Nog geen reflectie") + '</div></div>';
+    // Feedback (docent)
     html += '<div class="eval-field"><span class="eval-field-label">Feedback</span>';
     if (isReadonly) {
       html += '<div class="eval-field-readonly">' + (sc.feedback_docent || "—") + '</div>';
@@ -394,9 +401,10 @@ function selectComp(compId) {
       html += '<textarea data-sub-id="' + sc.subcompetentie_id + '" class="eval-feedback-input" placeholder="Feedback...">' + (sc.feedback_docent || "") + '</textarea>';
     }
     html += '</div>';
-    // Student reflectie
-    html += '<div class="eval-field"><span class="eval-field-label">Student reflectie</span>';
-    html += '<div class="eval-field-student">' + (sc.student_reflectie || "Nog geen reflectie") + '</div></div>';
+    // Feedback (mentor) — read-only
+    html += '<div class="eval-field"><span class="eval-field-label">Feedback (mentor)</span>';
+    html += '<div class="eval-field-readonly">' + (sc.feedback_mentor || "—") + '</div>';
+    html += '</div>';
     html += '</div>';
 
     html += '</div>';

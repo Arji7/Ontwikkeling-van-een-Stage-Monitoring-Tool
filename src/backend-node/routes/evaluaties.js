@@ -118,7 +118,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
     const [scores] = await db.query(
       `SELECT cs.id, cs.subcompetentie_id, cs.score_docent, cs.score_mentor,
-              cs.feedback_docent, cs.student_reflectie, cs.eind_doelscore, cs.trend,
+              cs.feedback_docent, cs.feedback_mentor, cs.student_reflectie, cs.eind_doelscore, cs.trend,
               sc.code, sc.naam AS subcompetentie_naam, sc.volgorde AS sub_volgorde,
               c.id AS competentie_id, c.naam AS competentie_naam, c.volgorde AS comp_volgorde
        FROM competentiescore cs
@@ -147,6 +147,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
         score_docent: s.score_docent,
         score_mentor: s.score_mentor,
         feedback_docent: s.feedback_docent,
+        feedback_mentor: s.feedback_mentor,
         student_reflectie: s.student_reflectie,
         eind_doelscore: s.eind_doelscore,
         trend: s.trend
@@ -255,10 +256,15 @@ router.put('/:id/mentor-scores', authMiddleware, hasRole('mentor', 'admin'), asy
     if (Array.isArray(scores)) {
       for (const s of scores) {
         if (!s.subcompetentie_id) continue;
-        if (s.score_mentor !== undefined) {
+        const updates = [];
+        const params = [];
+        if (s.score_mentor !== undefined) { updates.push('score_mentor = ?'); params.push(s.score_mentor); }
+        if (s.feedback_mentor !== undefined) { updates.push('feedback_mentor = ?'); params.push(s.feedback_mentor); }
+        if (updates.length > 0) {
+          params.push(req.params.id, s.subcompetentie_id);
           await db.query(
-            'UPDATE competentiescore SET score_mentor = ? WHERE evaluatie_id = ? AND subcompetentie_id = ?',
-            [s.score_mentor, req.params.id, s.subcompetentie_id]
+            `UPDATE competentiescore SET ${updates.join(', ')} WHERE evaluatie_id = ? AND subcompetentie_id = ?`,
+            params
           );
         }
       }
