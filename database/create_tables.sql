@@ -360,6 +360,7 @@ CREATE TABLE competentiescore (
   score_docent      INT CHECK (score_docent BETWEEN 1 AND 5),
   score_mentor      INT CHECK (score_mentor BETWEEN 1 AND 5),
   feedback_docent   TEXT,
+  feedback_mentor   TEXT,
   student_reflectie TEXT,
   eind_doelscore    INT CHECK (eind_doelscore BETWEEN 1 AND 5),
   trend             ENUM('stijgend','stabiel','dalend'),

@@ -274,7 +274,6 @@ router.get('/mijn', authMiddleware, async (req, res) => {
 // GET /api/stages/docent/mijn — alle stages toegewezen aan ingelogde docent
 router.get('/docent/mijn', authMiddleware, async (req, res) => {
   try {
-    // Zoek docent_id op basis van gebruiker_id
     const [docentRows] = await db.query(
       'SELECT id FROM docent WHERE gebruiker_id = ?',
       [req.user.id]
@@ -300,9 +299,41 @@ router.get('/docent/mijn', authMiddleware, async (req, res) => {
       [docent_id]
     );
     res.json(rows);
-
   } catch (err) {
     console.error('Docent stages fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// GET /api/stages/mentor/mijn — stages van ingelogde mentor (via contact_email)
+router.get('/mentor/mijn', authMiddleware, async (req, res) => {
+  try {
+    const [[gebruiker]] = await db.query('SELECT email FROM gebruiker WHERE id = ?', [req.user.id]);
+    if (!gebruiker) return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
+
+    const [rows] = await db.query(
+      `SELECT s.*,
+              b.naam        AS bedrijf_naam,
+              sg.voornaam   AS student_voornaam,
+              sg.achternaam AS student_achternaam,
+              sg.email      AS student_email,
+              o.naam        AS opleiding_naam,
+              IFNULL((SELECT MAX(l.week_nummer) FROM logboek l WHERE l.stage_id = s.id), 0) AS huidige_week,
+              IFNULL(s.totaal_weken, 14) AS totaal_weken,
+              so2.status    AS overeenkomst_status
+       FROM stage s
+       LEFT JOIN bedrijf          b   ON b.id   = s.bedrijf_id
+       LEFT JOIN student          st  ON st.id  = s.student_id
+       LEFT JOIN gebruiker        sg  ON sg.id  = st.gebruiker_id
+       LEFT JOIN opleiding         o  ON o.id   = st.opleiding_id
+       LEFT JOIN stageovereenkomst so2 ON so2.stage_id = s.id
+       WHERE s.contact_email = ?
+       ORDER BY s.aangemaakt_op DESC`,
+      [gebruiker.email]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Mentor stages fout:', err);
     res.status(500).json({ error: 'Serverfout.' });
   }
 });
@@ -320,15 +351,17 @@ router.get('/:id', authMiddleware, async (req, res) => {
               o.naam        AS opleiding_naam,
               aj.naam       AS academiejaar_naam,
               dg.voornaam   AS docent_voornaam,
-              dg.achternaam AS docent_achternaam
+              dg.achternaam AS docent_achternaam,
+              so2.status    AS overeenkomst_status
        FROM stage s
-       LEFT JOIN bedrijf      b  ON b.id  = s.bedrijf_id
-       LEFT JOIN student      st ON st.id = s.student_id
-       LEFT JOIN gebruiker    sg ON sg.id = st.gebruiker_id
-       LEFT JOIN opleiding    o  ON o.id  = st.opleiding_id
-       LEFT JOIN academiejaar aj ON aj.id = s.academiejaar_id
-       LEFT JOIN docent       d  ON d.id  = s.docent_id
-       LEFT JOIN gebruiker    dg ON dg.id = d.gebruiker_id
+       LEFT JOIN bedrijf           b   ON b.id   = s.bedrijf_id
+       LEFT JOIN student           st  ON st.id  = s.student_id
+       LEFT JOIN gebruiker         sg  ON sg.id  = st.gebruiker_id
+       LEFT JOIN opleiding          o  ON o.id   = st.opleiding_id
+       LEFT JOIN academiejaar       aj ON aj.id  = s.academiejaar_id
+       LEFT JOIN docent             d  ON d.id   = s.docent_id
+       LEFT JOIN gebruiker          dg ON dg.id  = d.gebruiker_id
+       LEFT JOIN stageovereenkomst so2 ON so2.stage_id = s.id
        WHERE s.id = ?`,
       [req.params.id]
     );
