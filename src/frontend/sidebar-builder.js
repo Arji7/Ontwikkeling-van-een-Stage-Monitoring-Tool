@@ -31,7 +31,6 @@
     } else if (isCommissie) {
       addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',    ['commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
       addLink(nav, '#', 'Lopende stages', false);
-      addLink(nav, '#', 'Evaluaties',     false);
     }
 
     // Rolnaam in sidebar footer aanpassen
