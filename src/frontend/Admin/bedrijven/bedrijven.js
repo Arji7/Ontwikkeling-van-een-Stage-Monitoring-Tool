@@ -70,7 +70,6 @@
 
     return `
       <tr>
-        <td><input type="checkbox" /></td>
         <td>
           <div class="bedrijf-cell">
             <div class="row-avatar">${esc(initialen)}</div>
