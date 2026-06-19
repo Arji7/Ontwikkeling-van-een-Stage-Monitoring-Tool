@@ -78,6 +78,8 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
 
     if (rollen && Array.isArray(rollen)) {
       for (const rolNaam of rollen) {
+        // Rol aanmaken als die nog niet bestaat
+        await db.query('INSERT IGNORE INTO rol (naam) VALUES (?)', [rolNaam]);
         await db.query(
           'INSERT INTO gebruiker_rol (gebruiker_id, rol_id) SELECT ?, id FROM rol WHERE naam = ?',
           [gebruikerId, rolNaam]

@@ -34,7 +34,8 @@ INSERT INTO rol (naam) VALUES
   ('mentor'),
   ('stagemonitor'),
   ('commissielid'),
-  ('admin');
+  ('admin'),
+  ('bedrijf');
 
 CREATE TABLE gebruiker_rol (
   gebruiker_id INT NOT NULL,
