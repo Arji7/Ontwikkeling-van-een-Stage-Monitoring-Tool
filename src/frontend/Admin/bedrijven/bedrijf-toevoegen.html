@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bedrijf toevoegen – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="bedrijven.css" />
+  <link rel="stylesheet" href="bedrijf-toevoegen.css" />
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles">Actieve rollen: —</span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <nav class="breadcrumb">
+      <a href="bedrijven.html">Bedrijven</a>
+      <span>/</span>
+      <span>Nieuw bedrijf</span>
+    </nav>
+
+    <div class="form-layout">
+      <div class="form-main">
+        <h1>Bedrijf toevoegen</h1>
+        <p class="page-sub">Vul de gegevens in om een nieuw stagebedrijf te registreren</p>
+
+        <div id="feedbackMsg" class="feedback-msg"></div>
+
+        <form id="toevoegenForm">
+
+          <section class="form-section">
+            <h2>Bedrijfsgegevens</h2>
+            <p class="section-sub">Naam, sector en adresgegevens van het bedrijf</p>
+            <div class="field-row">
+              <div class="field">
+                <label>Bedrijfsnaam <span class="req">*</span></label>
+                <input type="text" id="naam" placeholder="bijv. TechCorp BV" required />
+              </div>
+              <div class="field">
+                <label>Rechtsvorm</label>
+                <input type="text" id="rechtsvorm" placeholder="BV" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Sector <span class="req">*</span></label>
+                <input type="text" id="sector" placeholder="IT &amp; Software" required />
+              </div>
+              <div class="field">
+                <label>Website</label>
+                <input type="text" id="website" placeholder="bijv. www.techcorp.be" />
+              </div>
+            </div>
+            <div class="field">
+              <label>BTW-nummer</label>
+              <input type="text" id="btw" placeholder="bijv. BE0123.456.789" />
+              <span class="field-hint">Optioneel maar aanbevolen voor officiële overeenkomsten</span>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2>Adresgegevens</h2>
+            <p class="section-sub">Locatie van het bedrijf</p>
+            <div class="field">
+              <label>Straat en nummer <span class="req">*</span></label>
+              <input type="text" id="straat" placeholder="bijv. Wetstraat 12" required />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Postcode <span class="req">*</span></label>
+                <input type="text" id="postcode" placeholder="bijv. 1000" required />
+              </div>
+              <div class="field">
+                <label>Gemeente <span class="req">*</span></label>
+                <input type="text" id="gemeente" placeholder="bijv. Brussel" required />
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2>Contactpersoon</h2>
+            <p class="section-sub">Verantwoordelijke voor de stageopvolging</p>
+            <div class="field-row">
+              <div class="field">
+                <label>Naam <span class="req">*</span></label>
+                <input type="text" id="contactNaam" placeholder="bijv. Karel Devos" required />
+              </div>
+              <div class="field">
+                <label>Functie</label>
+                <input type="text" id="contactFunctie" placeholder="bijv. Team Lead Backend" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>E-mailadres <span class="req">*</span></label>
+                <input type="email" id="contactEmail" placeholder="bijv. k.devos@techcorp.be" required />
+              </div>
+              <div class="field">
+                <label>Telefoonnummer</label>
+                <input type="text" id="contactTel" placeholder="+32 4xx xx xx xx" />
+              </div>
+            </div>
+          </section>
+
+          <div class="form-actions">
+            <a href="bedrijven.html" class="btn-back">Terug</a>
+            <button type="submit" class="btn-submit" id="submitBtn">Bedrijf toevoegen</button>
+          </div>
+
+        </form>
+      </div>
+
+      <aside class="form-aside">
+        <div class="aside-card">
+          <h3>Overzicht nieuw bedrijf</h3>
+          <div class="aside-row"><span>Naam</span>         <span id="prevNaam">—</span></div>
+          <div class="aside-row"><span>Sector</span>       <span id="prevSector">IT &amp; Software</span></div>
+          <div class="aside-row"><span>Gemeente</span>     <span id="prevGemeente">—</span></div>
+          <div class="aside-row"><span>Contactpersoon</span><span id="prevContact">—</span></div>
+          <div class="aside-row"><span>Status</span>       <span class="badge badge-erkend">Erkend</span></div>
+        </div>
+
+        <div class="aside-card">
+          <h3>Checklist</h3>
+          <ul class="checklist">
+            <li id="chk-status" class="done">Status geselecteerd</li>
+            <li id="chk-naam">Bedrijfsnaam ingevuld</li>
+            <li id="chk-sector">Sector gekozen</li>
+            <li id="chk-adres">Adres ingevuld</li>
+            <li id="chk-contact">Contactpersoon ingevuld</li>
+          </ul>
+        </div>
+
+        <div class="aside-card aside-info">
+          <h3>Wat gebeurt er na toevoegen?</h3>
+          <ol>
+            <li>Bedrijf verschijnt in het overzicht</li>
+            <li>Contactpersoon ontvangt een bevestigingsmail</li>
+            <li>Bedrijf kan gekoppeld worden aan stages</li>
+          </ol>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'bedrijven'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../sidebar-builder.js"></script>
+<script src="bedrijf-toevoegen.js"></script>
+</body>
+</html>

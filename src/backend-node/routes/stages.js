@@ -217,6 +217,39 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+// PUT /api/stages/:id/bewerken — stage bewerken (commissie/admin)
+router.put('/:id/bewerken', authMiddleware, async (req, res) => {
+  try {
+    const rollen = req.user.rollen || [];
+    const magBewerken = ['commissielid', 'admin'].some(r => rollen.includes(r));
+    if (!magBewerken) return res.status(403).json({ error: 'Geen toegang.' });
+
+    const { docent, mentor, mentorEmail, startdatum, einddatum, status } = req.body;
+
+    await db.query(
+      `UPDATE stage SET contact_naam = ?, contact_email = ?, startdatum = ?, einddatum = ?, status = ?
+       WHERE id = ?`,
+      [mentor || null, mentorEmail || null, startdatum || null, einddatum || null, status || 'actief', req.params.id]
+    );
+
+    if (docent) {
+      const [docenten] = await db.query(
+        `SELECT d.id FROM docent d JOIN gebruiker g ON g.id = d.gebruiker_id
+         WHERE CONCAT(g.voornaam, ' ', g.achternaam) = ?`,
+        [docent]
+      );
+      if (docenten.length > 0) {
+        await db.query('UPDATE stage SET docent_id = ? WHERE id = ?', [docenten[0].id, req.params.id]);
+      }
+    }
+
+    res.json({ message: 'Stage bijgewerkt.' });
+  } catch (err) {
+    console.error('Stage bewerken fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
 // GET /api/stages/mijn — alle stages van de ingelogde student
 router.get('/mijn', authMiddleware, async (req, res) => {
   try {
@@ -469,19 +502,21 @@ router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, re
   try {
     const [rows] = await db.query(
       `SELECT s.*,
-              b.naam        AS bedrijf_naam,
+              b.naam           AS bedrijf_naam,
               b.sector,
-              g.voornaam    AS student_voornaam,
-              g.achternaam  AS student_achternaam,
-              g.email       AS student_email,
-              dg.voornaam   AS docent_voornaam,
-              dg.achternaam AS docent_achternaam,
-              so2.status    AS overeenkomst_status
+              g.voornaam       AS student_voornaam,
+              g.achternaam     AS student_achternaam,
+              g.email          AS student_email,
+              dg.voornaam      AS docent_voornaam,
+              dg.achternaam    AS docent_achternaam,
+              s.contact_naam   AS mentor_naam,
+              s.contact_email  AS mentor_email,
+              so2.status       AS overeenkomst_status
        FROM stage s
        LEFT JOIN bedrijf  b  ON b.id  = s.bedrijf_id
        LEFT JOIN student  st ON st.id = s.student_id
        LEFT JOIN gebruiker g ON g.id  = st.gebruiker_id
-       LEFT JOIN docent    d ON d.id  = s.docent_id
+       LEFT JOIN docent    d  ON d.id  = s.docent_id
        LEFT JOIN gebruiker dg ON dg.id = d.gebruiker_id
        LEFT JOIN stageovereenkomst so2 ON so2.stage_id = s.id
        ORDER BY s.aangemaakt_op DESC`

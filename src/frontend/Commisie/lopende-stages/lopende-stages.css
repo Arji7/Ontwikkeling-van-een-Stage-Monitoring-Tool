@@ -65,6 +65,19 @@
   color: #92400e;
 }
 
+.btn-bewerken {
+  display: inline-block;
+  padding: 5px 14px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-bewerken:hover { background: #1d4ed8; }
+
 .empty-state {
   text-align: center;
   padding: 60px 20px;

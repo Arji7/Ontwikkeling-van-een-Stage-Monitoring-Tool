@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Competenties – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="evaluaties.css" />
+  <link rel="stylesheet" href="competenties.css" />
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles"></span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h1>Competenties beheren</h1>
+        <p class="page-sub">Selecteer een opleiding en beheer competenties, subcompetenties en rubrieken</p>
+      </div>
+    </div>
+
+    <div class="info-banner">
+      <span class="info-icon">ℹ</span>
+      Klik op een competentie om subcompetenties te zien. Klik op een subcompetentie om de
+      <strong>rubriek</strong> (beoordelingscriteria per niveau) te bekijken en te bewerken.
+    </div>
+
+    <div class="comp-layout">
+
+      <!-- LINKS: opleidingen -->
+      <div class="opl-panel">
+        <div class="opl-panel-header">
+          <span class="opl-titel">Opleidingen</span>
+          <span class="opl-count" id="oplCount"></span>
+        </div>
+        <div class="opl-lijst" id="oplLijst"></div>
+        <button class="btn-opl-toevoegen" onclick="openOplModal()">+ Opleiding toevoegen</button>
+      </div>
+
+      <!-- RECHTS: wrapper (statisch) -->
+      <div class="rechts-wrapper">
+
+        <!-- Leeg state -->
+        <div class="comp-leeg-state" id="compLeeg">
+          <div class="comp-leeg-icon">📚</div>
+          <div class="comp-leeg-tekst">Selecteer een opleiding om te beginnen</div>
+        </div>
+
+        <!-- Panel (verborgen totdat opleiding geselecteerd is) -->
+        <div class="comp-panel" id="compPanel" style="display:none">
+
+          <!-- Statische header -->
+          <div class="comp-panel-header">
+            <div class="comp-panel-info">
+              <div class="comp-panel-naam" id="compPanelNaam"></div>
+              <div class="comp-panel-sub" id="compPanelSub"></div>
+            </div>
+            <div class="comp-panel-stats">
+              <div class="comp-stat-chip">
+                <span class="comp-stat-val" id="compStatAantal">0</span>
+                Competenties
+              </div>
+              <div class="comp-stat-chip">
+                <span class="comp-stat-val" id="compStatGewicht">0%</span>
+                Gewicht
+              </div>
+            </div>
+            <button class="btn-primary" onclick="openModalComp(null)">+ Competentie</button>
+          </div>
+
+          <!-- Statische zoekbalk -->
+          <div class="comp-search-bar">
+            <input type="text" id="zoekInput" class="comp-search-input" placeholder="Zoek competentie…" />
+          </div>
+
+          <!-- Dynamische lijst (alleen dit wordt herrenderd) -->
+          <div class="comp-lijst" id="compLijst"></div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: competentie / subcompetentie -->
+<div class="modal-overlay" id="compModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 id="modalTitel">Toevoegen</h2>
+      <button class="modal-close" onclick="sluitModal('compModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Code</label>
+      <input type="text" id="modalCode" class="form-input" placeholder="bijv. D1 of D1.1" maxlength="6" />
+      <label class="form-label">Omschrijving</label>
+      <textarea id="modalOmschrijving" class="form-input" rows="3" placeholder="De lerende professional…"></textarea>
+      <div id="modalGewichtWrap">
+        <label class="form-label">Gewicht (%)</label>
+        <input type="number" id="modalGewicht" class="form-input" min="1" max="100" value="10" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="sluitModal('compModal')">Annuleren</button>
+      <button class="btn-primary" onclick="slaanOp()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: rubriek bewerken -->
+<div class="modal-overlay" id="rubModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 id="rubModalTitel">Rubriek bewerken</h2>
+      <button class="modal-close" onclick="sluitModal('rubModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rub-niveau-badge" id="rubNiveauBadge"></div>
+      <label class="form-label">Beschrijving van dit niveau</label>
+      <textarea id="rubModalBeschrijving" class="form-input" rows="6"
+        placeholder="Beschrijf wat de student doet of toont op dit niveau…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="sluitModal('rubModal')">Annuleren</button>
+      <button class="btn-primary" onclick="slaanRubOp()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: opleiding toevoegen -->
+<div class="modal-overlay" id="oplModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Opleiding toevoegen</h2>
+      <button class="modal-close" onclick="sluitModal('oplModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Naam opleiding</label>
+      <input type="text" id="nieuwOplNaam" class="form-input" placeholder="bijv. Elektrotechniek" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="sluitModal('oplModal')">Annuleren</button>
+      <button class="btn-primary" onclick="voegOplToe()">Toevoegen</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'competenties'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../sidebar-builder.js"></script>
+<script src="competenties.js"></script>
+</body>
+</html>

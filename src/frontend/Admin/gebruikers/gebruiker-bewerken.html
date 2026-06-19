@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gebruiker bewerken – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="gebruikers.css" />
+  <link rel="stylesheet" href="gebruiker-toevoegen.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ZIJBALK -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles">Actieve rollen: —</span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <!-- HOOFDINHOUD -->
+  <main class="main-content">
+    <nav class="breadcrumb">
+      <a href="gebruikers.html">Gebruikers</a>
+      <span>/</span>
+      <span id="breadcrumbNaam">Gebruiker bewerken</span>
+    </nav>
+
+    <div class="form-layout">
+      <!-- FORMULIER -->
+      <div class="form-main">
+        <h1>Gebruiker bewerken</h1>
+        <p class="page-sub">Pas de gegevens aan van deze gebruiker</p>
+
+        <div id="feedbackMsg" class="feedback-msg"></div>
+
+        <form id="bewerkenForm">
+
+          <section class="form-section">
+            <h2>Persoonlijke gegevens</h2>
+            <p class="section-sub">Naam en e-mailadres van de gebruiker</p>
+            <div class="field-row">
+              <div class="field">
+                <label>Voornaam <span class="req">*</span></label>
+                <input type="text" id="voornaam" required />
+              </div>
+              <div class="field">
+                <label>Achternaam <span class="req">*</span></label>
+                <input type="text" id="achternaam" required />
+              </div>
+            </div>
+            <div class="field">
+              <label>E-mailadres <span class="req">*</span></label>
+              <input type="email" id="email" required />
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2>Rol toewijzen <span class="req">*</span></h2>
+            <p class="section-sub">Selecteer de rol die deze gebruiker heeft in het platform</p>
+            <div class="rol-grid">
+              <label class="rol-option">
+                <input type="radio" name="rol" value="student" />
+                <span class="rol-label">Student</span>
+              </label>
+              <label class="rol-option">
+                <input type="radio" name="rol" value="docent" />
+                <span class="rol-label">Docent</span>
+              </label>
+              <label class="rol-option">
+                <input type="radio" name="rol" value="stagementor" />
+                <span class="rol-label">Stagementor</span>
+              </label>
+              <label class="rol-option">
+                <input type="radio" name="rol" value="commissielid" />
+                <span class="rol-label">Stagecommissie</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2>Wachtwoord resetten</h2>
+            <p class="section-sub">Laat leeg om het huidige wachtwoord te behouden</p>
+            <div class="field">
+              <label>Nieuw wachtwoord</label>
+              <input type="password" id="nieuwWachtwoord" placeholder="Minimaal 8 tekens" minlength="8" />
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2>Status</h2>
+            <p class="section-sub">Activeer of deactiveer dit account</p>
+            <div class="status-toggle">
+              <label class="toggle-option">
+                <input type="radio" name="status" value="actief" />
+                <span class="rol-label">Actief</span>
+              </label>
+              <label class="toggle-option">
+                <input type="radio" name="status" value="inactief" />
+                <span class="rol-label">Inactief</span>
+              </label>
+            </div>
+          </section>
+
+          <div class="form-actions">
+            <a href="gebruikers.html" class="btn-back">Annuleren</a>
+            <button type="submit" class="btn-submit" id="submitBtn">Wijzigingen opslaan</button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ZIJPANEEL -->
+      <aside class="form-aside">
+        <div class="aside-card">
+          <h3>Huidige gegevens</h3>
+          <div class="aside-row"><span>Naam</span>   <span id="prevNaam">—</span></div>
+          <div class="aside-row"><span>E-mail</span> <span id="prevEmail">—</span></div>
+          <div class="aside-row"><span>Rol</span>    <span id="prevRol">—</span></div>
+          <div class="aside-row"><span>Status</span> <span id="prevStatus">—</span></div>
+        </div>
+
+        <div class="aside-card">
+          <h3>Checklist</h3>
+          <ul class="checklist">
+            <li id="chk-naam"  class="done">Naam ingevuld</li>
+            <li id="chk-email" class="done">E-mailadres ingevuld</li>
+            <li id="chk-rol"   class="done">Rol geselecteerd</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'gebruikers'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../sidebar-builder.js"></script>
+<script src="gebruiker-bewerken.js"></script>
+</body>
+</html>

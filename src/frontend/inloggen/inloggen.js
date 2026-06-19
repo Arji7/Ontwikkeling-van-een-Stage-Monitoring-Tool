@@ -9,7 +9,7 @@ const CONFIG = {
   DASHBOARD_BY_ROLE: {
     student:      "../Student/empty-stage/empty-stage.html",
     docent:       "../Docent/dashboard/dashboard.html",
-    admin:        "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
+    admin:        "../Admin/Dashboard/dashboard.html",
     mentor:       "../Mentor/dashboard/dashboard.html",
     commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
   },
@@ -53,6 +53,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
       sessionStorage.setItem("currentUser", JSON.stringify(user));
 
+      // Voor studenten: check de stage-status en stuur door naar juiste pagina
+      if (user.role === "student") {
+        try {
+          const stagesRes = await fetch(CONFIG.API_BASE_URL + "/stages/mijn", {
+            headers: { "Authorization": "Bearer " + user.token }
+          });
+          if (stagesRes.ok) {
+            const stages = await stagesRes.json();
+            if (Array.isArray(stages) && stages.length > 0) {
+              const PRIORITEIT = ["aanpassingen_vereist", "afgekeurd", "goedgekeurd", "ingediend", "in_beoordeling", "concept"];
+              const stage = stages.slice().sort(function (a, b) {
+                const pa = PRIORITEIT.indexOf(a.status);
+                const pb = PRIORITEIT.indexOf(b.status);
+                if (pa !== pb) return pa - pb;
+                return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
+              })[0];
+              const STATUS_REDIRECTS = {
+                "goedgekeurd":          "../Student/stage-beoordeling/stage-goedgekeurd/stage-goedgekeurd.html",
+                "afgekeurd":            "../Student/stage-beoordeling/stage-afgewezen/stage-afgewezen.html",
+                "aanpassingen_vereist": "../Student/stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html"
+              };
+              if (STATUS_REDIRECTS[stage.status]) {
+                window.location.href = STATUS_REDIRECTS[stage.status];
+                return;
+              }
+            }
+          }
+        } catch (e) { /* val terug op standaard dashboard */ }
+      }
+
       const target = CONFIG.DASHBOARD_BY_ROLE[user.role];
       if (target) window.location.href = target;
       else showAlert("Onbekende rol: er is geen dashboard voor '" + user.role + "'.");
@@ -81,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const rollen = data.gebruiker.rollen || [];
     // Kies hoogste rol uit de prioriteitslijst
     const rol = CONFIG.ROL_PRIORITEIT.find(function (r) { return rollen.includes(r); }) || "student";
-    return { email: data.gebruiker.email, role: rol, rollen: rollen, name: data.gebruiker.voornaam + " " + data.gebruiker.achternaam, token: data.token };
+    return { email: data.gebruiker.email, role: rol, name: data.gebruiker.voornaam + " " + data.gebruiker.achternaam, token: data.token };
   }
 
   async function demoLogin(email, password) {
