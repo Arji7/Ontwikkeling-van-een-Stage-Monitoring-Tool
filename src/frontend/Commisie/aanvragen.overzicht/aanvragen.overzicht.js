@@ -12,9 +12,14 @@
     return new Date(d).toLocaleDateString('nl-BE', { year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
-  function badge(status) {
+  function badge(status, commissieGetekend) {
     if (status === 'ingediend')            return '<span class="badge badge-ingediend">In afwachting</span>';
-    if (status === 'goedgekeurd')          return '<span class="badge badge-goedgekeurd">Goedgekeurd</span>';
+    if (status === 'goedgekeurd') {
+      var extra = !commissieGetekend
+        ? ' <span class="badge badge-tekenen" title="Commissie moet nog ondertekenen">Te tekenen</span>'
+        : '';
+      return '<span class="badge badge-goedgekeurd">Goedgekeurd</span>' + extra;
+    }
     if (status === 'afgekeurd')            return '<span class="badge badge-afgekeurd">Afgewezen</span>';
     if (status === 'aanpassingen_vereist') return '<span class="badge badge-aanpassingen">Aanpassingen vereist</span>';
     return '<span class="badge">' + esc(status) + '</span>';
@@ -70,7 +75,7 @@
           '<td><span class="student-naam">' + naam + '</span></td>' +
           '<td>' + esc(s.bedrijf_naam || '--') + '</td>' +
           '<td>' + periode + '</td>' +
-          '<td>' + badge(s.status) + '</td>' +
+          '<td>' + badge(s.status, !!s.commissie_getekend) + '</td>' +
           '<td>' + ingediend + '</td>' +
         '</tr>';
     });
