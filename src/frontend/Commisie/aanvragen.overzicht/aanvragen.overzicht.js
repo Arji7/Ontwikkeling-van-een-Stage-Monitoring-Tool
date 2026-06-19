@@ -24,7 +24,7 @@
     var zoek = (document.getElementById('searchInput').value || '').toLowerCase();
 
     var relevant = alleStages.filter(function (s) {
-      return ['ingediend', 'goedgekeurd', 'afgekeurd', 'aanpassingen_vereist'].includes(s.status);
+      return ['ingediend', 'goedgekeurd', 'wacht_op_overeenkomst', 'aanpassingen_vereist'].includes(s.status);
     });
 
     var gefilterd = relevant.filter(function (s) {
@@ -36,13 +36,17 @@
       return matchZ && matchF;
     });
 
-    var c = { ingediend: 0, goedgekeurd: 0, afgekeurd: 0 };
+    var c = { ingediend: 0, goedgekeurd: 0, aanpassingen_vereist: 0 };
     relevant.forEach(function (s) { if (c[s.status] !== undefined) c[s.status]++; });
 
-    document.getElementById('cnt-alle').textContent       = '(' + relevant.length + ')';
-    document.getElementById('cnt-ingediend').textContent  = '(' + c.ingediend + ')';
-    document.getElementById('cnt-goedgekeurd').textContent= '(' + c.goedgekeurd + ')';
-    document.getElementById('cnt-afgekeurd').textContent  = '(' + c.afgekeurd + ')';
+    var elAlle = document.getElementById('cnt-alle');
+    var elIng  = document.getElementById('cnt-ingediend');
+    var elAanp = document.getElementById('cnt-aanpassing');
+    var elGk   = document.getElementById('cnt-goedgekeurd');
+    if (elAlle) elAlle.textContent = '(' + relevant.length + ')';
+    if (elIng)  elIng.textContent  = '(' + c.ingediend + ')';
+    if (elAanp) elAanp.textContent = '(' + c.aanpassingen_vereist + ')';
+    if (elGk)   elGk.textContent   = '(' + c.goedgekeurd + ')';
 
     if (gefilterd.length === 0) {
       document.getElementById('tableContainer').innerHTML =
