@@ -258,4 +258,208 @@ router.get('/evaluaties', authMiddleware, hasRole('admin'), async (req, res) => 
   }
 });
 
+// ============================================================
+// COMPETENTIES — per opleiding
+// ============================================================
+
+// GET /api/admin/competenties/opleidingen — alle opleidingen met competentie-telling
+router.get('/competenties/opleidingen', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT o.id, o.naam,
+              COUNT(DISTINCT oc.competentie_id) AS aantal_competenties
+       FROM opleiding o
+       LEFT JOIN opleiding_competentie oc ON oc.opleiding_id = o.id
+       WHERE o.actief = TRUE
+       GROUP BY o.id
+       ORDER BY o.naam`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Admin opleidingen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// POST /api/admin/competenties/opleidingen — opleiding toevoegen
+router.post('/competenties/opleidingen', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const { naam } = req.body;
+    if (!naam) return res.status(400).json({ error: 'Naam is verplicht.' });
+    const [result] = await db.query('INSERT INTO opleiding (naam) VALUES (?)', [naam]);
+    res.status(201).json({ id: result.insertId });
+  } catch (err) {
+    console.error('Admin opleiding toevoegen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// GET /api/admin/competenties/opleiding/:oplId — competenties + subs + niveaus voor een opleiding
+router.get('/competenties/opleiding/:oplId', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const [compRows] = await db.query(
+      `SELECT c.id, c.naam AS omschrijving, c.beschrijving, c.volgorde,
+              oc.id AS oc_id
+       FROM competentie c
+       JOIN opleiding_competentie oc ON oc.competentie_id = c.id
+       WHERE oc.opleiding_id = ?
+       ORDER BY c.volgorde ASC`,
+      [req.params.oplId]
+    );
+
+    if (compRows.length === 0) return res.json([]);
+
+    const compIds = compRows.map(c => c.id);
+    const [subRows] = await db.query(
+      `SELECT id, competentie_id, code, naam AS omschrijving, volgorde
+       FROM subcompetentie WHERE competentie_id IN (?) ORDER BY volgorde ASC`,
+      [compIds]
+    );
+
+    const subIds = subRows.map(s => s.id);
+    let niveauRows = [];
+    if (subIds.length > 0) {
+      [niveauRows] = await db.query(
+        `SELECT subcompetentie_id, niveau, label, beschrijving
+         FROM subcompetentie_niveau WHERE subcompetentie_id IN (?) ORDER BY niveau ASC`,
+        [subIds]
+      );
+    }
+
+    const niveauMap = {};
+    for (const n of niveauRows) {
+      if (!niveauMap[n.subcompetentie_id]) niveauMap[n.subcompetentie_id] = [];
+      niveauMap[n.subcompetentie_id].push(n);
+    }
+
+    const subMap = {};
+    for (const s of subRows) {
+      if (!subMap[s.competentie_id]) subMap[s.competentie_id] = [];
+      subMap[s.competentie_id].push({
+        id: s.id, code: s.code, omschrijving: s.omschrijving,
+        rubriek: niveauMap[s.id] || []
+      });
+    }
+
+    const result = compRows.map(c => ({
+      id: c.id, omschrijving: c.omschrijving, volgorde: c.volgorde,
+      subcompetenties: subMap[c.id] || []
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error('Admin competenties opleiding fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// POST /api/admin/competenties — competentie toevoegen + koppelen aan opleiding
+router.post('/competenties', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const { opleiding_id, omschrijving, volgorde } = req.body;
+    if (!omschrijving) return res.status(400).json({ error: 'Omschrijving is verplicht.' });
+    const [result] = await db.query(
+      'INSERT INTO competentie (naam, volgorde) VALUES (?, ?)',
+      [omschrijving, volgorde || 0]
+    );
+    if (opleiding_id) {
+      await db.query(
+        'INSERT INTO opleiding_competentie (opleiding_id, competentie_id) VALUES (?, ?)',
+        [opleiding_id, result.insertId]
+      );
+    }
+    res.status(201).json({ id: result.insertId });
+  } catch (err) {
+    console.error('Admin competentie toevoegen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// PUT /api/admin/competenties/:id — competentie bewerken
+router.put('/competenties/:id', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const { omschrijving, volgorde } = req.body;
+    await db.query('UPDATE competentie SET naam = ?, volgorde = ? WHERE id = ?',
+      [omschrijving, volgorde || 0, req.params.id]);
+    res.json({ message: 'Competentie bijgewerkt.' });
+  } catch (err) {
+    console.error('Admin competentie bewerken fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// DELETE /api/admin/competenties/:id — competentie verwijderen
+router.delete('/competenties/:id', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    await db.query('DELETE FROM competentie WHERE id = ?', [req.params.id]);
+    res.json({ message: 'Competentie verwijderd.' });
+  } catch (err) {
+    console.error('Admin competentie verwijderen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// POST /api/admin/competenties/:compId/subcompetenties — subcompetentie toevoegen
+router.post('/competenties/:compId/subcompetenties', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const { code, omschrijving } = req.body;
+    const [result] = await db.query(
+      'INSERT INTO subcompetentie (competentie_id, code, naam) VALUES (?, ?, ?)',
+      [req.params.compId, code, omschrijving]
+    );
+    res.status(201).json({ id: result.insertId });
+  } catch (err) {
+    console.error('Admin subcompetentie toevoegen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// PUT /api/admin/competenties/sub/:subId — subcompetentie bewerken
+router.put('/competenties/sub/:subId', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const { code, omschrijving } = req.body;
+    await db.query('UPDATE subcompetentie SET code = ?, naam = ? WHERE id = ?',
+      [code, omschrijving, req.params.subId]);
+    res.json({ message: 'Subcompetentie bijgewerkt.' });
+  } catch (err) {
+    console.error('Admin subcompetentie bewerken fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// DELETE /api/admin/competenties/sub/:subId — subcompetentie verwijderen
+router.delete('/competenties/sub/:subId', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    await db.query('DELETE FROM subcompetentie WHERE id = ?', [req.params.subId]);
+    res.json({ message: 'Subcompetentie verwijderd.' });
+  } catch (err) {
+    console.error('Admin subcompetentie verwijderen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// PUT /api/admin/competenties/sub/:subId/niveau/:niveau — rubriek niveau opslaan
+router.put('/competenties/sub/:subId/niveau/:niveau', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const { beschrijving, label } = req.body;
+    const [[bestaand]] = await db.query(
+      'SELECT id FROM subcompetentie_niveau WHERE subcompetentie_id = ? AND niveau = ?',
+      [req.params.subId, req.params.niveau]
+    );
+    if (bestaand) {
+      await db.query('UPDATE subcompetentie_niveau SET beschrijving = ?, label = ? WHERE id = ?',
+        [beschrijving, label || ('Score ' + req.params.niveau), bestaand.id]);
+    } else {
+      await db.query(
+        'INSERT INTO subcompetentie_niveau (subcompetentie_id, niveau, label, beschrijving) VALUES (?, ?, ?, ?)',
+        [req.params.subId, req.params.niveau, label || ('Score ' + req.params.niveau), beschrijving]
+      );
+    }
+    res.json({ message: 'Rubriek opgeslagen.' });
+  } catch (err) {
+    console.error('Admin rubriek opslaan fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
 module.exports = router;

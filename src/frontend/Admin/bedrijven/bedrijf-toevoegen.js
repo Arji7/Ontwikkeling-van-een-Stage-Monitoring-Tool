@@ -33,12 +33,37 @@
     if (el) el.classList.toggle('done', ok);
   }
 
-  document.getElementById('toevoegenForm').addEventListener('submit', (e) => {
+  document.getElementById('toevoegenForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     submitBtn.disabled    = true;
     submitBtn.textContent = 'Toevoegen…';
-    toonFeedback('Bedrijf succesvol toegevoegd! Terug naar overzicht…', 'success');
-    setTimeout(() => { window.location.href = 'bedrijven.html'; }, 1500);
+
+    try {
+      var token = sessionStorage.getItem('token');
+      var res = await fetch(API_BASE + '/admin/bedrijven', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          naam: naamEl.value.trim(),
+          sector: sectorEl.value.trim(),
+          adres: straatEl.value.trim(),
+          postcode: postcodeEl.value.trim(),
+          stad: gemeenteEl.value.trim(),
+          website: (document.getElementById('website') || {}).value || '',
+          btw_nummer: (document.getElementById('btw') || {}).value || ''
+        })
+      });
+      if (!res.ok) {
+        var data = await res.json();
+        throw new Error(data.error || 'Fout bij aanmaken.');
+      }
+      toonFeedback('Bedrijf succesvol toegevoegd! Terug naar overzicht…', 'success');
+      setTimeout(() => { window.location.href = 'bedrijven.html'; }, 1500);
+    } catch (err) {
+      toonFeedback(err.message, 'error');
+      submitBtn.disabled    = false;
+      submitBtn.textContent = 'Bedrijf toevoegen';
+    }
   });
 
   function toonFeedback(msg, type) {
