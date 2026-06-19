@@ -62,7 +62,7 @@ router.get('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => 
 router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
     const { voornaam, achternaam, email, wachtwoord, rollen, bedrijf_id, studentnummer, opleiding_id, titel, functie } = req.body;
-    if (!voornaam || !achternaam || !email || !wachtwoord) {
+    if (!voornaam || !email || !wachtwoord) {
       return res.status(400).json({ error: 'Vul alle velden in.' });
     }
 
