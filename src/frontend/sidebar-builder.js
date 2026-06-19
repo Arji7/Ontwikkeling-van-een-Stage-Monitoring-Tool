@@ -5,9 +5,11 @@
     var user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     var rollen = user.rollen || (user.role ? [user.role] : []);
 
+    var isAdmin     = rollen.indexOf('admin') !== -1;
     var isDocent    = rollen.indexOf('docent') !== -1;
-    var isCommissie = rollen.indexOf('commissielid') !== -1 || rollen.indexOf('admin') !== -1;
-    var isCombined  = isDocent && isCommissie;
+    var isCommissie = rollen.indexOf('commissielid') !== -1;
+    var isBedrijf   = rollen.indexOf('bedrijf') !== -1;
+    var isCombined  = isDocent && (isCommissie || isAdmin);
 
     var root        = window.FRONTEND_ROOT || '../../';
     var currentPage = window.SIDEBAR_PAGE  || '';
@@ -16,7 +18,21 @@
     if (!nav) return;
     nav.innerHTML = '';
 
-    if (isCombined) {
+    if (isAdmin) {
+      addLabel(nav, 'Algemeen');
+      addLink(nav, root + 'Admin/Dashboard/dashboard.html', 'Dashboard', currentPage === 'dashboard');
+      addLabel(nav, 'Stagecommissie');
+      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen', ['aanvragen','commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
+      addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html', 'Lopende stages', ['lopende-stages','commissie-lopende-stages'].indexOf(currentPage) !== -1);
+      addLink(nav, root + 'Admin/evaluaties/evaluaties.html', 'Evaluaties', currentPage === 'evaluaties');
+      addLink(nav, root + 'Admin/evaluaties/competenties.html', 'Competenties', currentPage === 'competenties');
+      addLabel(nav, 'Beheer');
+      addLink(nav, root + 'Admin/gebruikers/gebruikers.html', 'Gebruikers', currentPage === 'gebruikers');
+      addLink(nav, root + 'Admin/bedrijven/bedrijven.html', 'Bedrijven', currentPage === 'bedrijven');
+      addLabel(nav, 'Systeem');
+      addLink(nav, root + 'Admin/rapporten/rapporten.html', 'Rapporten', currentPage === 'rapporten');
+
+    } else if (isCombined) {
       addLabel(nav, 'Docent');
       addLink(nav, root + 'Docent/dashboard/dashboard.html',          'Dashboard',       currentPage === 'docent-dashboard');
       addLink(nav, root + 'Docent/mijn-studenten/mijn-studenten.html','Mijn studenten',  ['mijn-studenten','logboek-inkijken','student-detail','rubriek'].indexOf(currentPage) !== -1);
@@ -31,14 +47,19 @@
     } else if (isCommissie) {
       addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',    ['commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
       addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html', 'Lopende stages', currentPage === 'commissie-lopende-stages');
+
+    } else if (isBedrijf) {
+      addLink(nav, root + 'Bedrijf/dashboard/dashboard.html', 'Mijn stagiairs', currentPage === 'bedrijf-dashboard');
     }
 
     // Rolnaam in sidebar footer aanpassen
     var roleEl = document.querySelector('.user-role');
     if (roleEl) {
-      if (isCombined)       roleEl.textContent = 'Docent · Commissie';
+      if (isAdmin)          roleEl.textContent = 'Beheerder';
+      else if (isCombined)  roleEl.textContent = 'Docent · Commissie';
       else if (isDocent)    roleEl.textContent = 'Docent';
       else if (isCommissie) roleEl.textContent = 'Stagecommissie';
+      else if (isBedrijf)   roleEl.textContent = 'Bedrijf';
     }
 
     // Naam + avatar invullen (beide ID-conventies worden ondersteund)

@@ -52,33 +52,9 @@
 
         <form id="toevoegenForm">
 
+          <!-- STAP 1: ROL KIEZEN -->
           <section class="form-section">
-            <h2>Persoonlijke gegevens</h2>
-            <p class="section-sub">Naam, e-mail en contactinformatie van de gebruiker</p>
-            <div class="field-row">
-              <div class="field">
-                <label>Voornaam <span class="req">*</span></label>
-                <input type="text" id="voornaam" placeholder="bijv. Sara" required />
-              </div>
-              <div class="field">
-                <label>Achternaam <span class="req">*</span></label>
-                <input type="text" id="achternaam" placeholder="bijv. Janssens" required />
-              </div>
-            </div>
-            <div class="field">
-              <label>E-mailadres <span class="req">*</span></label>
-              <input type="email" id="email" placeholder="sara.janssens@ehb.be" required />
-              <span class="field-hint">Dit wordt het inlogadres van de gebruiker</span>
-            </div>
-            <div class="field">
-              <label>Tijdelijk wachtwoord <span class="req">*</span></label>
-              <input type="password" id="wachtwoord" placeholder="Min. 8 tekens" required minlength="8" />
-              <span class="field-hint">De gebruiker kan dit later zelf wijzigen</span>
-            </div>
-          </section>
-
-          <section class="form-section">
-            <h2>Rol toewijzen <span class="req">*</span></h2>
+            <h2>Stap 1 — Rol toewijzen <span class="req">*</span></h2>
             <p class="section-sub">Selecteer de rol die deze gebruiker krijgt in het platform</p>
             <div class="rol-grid">
               <label class="rol-option">
@@ -104,6 +80,140 @@
             </div>
           </section>
 
+          <!-- STAP 2: ACCOUNTGEGEVENS (verschijnt na rolkeuze) -->
+          <div id="stapGegevens" style="display:none">
+
+            <section class="form-section" id="accountSectie">
+              <h2>Stap 2 — Accountgegevens</h2>
+              <p class="section-sub">Naam, e-mail en wachtwoord van de gebruiker</p>
+              <div class="field-row">
+                <div class="field">
+                  <label>Voornaam <span class="req">*</span></label>
+                  <input type="text" id="voornaam" placeholder="bijv. Sara" required />
+                </div>
+                <div class="field">
+                  <label>Achternaam <span class="req">*</span></label>
+                  <input type="text" id="achternaam" placeholder="bijv. Janssens" required />
+                </div>
+              </div>
+              <div class="field">
+                <label>E-mailadres <span class="req">*</span></label>
+                <input type="email" id="email" placeholder="sara.janssens@ehb.be" required />
+                <span class="field-hint">Dit wordt het inlogadres van de gebruiker</span>
+              </div>
+              <div class="field">
+                <label>Tijdelijk wachtwoord <span class="req">*</span></label>
+                <input type="password" id="wachtwoord" placeholder="Min. 8 tekens" required minlength="8" />
+                <span class="field-hint">De gebruiker kan dit later zelf wijzigen</span>
+              </div>
+            </section>
+
+            <!-- STUDENT VELDEN -->
+            <section class="form-section" id="studentVelden" style="display:none">
+              <h2>Studentgegevens</h2>
+              <p class="section-sub">Extra informatie voor het studentprofiel</p>
+              <div class="field-row">
+                <div class="field">
+                  <label>Studentnummer</label>
+                  <input type="text" id="studentNummer" placeholder="Wordt automatisch gegenereerd als leeg" />
+                  <span class="field-hint">Laat leeg voor automatische generatie</span>
+                </div>
+                <div class="field">
+                  <label>Opleiding</label>
+                  <select id="studentOpleiding">
+                    <option value="">— Selecteer opleiding —</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <!-- DOCENT VELDEN -->
+            <section class="form-section" id="docentVelden" style="display:none">
+              <h2>Docentgegevens</h2>
+              <p class="section-sub">Extra informatie voor het docentprofiel</p>
+              <div class="field">
+                <label>Titel</label>
+                <input type="text" id="docentTitel" placeholder="bijv. Prof., Dr., Ir." />
+              </div>
+            </section>
+
+            <!-- MENTOR VELDEN -->
+            <section class="form-section" id="mentorVelden" style="display:none">
+              <h2>Mentorgegevens</h2>
+              <p class="section-sub">Koppel deze mentor aan een bedrijf</p>
+              <div class="field">
+                <label>Functie</label>
+                <input type="text" id="mentorFunctie" placeholder="bijv. Lead Developer" />
+              </div>
+              <div class="field">
+                <label>Bedrijf</label>
+                <select id="mentorBedrijf">
+                  <option value="">— Geen bedrijf gekoppeld —</option>
+                </select>
+              </div>
+            </section>
+
+            <!-- BEDRIJF VELDEN -->
+            <section class="form-section" id="bedrijfVelden" style="display:none">
+              <h2>Bedrijfsgegevens</h2>
+              <p class="section-sub">Koppel aan een bestaand of nieuw bedrijf</p>
+              <div class="field">
+                <label>Bedrijf selecteren</label>
+                <select id="bedrijfSelect">
+                  <option value="">— Nieuw bedrijf aanmaken —</option>
+                </select>
+              </div>
+              <div id="nieuwBedrijfVelden">
+                <div class="field">
+                  <label>Bedrijfsnaam <span class="req">*</span></label>
+                  <input type="text" id="bedrijfNaam" placeholder="bijv. TechCorp BV" />
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label>Sector</label>
+                    <input type="text" id="bedrijfSector" placeholder="bijv. IT & Software" />
+                  </div>
+                  <div class="field">
+                    <label>Website</label>
+                    <input type="text" id="bedrijfWebsite" placeholder="bijv. www.techcorp.be" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Adres</label>
+                  <input type="text" id="bedrijfAdres" placeholder="bijv. Wetstraat 12" />
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label>Postcode</label>
+                    <input type="text" id="bedrijfPostcode" placeholder="bijv. 1000" />
+                  </div>
+                  <div class="field">
+                    <label>Stad</label>
+                    <input type="text" id="bedrijfStad" placeholder="bijv. Brussel" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>BTW-nummer</label>
+                  <input type="text" id="bedrijfBtw" placeholder="bijv. BE0123.456.789" />
+                </div>
+              </div>
+
+              <h2 style="margin-top:24px">Inloggegevens bedrijf</h2>
+              <p class="section-sub">E-mail en wachtwoord waarmee het bedrijf kan inloggen</p>
+              <div class="field">
+                <label>E-mailadres <span class="req">*</span></label>
+                <input type="email" id="bedrijfEmail" placeholder="info@techcorp.be" />
+                <span class="field-hint">Dit wordt het inlogadres van het bedrijf</span>
+              </div>
+              <div class="field">
+                <label>Tijdelijk wachtwoord <span class="req">*</span></label>
+                <input type="password" id="bedrijfWachtwoord" placeholder="Min. 8 tekens" minlength="8" />
+                <span class="field-hint">Het bedrijf kan dit later zelf wijzigen</span>
+              </div>
+            </section>
+
+          </div>
+
           <div class="form-actions">
             <a href="gebruikers.html" class="btn-back">Terug</a>
             <button type="submit" class="btn-submit" id="submitBtn">Gebruiker aanmaken</button>
@@ -118,7 +228,7 @@
           <h3>Overzicht nieuw account</h3>
           <div class="aside-row"><span>Naam</span>    <span id="prevNaam">—</span></div>
           <div class="aside-row"><span>E-mail</span>  <span id="prevEmail">—</span></div>
-          <div class="aside-row"><span>Rol</span>     <span id="prevRol" class="badge badge-student">Student</span></div>
+          <div class="aside-row"><span>Rol</span>     <span id="prevRol" class="badge">—</span></div>
           <div class="aside-row"><span>Status</span>  <span class="badge badge-actief">Actief na bevestiging</span></div>
         </div>
 

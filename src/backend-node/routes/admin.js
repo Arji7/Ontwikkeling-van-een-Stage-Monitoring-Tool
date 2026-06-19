@@ -61,7 +61,7 @@ router.get('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => 
 // POST /api/admin/gebruikers — nieuwe gebruiker aanmaken
 router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { voornaam, achternaam, email, wachtwoord, rollen } = req.body;
+    const { voornaam, achternaam, email, wachtwoord, rollen, bedrijf_id, studentnummer, opleiding_id, titel, functie } = req.body;
     if (!voornaam || !achternaam || !email || !wachtwoord) {
       return res.status(400).json({ error: 'Vul alle velden in.' });
     }
@@ -85,14 +85,26 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
           [gebruikerId, rolNaam]
         );
         if (rolNaam === 'student') {
-          const nr = 'STU' + String(gebruikerId).padStart(5, '0');
-          await db.query('INSERT INTO student (gebruiker_id, studentnummer) VALUES (?, ?)', [gebruikerId, nr]);
+          const nr = studentnummer || ('STU' + String(gebruikerId).padStart(5, '0'));
+          await db.query(
+            'INSERT INTO student (gebruiker_id, studentnummer, opleiding_id) VALUES (?, ?, ?)',
+            [gebruikerId, nr, opleiding_id || null]
+          );
         }
         if (rolNaam === 'docent') {
-          await db.query('INSERT INTO docent (gebruiker_id) VALUES (?)', [gebruikerId]);
+          await db.query('INSERT INTO docent (gebruiker_id, titel) VALUES (?, ?)', [gebruikerId, titel || null]);
         }
         if (rolNaam === 'mentor') {
-          await db.query('INSERT INTO mentor (gebruiker_id) VALUES (?)', [gebruikerId]);
+          await db.query(
+            'INSERT INTO mentor (gebruiker_id, bedrijf_id, functie) VALUES (?, ?, ?)',
+            [gebruikerId, bedrijf_id || null, functie || null]
+          );
+        }
+        if (rolNaam === 'bedrijf') {
+          await db.query(
+            'INSERT IGNORE INTO mentor (gebruiker_id, bedrijf_id) VALUES (?, ?)',
+            [gebruikerId, bedrijf_id || null]
+          );
         }
       }
     }
