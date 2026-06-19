@@ -3,7 +3,7 @@
   display: flex; flex-wrap: wrap; gap: 18px;
   background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
   padding: 14px 18px; margin-bottom: 18px;
-  font-size: 13px; color: #1a1a2e;
+  font-size: 13px; color: #1f2d4e;
 }
 .meta-bar strong { color: #6b7280; font-weight: 600; margin-right: 4px; }
 
@@ -25,14 +25,14 @@
   background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
   padding: 16px 18px;
 }
-.dag-naam { font-weight: 600; color: #1a1a2e; }
+.dag-naam { font-weight: 600; color: #1f2d4e; }
 .dag-datum { font-size: 12px; color: #6b7280; }
 .dag-uren {
   background: #ede9fe; color: #6d28d9; font-weight: 700; font-size: 13px;
   padding: 6px 12px; border-radius: 6px; text-align: center;
 }
 .dag-content { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.dag-taken { font-size: 13px; color: #1a1a2e; }
+.dag-taken { font-size: 13px; color: #1f2d4e; }
 .dag-comps { display: flex; gap: 6px; flex-wrap: wrap; }
 .comp-chip {
   background: #ede9fe; color: #6d28d9; padding: 3px 10px;
@@ -48,7 +48,7 @@
   background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
   padding: 20px 24px; margin-bottom: 16px;
 }
-.reflectie-title, .opmerking-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin: 0 0 14px; }
+.reflectie-title, .opmerking-title { font-size: 15px; font-weight: 600; color: #1f2d4e; margin: 0 0 14px; }
 .reflectie-section { margin-bottom: 14px; }
 .reflectie-section:last-child { margin-bottom: 0; }
 .reflectie-label { font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-bottom: 6px; }
@@ -65,7 +65,7 @@
 }
 .bestand-item:hover { background: #f9fafb; }
 .bestand-icon { font-size: 18px; }
-.bestand-naam { flex: 1; font-weight: 500; color: #1a1a2e; }
+.bestand-naam { flex: 1; font-weight: 500; color: #1f2d4e; }
 .bestand-grootte { font-size: 12px; color: #9ca3af; }
 
 /* Reacties */
@@ -76,7 +76,7 @@
   padding: 14px 18px;
 }
 .reactie-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.reactie-header strong { font-size: 14px; color: #1a1a2e; }
+.reactie-header strong { font-size: 14px; color: #1f2d4e; }
 .reactie-datum { font-size: 12px; color: #9ca3af; }
 .reactie-tekst { font-size: 14px; color: #374151; line-height: 1.5; margin: 0; }
 .reactie-empty { font-size: 13px; color: #9ca3af; font-style: italic; padding: 8px 0; }
@@ -92,7 +92,7 @@
   padding: 12px 14px; font-size: 14px; font-family: inherit;
   resize: vertical; margin-bottom: 12px;
 }
-.feedback-textarea:focus { outline: none; border-color: #3b82f6; }
+.feedback-textarea:focus { outline: none; border-color: #2563eb; }
 .actie-buttons { display: flex; gap: 10px; }
 .btn-secondary {
   padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;

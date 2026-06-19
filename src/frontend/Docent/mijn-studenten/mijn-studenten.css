@@ -4,7 +4,7 @@
   width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px;
   font-size: 14px; background: #fff;
 }
-.search-box input:focus { outline: none; border-color: #3b82f6; }
+.search-box input:focus { outline: none; border-color: #2563eb; }
 
 /* Tabel */
 .studenten-table {
@@ -28,14 +28,14 @@
   color: #2563eb; font-weight: 700; font-size: 13px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.student-name { font-weight: 600; color: #1a1a2e; }
+.student-name { font-weight: 600; color: #1f2d4e; }
 .student-sub { font-size: 12px; color: #6b7280; }
 
 /* Voortgang bar */
 .voortgang-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 140px; }
 .voortgang-label { font-size: 12px; color: #6b7280; }
 .voortgang-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
-.voortgang-fill { height: 100%; background: #3b82f6; border-radius: 3px; }
+.voortgang-fill { height: 100%; background: #2563eb; border-radius: 3px; }
 
 /* Status badges */
 .status-tag {
@@ -49,6 +49,6 @@
 /* Bekijk knop */
 .btn-bekijk {
   padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
-  background: #3b82f6; color: #fff; border: none; text-decoration: none; cursor: pointer;
+  background: #2563eb; color: #fff; border: none; text-decoration: none; cursor: pointer;
 }
 .btn-bekijk:hover { background: #2563eb; }

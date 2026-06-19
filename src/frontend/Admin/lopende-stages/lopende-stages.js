@@ -77,6 +77,8 @@ function updateTabCounts() {
     alleStages.filter(s => s.status === "wacht_op_ondertekening").length;
   document.getElementById("tabActiefCount").textContent =
     alleStages.filter(s => s.status === "actief").length;
+  document.getElementById("tabAfgerondCount").textContent =
+    alleStages.filter(s => s.status === "afgerond").length;
 }
 
 function renderTabel() {
