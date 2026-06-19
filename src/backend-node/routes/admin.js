@@ -140,18 +140,28 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
 // PUT /api/admin/gebruikers/:id — gebruiker bewerken
 router.put('/gebruikers/:id', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { voornaam, achternaam, email, actief, wachtwoord } = req.body;
-    if (voornaam && achternaam && email) {
+    const { voornaam, achternaam, email, actief, wachtwoord, rollen } = req.body;
+    const gebruikerId = req.params.id;
+
+    if (voornaam && email) {
       await db.query(
         'UPDATE gebruiker SET voornaam = ?, achternaam = ?, email = ?, actief = ? WHERE id = ?',
-        [voornaam, achternaam, email, actief, req.params.id]
+        [voornaam, achternaam || '', email, actief, gebruikerId]
       );
     } else {
-      await db.query('UPDATE gebruiker SET actief = ? WHERE id = ?', [actief, req.params.id]);
+      await db.query('UPDATE gebruiker SET actief = ? WHERE id = ?', [actief, gebruikerId]);
     }
     if (wachtwoord && wachtwoord.length >= 8) {
       const hash = await bcrypt.hash(wachtwoord, 10);
-      await db.query('UPDATE gebruiker SET wachtwoord_hash = ? WHERE id = ?', [hash, req.params.id]);
+      await db.query('UPDATE gebruiker SET wachtwoord_hash = ? WHERE id = ?', [hash, gebruikerId]);
+    }
+    if (rollen && Array.isArray(rollen)) {
+      await db.query('DELETE FROM gebruiker_rol WHERE gebruiker_id = ?', [gebruikerId]);
+      for (const rolNaam of rollen) {
+        await db.query('INSERT IGNORE INTO rol (naam) VALUES (?)', [rolNaam]);
+        const [[rol]] = await db.query('SELECT id FROM rol WHERE naam = ?', [rolNaam]);
+        await db.query('INSERT INTO gebruiker_rol (gebruiker_id, rol_id) VALUES (?, ?)', [gebruikerId, rol.id]);
+      }
     }
     res.json({ message: 'Gebruiker bijgewerkt.' });
   } catch (err) {

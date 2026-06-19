@@ -71,8 +71,8 @@
 
     var prevRolEl = document.getElementById('prevRol');
     if (gekozenRol && prevRolEl) {
-      var labelMap = { student: 'Student', docent: 'Docent', stagementor: 'Stagementor', commissielid: 'Commissie', admin: 'Admin', mentor: 'Mentor' };
-      var classMap = { student: 'badge badge-student', docent: 'badge badge-docent', stagementor: 'badge badge-stagementor', commissielid: 'badge badge-commissie', admin: 'badge badge-admin', mentor: 'badge badge-stagementor' };
+      var labelMap = { student: 'Student', docent: 'Docent', mentor: 'Stagementor', commissielid: 'Commissie', admin: 'Admin', bedrijf: 'Bedrijf' };
+      var classMap = { student: 'badge badge-student', docent: 'badge badge-docent', mentor: 'badge badge-stagementor', commissielid: 'badge badge-commissie', admin: 'badge badge-admin', bedrijf: 'badge badge-bedrijf' };
       prevRolEl.textContent = labelMap[gekozenRol.value] || gekozenRol.value;
       prevRolEl.className   = classMap[gekozenRol.value] || 'badge';
     }
@@ -116,6 +116,7 @@
           achternaam: achternaamEl.value,
           email: emailEl.value,
           actief: actief,
+          rollen: [gekozenRol.value],
           wachtwoord: (document.getElementById('nieuwWachtwoord') || {}).value || undefined
         })
       });
