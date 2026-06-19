@@ -284,7 +284,9 @@ async function selectEvalType(type) {
   const isTussen = type === "tussentijds";
   document.getElementById("evalMentorLabel").textContent = isTussen ? "Mentor — tussentijds" : "Score mentor";
   document.getElementById("evalDocentLabel").textContent = isTussen ? "Jouw tussentijdse score" : "Jouw eindscore";
-  document.getElementById("evalEindcijferTitle").textContent = isTussen ? "Officieel tussentijdse cijfer" : "Officieel eindcijfer";
+  document.getElementById("evalEindcijferTitle").textContent = isTussen ? "Officieel tussentijds cijfer" : "Officieel eindcijfer";
+  document.getElementById("evalEindcijferSub").textContent =
+    "Het totaalpunt dat de student krijgt. Standaard gebaseerd op de mentorscores, aanpasbaar indien gemotiveerd.";
   document.getElementById("btnEvalIndienen").textContent = isTussen ? "Tussentijdse indienen" : "Eindbeoordeling definitief indienen";
   document.getElementById("btnEvalIndienen").className = isTussen ? "btn btn-primary" : "btn btn-danger";
 
@@ -296,26 +298,28 @@ async function selectEvalType(type) {
 function renderEvalScores() {
   if (!currentEval) return;
   const comps = evalCompetentiesData.length > 0 ? evalCompetentiesData : [];
-  let mentorTotal = 0, docentTotal = 0, mentorCount = 0, docentCount = 0;
+  let mentorTotal = 0, mentorCount = 0;
 
   comps.forEach(comp => {
     (comp.scores || []).forEach(sc => {
       if (sc.score_mentor) { mentorTotal += sc.score_mentor; mentorCount++; }
-      if (sc.score_docent) { docentTotal += sc.score_docent; docentCount++; }
     });
   });
 
   const mentorAvg = mentorCount > 0 ? ((mentorTotal / mentorCount) * 4).toFixed(1) : "—";
-  const docentAvg = docentCount > 0 ? ((docentTotal / docentCount) * 4).toFixed(1) : "—";
+  const docentTotaal = currentEval.officieel_eindcijfer != null
+    ? Number(currentEval.officieel_eindcijfer).toFixed(1)
+    : mentorAvg;
 
   document.getElementById("evalMentorScore").textContent = mentorAvg + "/20";
-  document.getElementById("evalDocentScore").textContent = docentAvg + "/20";
-  document.getElementById("evalDocentSub").textContent = docentCount > 0 ? docentCount + " ingevuld" : "berekend uit competenties";
+  document.getElementById("evalDocentScore").textContent = docentTotaal + "/20";
+  document.getElementById("evalDocentSub").textContent =
+    currentEval.officieel_eindcijfer != null ? "totaalpunt docent" : "gebaseerd op mentorscores";
 
-  if (currentEval.officieel_eindcijfer) {
+  if (currentEval.officieel_eindcijfer != null) {
     document.getElementById("evalEindcijferInput").value = currentEval.officieel_eindcijfer;
   } else {
-    document.getElementById("evalEindcijferInput").value = docentAvg !== "—" ? docentAvg : "";
+    document.getElementById("evalEindcijferInput").value = mentorAvg !== "—" ? mentorAvg : "";
   }
 
   if (currentEval.globale_feedback) {
@@ -323,6 +327,12 @@ function renderEvalScores() {
   } else {
     document.getElementById("evalFeedbackTextarea").value = "";
   }
+
+  document.getElementById("evalEindcijferInput").oninput = function () {
+    const waarde = this.value ? Number(this.value).toFixed(1) : mentorAvg;
+    document.getElementById("evalDocentScore").textContent = waarde + "/20";
+    document.getElementById("evalDocentSub").textContent = this.value ? "totaalpunt docent" : "gebaseerd op mentorscores";
+  };
 }
 
 async function laadEvalDetail() {
@@ -363,11 +373,6 @@ function verzamelInputsNaarMemory() {
   if (!detail) return;
   const comp = evalCompetentiesData.find(c => c.competentie_id == activeCompId);
   if (!comp) return;
-  detail.querySelectorAll(".eval-score-input").forEach(inp => {
-    const subId = parseInt(inp.getAttribute("data-sub-id"));
-    const sc = (comp.scores || []).find(s => s.subcompetentie_id === subId);
-    if (sc) sc.score_docent = parseInt(inp.value) || null;
-  });
   detail.querySelectorAll(".eval-feedback-input").forEach(inp => {
     const subId = parseInt(inp.getAttribute("data-sub-id"));
     const sc = (comp.scores || []).find(s => s.subcompetentie_id === subId);
@@ -376,9 +381,10 @@ function verzamelInputsNaarMemory() {
 }
 
 function selectComp(compId) {
-  // Bewaar huidige inputs in memory + persisteer voor we wisselen
-  verzamelInputsNaarMemory();
-  saveScores();
+  if (activeCompId) {
+    verzamelInputsNaarMemory();
+    saveScores();
+  }
 
   activeCompId = compId;
   document.querySelectorAll(".eval-comp-item").forEach(el => {
@@ -400,14 +406,6 @@ function selectComp(compId) {
     html += '</div>';
 
     html += '<div class="eval-score-row">';
-    // Score (docent)
-    html += '<div class="eval-field"><span class="eval-field-label">Score (jouw beoordeling)</span>';
-    if (isReadonly) {
-      html += '<div class="eval-field-readonly">' + (sc.score_docent || "—") + '</div>';
-    } else {
-      html += '<input type="number" min="1" max="5" value="' + (sc.score_docent || "") + '" data-sub-id="' + sc.subcompetentie_id + '" class="eval-score-input" placeholder="1-5" />';
-    }
-    html += '</div>';
     // Score (mentor) — read-only
     html += '<div class="eval-field"><span class="eval-field-label">Score (mentor)</span>';
     html += '<div class="eval-field-readonly">' + (sc.score_mentor || "—") + '</div>';
@@ -436,7 +434,7 @@ function selectComp(compId) {
 
   // Auto-save on change
   if (!isReadonly) {
-    detail.querySelectorAll(".eval-score-input, .eval-feedback-input").forEach(el => {
+    detail.querySelectorAll(".eval-feedback-input").forEach(el => {
       el.addEventListener("change", () => saveScores());
     });
   }
@@ -444,15 +442,9 @@ function selectComp(compId) {
 
 async function saveScores() {
   const detail = document.getElementById("evalDetail");
-  const scoreInputs = detail.querySelectorAll(".eval-score-input");
   const feedbackInputs = detail.querySelectorAll(".eval-feedback-input");
 
   const scoresMap = {};
-  scoreInputs.forEach(inp => {
-    const subId = inp.getAttribute("data-sub-id");
-    if (!scoresMap[subId]) scoresMap[subId] = {};
-    scoresMap[subId].score_docent = parseInt(inp.value) || null;
-  });
   feedbackInputs.forEach(inp => {
     const subId = inp.getAttribute("data-sub-id");
     if (!scoresMap[subId]) scoresMap[subId] = {};
@@ -461,7 +453,6 @@ async function saveScores() {
 
   const scores = Object.entries(scoresMap).map(([subId, data]) => ({
     subcompetentie_id: parseInt(subId),
-    score_docent: data.score_docent,
     feedback_docent: data.feedback_docent || ""
   }));
 
