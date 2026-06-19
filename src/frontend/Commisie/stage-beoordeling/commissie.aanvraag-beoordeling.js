@@ -167,6 +167,30 @@ function vulPaginaIn(d) {
   txt("histIngediend",   `${naam} · ${formatDateTime(d.aangemaakt_op)}`);
   txt("histBehandeling", `Automatisch · ${formatDateTime(d.aangemaakt_op)}`);
 
+  // Overeenkomst-knop tonen wanneer de stage in de onderteken-fase zit
+  const btnOvk = document.getElementById('btnOvereenkomst');
+  if (btnOvk && ['wacht_op_overeenkomst', 'goedgekeurd', 'actief'].includes(d.status)) {
+    btnOvk.href = '../../Student/stageovereenkomst-document/stageovereenkomst-document.html?stage_id=' + d.id;
+    btnOvk.style.display = 'inline-flex';
+  }
+
+  // Read-only modus: enkel ingediend en aanpassingen_vereist mogen nog beslist worden
+  const mogenBeslissen = ['ingediend', 'aanpassingen_vereist'].includes(d.status);
+  if (!mogenBeslissen) {
+    document.querySelectorAll('.beslissing-option').forEach(el => {
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.5';
+    });
+    const btn = document.getElementById('btnBeslissing');
+    if (btn) { btn.disabled = true; btn.style.display = 'none'; }
+    const fbText = document.getElementById('feedbackText');
+    if (fbText) fbText.disabled = true;
+    const docSel = document.getElementById('docentSelect');
+    if (docSel) docSel.disabled = true;
+    const sideTitle = document.querySelector('.side-card-title');
+    if (sideTitle) sideTitle.textContent = 'Reeds beoordeeld';
+  }
+
   // Voorselecteren huidige docent in dropdown
   if (d.docent_id) {
     const select = document.getElementById("docentSelect");
