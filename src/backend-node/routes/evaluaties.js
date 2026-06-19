@@ -199,7 +199,7 @@ router.post('/', authMiddleware, hasRole('docent', 'admin'), async (req, res) =>
   }
 });
 
-// PUT /api/evaluaties/:id/scores — docent werkt scores bij
+// PUT /api/evaluaties/:id/scores — docent werkt totaalpunt en feedback bij
 router.put('/:id/scores', authMiddleware, hasRole('docent', 'admin'), async (req, res) => {
   const { scores, officieel_eindcijfer, globale_feedback } = req.body;
 
@@ -225,7 +225,6 @@ router.put('/:id/scores', authMiddleware, hasRole('docent', 'admin'), async (req
         if (!s.subcompetentie_id) continue;
         const updates = [];
         const params = [];
-        if (s.score_docent !== undefined) { updates.push('score_docent = ?'); params.push(s.score_docent); }
         if (s.feedback_docent !== undefined) { updates.push('feedback_docent = ?'); params.push(s.feedback_docent); }
         if (updates.length > 0) {
           params.push(req.params.id, s.subcompetentie_id);
