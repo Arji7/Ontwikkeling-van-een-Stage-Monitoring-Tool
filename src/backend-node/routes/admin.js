@@ -121,12 +121,6 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
             [gebruikerId, bedrijf_id || null, functie || null]
           );
         }
-        if (rolNaam === 'bedrijf') {
-          await db.query(
-            'INSERT IGNORE INTO mentor (gebruiker_id, bedrijf_id) VALUES (?, ?)',
-            [gebruikerId, bedrijf_id || null]
-          );
-        }
       }
     }
 
