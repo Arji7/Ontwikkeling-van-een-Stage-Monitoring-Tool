@@ -157,6 +157,29 @@ body {
 .btn-primary:hover { background: var(--primary-hover); }
 .btn-danger { background: var(--danger); color: #fff; }
 .btn-danger:hover { background: var(--danger-hover); }
+.btn-sign {
+  background: #fff;
+  color: var(--primary);
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.08);
+  gap: 8px;
+  text-decoration: none;
+}
+.btn-sign:hover {
+  background: var(--primary-soft);
+  border-color: #93c5fd;
+  color: var(--primary-hover);
+}
+.btn-sign .btn-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
 
 /* ===== RECHTERKOLOM ===== */
 .detail-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
