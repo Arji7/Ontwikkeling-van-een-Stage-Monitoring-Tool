@@ -73,10 +73,6 @@
                 <input type="radio" name="rol" value="commissielid" />
                 <span class="rol-label">Stagecommissie</span>
               </label>
-              <label class="rol-option">
-                <input type="radio" name="rol" value="bedrijf" />
-                <span class="rol-label">Bedrijf</span>
-              </label>
             </div>
           </section>
 
@@ -150,65 +146,6 @@
                 <select id="mentorBedrijf">
                   <option value="">— Geen bedrijf gekoppeld —</option>
                 </select>
-              </div>
-            </section>
-
-            <!-- BEDRIJF VELDEN -->
-            <section class="form-section" id="bedrijfVelden" style="display:none">
-              <h2>Bedrijfsgegevens</h2>
-              <p class="section-sub">Koppel aan een bestaand of nieuw bedrijf</p>
-              <div class="field">
-                <label>Bedrijf selecteren</label>
-                <select id="bedrijfSelect">
-                  <option value="">— Nieuw bedrijf aanmaken —</option>
-                </select>
-              </div>
-              <div id="nieuwBedrijfVelden">
-                <div class="field">
-                  <label>Bedrijfsnaam <span class="req">*</span></label>
-                  <input type="text" id="bedrijfNaam" placeholder="bijv. TechCorp BV" />
-                </div>
-                <div class="field-row">
-                  <div class="field">
-                    <label>Sector</label>
-                    <input type="text" id="bedrijfSector" placeholder="bijv. IT & Software" />
-                  </div>
-                  <div class="field">
-                    <label>Website</label>
-                    <input type="text" id="bedrijfWebsite" placeholder="bijv. www.techcorp.be" />
-                  </div>
-                </div>
-                <div class="field">
-                  <label>Adres</label>
-                  <input type="text" id="bedrijfAdres" placeholder="bijv. Wetstraat 12" />
-                </div>
-                <div class="field-row">
-                  <div class="field">
-                    <label>Postcode</label>
-                    <input type="text" id="bedrijfPostcode" placeholder="bijv. 1000" />
-                  </div>
-                  <div class="field">
-                    <label>Stad</label>
-                    <input type="text" id="bedrijfStad" placeholder="bijv. Brussel" />
-                  </div>
-                </div>
-                <div class="field">
-                  <label>BTW-nummer</label>
-                  <input type="text" id="bedrijfBtw" placeholder="bijv. BE0123.456.789" />
-                </div>
-              </div>
-
-              <h2 style="margin-top:24px">Inloggegevens bedrijf</h2>
-              <p class="section-sub">E-mail en wachtwoord waarmee het bedrijf kan inloggen</p>
-              <div class="field">
-                <label>E-mailadres <span class="req">*</span></label>
-                <input type="email" id="bedrijfEmail" placeholder="info@techcorp.be" />
-                <span class="field-hint">Dit wordt het inlogadres van het bedrijf</span>
-              </div>
-              <div class="field">
-                <label>Tijdelijk wachtwoord <span class="req">*</span></label>
-                <input type="password" id="bedrijfWachtwoord" placeholder="Min. 8 tekens" minlength="8" />
-                <span class="field-hint">Het bedrijf kan dit later zelf wijzigen</span>
               </div>
             </section>
 
