@@ -17,6 +17,18 @@ const requiredFields = {
   omschrijving: "Omschrijving is verplicht.",
 };
 
+// ── Datum-restrictie: enkel toekomstige datums ──
+document.addEventListener("DOMContentLoaded", function () {
+  var vandaag = new Date().toISOString().split("T")[0];
+  var startInput = document.getElementById("startDatum");
+  var eindInput  = document.getElementById("eindDatum");
+  if (startInput) startInput.min = vandaag;
+  if (eindInput)  eindInput.min  = vandaag;
+  if (startInput) startInput.addEventListener("change", function () {
+    if (eindInput && startInput.value) eindInput.min = startInput.value;
+  });
+});
+
 // ── EDIT MODE: bestaande gegevens vooraf invullen ──
 if (isEditMode) {
   document.addEventListener("DOMContentLoaded", laadStage);
@@ -95,6 +107,15 @@ form.addEventListener("submit", function (event) {
 
   const start = document.getElementById("startDatum").value;
   const eind  = document.getElementById("eindDatum").value;
+  const vandaag = new Date().toISOString().split("T")[0];
+  if (start && start < vandaag) {
+    showError("startDatum", "Startdatum mag niet in het verleden liggen.");
+    isValid = false;
+  }
+  if (eind && eind < vandaag) {
+    showError("eindDatum", "Einddatum mag niet in het verleden liggen.");
+    isValid = false;
+  }
   if (start && eind && eind < start) {
     showError("eindDatum", "Einddatum moet na de startdatum liggen.");
     isValid = false;

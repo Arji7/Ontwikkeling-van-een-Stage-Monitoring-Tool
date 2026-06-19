@@ -50,8 +50,19 @@ const ARTIKEL_TEKSTEN = {
 // MOET vóór router.get('/:id') staan, anders matcht :id de path 'overeenkomst-document'
 router.get('/overeenkomst-document', authMiddleware, async (req, res) => {
   try {
-    const studentId = await getStudentId(req.user.id);
-    if (!studentId) return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
+    // Staf met expliciet stage_id mag elk overeenkomst-document ophalen
+    const stageIdParam = req.query.stage_id ? parseInt(req.query.stage_id, 10) : null;
+    let whereClause = '';
+    let params = [];
+    if (stageIdParam && isStaf(req.user)) {
+      whereClause = 'WHERE s.id = ?';
+      params = [stageIdParam];
+    } else {
+      const studentId = await getStudentId(req.user.id);
+      if (!studentId) return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
+      whereClause = `WHERE s.student_id = ? AND s.status IN ('goedgekeurd', 'wacht_op_overeenkomst', 'actief')`;
+      params = [studentId];
+    }
 
     const [rijen] = await db.query(
       `SELECT s.id           AS stage_id,
@@ -78,11 +89,10 @@ router.get('/overeenkomst-document', authMiddleware, async (req, res) => {
        LEFT JOIN academiejaar aj ON aj.id = s.academiejaar_id
        LEFT JOIN docent       d  ON d.id  = s.docent_id
        LEFT JOIN gebruiker    dg ON dg.id = d.gebruiker_id
-       WHERE s.student_id = ?
-         AND s.status IN ('goedgekeurd', 'wacht_op_overeenkomst', 'actief')
+       ${whereClause}
        ORDER BY s.aangemaakt_op DESC
        LIMIT 1`,
-      [studentId]
+      params
     );
 
     if (rijen.length === 0) {
@@ -141,28 +151,23 @@ async function getOndertekenaars(stageId, currentGebruikerId, r) {
 
   const studentNaam = ((r.student_voornaam || '') + ' ' + (r.student_achternaam || '')).trim() || '—';
   const mentorNaam = r.contact_naam || '—';
+  const labels = { student: 'Student', mentor: 'Stagementor', commissielid: 'Stagecommissie' };
 
   function bouw(rol, naam) {
     const t = tekens.find(t => t.rol === rol);
     if (t) {
       return {
         naam: ((t.voornaam || '') + ' ' + (t.achternaam || '')).trim() || naam,
-        rol: rol === 'student' ? 'Student' : (rol === 'mentor' ? 'Stagementor' : 'Schoolbegeleider'),
+        rol: labels[rol] || rol,
         status: 'ondertekend',
         datum: t.ondertekend_op ? new Date(t.ondertekend_op).toLocaleDateString('nl-BE') : '',
         isHuidigeGebruiker: t.gebruiker_id === currentGebruikerId
       };
     }
-    return {
-      naam: naam,
-      rol: rol === 'student' ? 'Student' : 'Stagementor',
-      status: 'in_afwachting',
-      datum: '',
-      isHuidigeGebruiker: false
-    };
+    return { naam: naam, rol: labels[rol] || rol, status: 'in_afwachting', datum: '', isHuidigeGebruiker: false };
   }
 
-  return [bouw('student', studentNaam), bouw('mentor', mentorNaam)];
+  return [bouw('student', studentNaam), bouw('mentor', mentorNaam), bouw('commissielid', 'Stagecommissie')];
 }
 
 // POST /api/stages — stagevoorstel indienen
@@ -551,6 +556,11 @@ router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'),
     }
     const oudeStatus = stageRows[0].status;
 
+    // Definitieve beslissingen kunnen niet meer worden herzien
+    if (['goedgekeurd', 'afgekeurd', 'wacht_op_overeenkomst', 'actief'].includes(oudeStatus)) {
+      return res.status(400).json({ error: 'Deze aanvraag is al definitief beoordeeld en kan niet meer worden gewijzigd.' });
+    }
+
     await db.query(
       `INSERT INTO beslissing (stage_id, commissielid_id, beslissing, opmerking)
        VALUES (?, ?, ?, ?)`,
@@ -619,6 +629,8 @@ router.post('/:id/onderteken', authMiddleware, async (req, res) => {
       rol = 'student';
     } else if (rollen.includes('mentor') && req.user.email && stage.contact_email && req.user.email.toLowerCase() === stage.contact_email.toLowerCase()) {
       rol = 'mentor';
+    } else if (rollen.includes('commissielid') || rollen.includes('admin')) {
+      rol = 'commissielid';
     }
     if (!rol) return res.status(403).json({ error: 'Niet bevoegd om deze stage te ondertekenen.' });
 
@@ -660,7 +672,7 @@ router.post('/:id/onderteken', authMiddleware, async (req, res) => {
       [overeenkomstId]
     );
     const rollenGetekend = alleTekens.map(t => t.rol);
-    const alleGetekend = rollenGetekend.includes('student') && rollenGetekend.includes('mentor');
+    const alleGetekend = rollenGetekend.includes('student') && rollenGetekend.includes('mentor') && rollenGetekend.includes('commissielid');
 
     if (alleGetekend) {
       await db.query("UPDATE stage SET status = 'actief' WHERE id = ?", [stageId]);

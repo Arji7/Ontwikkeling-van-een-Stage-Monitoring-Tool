@@ -102,8 +102,10 @@
             <div class="date-arrow">→</div>
             <div class="date-block">
               <label>Einddatum</label>
-              <span class="date-value" id="stageEind">—</span>
-              <span class="date-chip" id="stageWeken">—</span>
+              <div class="date-value-row">
+                <span class="date-value" id="stageEind">—</span>
+                <span class="date-chip" id="stageWeken">—</span>
+              </div>
             </div>
           </div>
         </div>
@@ -148,6 +150,7 @@
         <!-- Actieknoppen onderaan -->
         <div class="detail-bottom-actions">
           <a class="btn btn-danger" href="../aanvragen.overzicht/aanvragen.overzicht.html">Terug</a>
+          <a class="btn btn-secondary" id="btnOvereenkomst" style="display:none;" href="#">Overeenkomst bekijken/tekenen</a>
           <button class="btn btn-primary" id="btnBeslissing">Beslissing versturen →</button>
         </div>
       </div>
@@ -186,7 +189,7 @@
           </div>
 
           <div class="feedback-wrap">
-            <label class="feedback-label">Opmerking / feedback <span class="opt">(optioneel bij Goedkeuren)</span></label>
+            <label class="feedback-label">Opmerking / feedback</label>
             <textarea id="feedbackText" placeholder="Typ hier je opmerking voor de student…" rows="4"></textarea>
           </div>
 

@@ -42,7 +42,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 async function laadOvereenkomst(token) {
   try {
-    const res = await fetch(API_BASE + "/stages/overeenkomst-document", {
+    const urlStageId = new URLSearchParams(window.location.search).get("stage_id");
+    const endpoint = urlStageId
+      ? API_BASE + "/stages/overeenkomst-document?stage_id=" + encodeURIComponent(urlStageId)
+      : API_BASE + "/stages/overeenkomst-document";
+    const res = await fetch(endpoint, {
       headers: { Authorization: "Bearer " + token },
     });
 

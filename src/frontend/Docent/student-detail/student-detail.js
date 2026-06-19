@@ -357,7 +357,29 @@ function renderCompSidebar() {
   });
 }
 
+function verzamelInputsNaarMemory() {
+  if (!activeCompId || !currentEval) return;
+  const detail = document.getElementById("evalDetail");
+  if (!detail) return;
+  const comp = evalCompetentiesData.find(c => c.competentie_id == activeCompId);
+  if (!comp) return;
+  detail.querySelectorAll(".eval-score-input").forEach(inp => {
+    const subId = parseInt(inp.getAttribute("data-sub-id"));
+    const sc = (comp.scores || []).find(s => s.subcompetentie_id === subId);
+    if (sc) sc.score_docent = parseInt(inp.value) || null;
+  });
+  detail.querySelectorAll(".eval-feedback-input").forEach(inp => {
+    const subId = parseInt(inp.getAttribute("data-sub-id"));
+    const sc = (comp.scores || []).find(s => s.subcompetentie_id === subId);
+    if (sc) sc.feedback_docent = inp.value;
+  });
+}
+
 function selectComp(compId) {
+  // Bewaar huidige inputs in memory + persisteer voor we wisselen
+  verzamelInputsNaarMemory();
+  saveScores();
+
   activeCompId = compId;
   document.querySelectorAll(".eval-comp-item").forEach(el => {
     el.classList.toggle("active", el.getAttribute("data-comp-id") == compId);

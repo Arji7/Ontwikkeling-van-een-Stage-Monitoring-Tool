@@ -455,21 +455,37 @@
     bindEvalHeaderEvents(tussentijds, eind, actief);
 
     el('evaluatiesContent').querySelectorAll('.eval-comp-item').forEach(function (item) {
-      item.addEventListener('click', function () {
+      item.addEventListener('click', async function () {
+        captureInputsToPending();
+        if (actief && Object.keys(evalState.pendingScores).length) {
+          await slaEvalOp(actief.id);
+        }
         evalState.actieveComp = parseInt(item.dataset.idx, 10);
         renderEvaluatiesInhoud();
       });
     });
 
     el('evaluatiesContent').querySelectorAll('[data-key]').forEach(function (inp) {
-      inp.addEventListener('change', function () {
-        var key = inp.dataset.key, field = inp.dataset.field;
-        if (!evalState.pendingScores[key]) evalState.pendingScores[key] = {};
-        evalState.pendingScores[key][field] = inp.value;
+      ['change', 'input'].forEach(function (evt) {
+        inp.addEventListener(evt, function () {
+          var key = inp.dataset.key, field = inp.dataset.field;
+          if (!evalState.pendingScores[key]) evalState.pendingScores[key] = {};
+          evalState.pendingScores[key][field] = inp.value;
+        });
       });
     });
 
     el('btnEvalSave').addEventListener('click', function () { slaEvalOp(actief.id); });
+  }
+
+  function captureInputsToPending() {
+    var container = el('evaluatiesContent');
+    if (!container) return;
+    container.querySelectorAll('[data-key]').forEach(function (inp) {
+      var key = inp.dataset.key, field = inp.dataset.field;
+      if (!evalState.pendingScores[key]) evalState.pendingScores[key] = {};
+      evalState.pendingScores[key][field] = inp.value;
+    });
   }
 
   function bindEvalHeaderEvents(tussentijds, eind, actief) {

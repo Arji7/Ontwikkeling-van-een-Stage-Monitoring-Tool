@@ -95,7 +95,19 @@ function renderCompSidebar(competenties) {
   document.getElementById("compSidebarList").innerHTML = html;
 }
 
+function verzamelReflectiesNaarMemory() {
+  if (!currentEval || currentCompIdx == null) return;
+  var huidigeComp = currentEval.competenties[currentCompIdx];
+  if (!huidigeComp) return;
+  document.querySelectorAll(".gi-reflectie").forEach(function (ta) {
+    var subId = parseInt(ta.dataset.subId);
+    var sc = (huidigeComp.scores || []).find(function (s) { return s.subcompetentie_id === subId; });
+    if (sc) sc.student_reflectie = ta.value;
+  });
+}
+
 function selectComp(idx) {
+  verzamelReflectiesNaarMemory();
   currentCompIdx = idx;
   var items = document.querySelectorAll(".comp-sidebar-item");
   items.forEach(function (el) { el.classList.remove("active"); });
@@ -166,17 +178,17 @@ async function saveReflecties() {
   var token = sessionStorage.getItem("token");
   if (!token || !currentEval) return;
 
-  var textareas = document.querySelectorAll(".gi-reflectie");
+  // Eerst zichtbare textareas naar memory schrijven, dan ALLE competenties uit memory verzamelen
+  verzamelReflectiesNaarMemory();
   var reflecties = [];
-  textareas.forEach(function (ta) {
-    reflecties.push({
-      subcompetentie_id: parseInt(ta.dataset.subId),
-      student_reflectie: ta.value.trim() || null
+  (currentEval.competenties || []).forEach(function (c) {
+    (c.scores || []).forEach(function (s) {
+      reflecties.push({
+        subcompetentie_id: s.subcompetentie_id,
+        student_reflectie: (s.student_reflectie || '').trim() || null
+      });
     });
   });
-
-  // Also gather from other competenties (not currently displayed)
-  // We only save what's currently visible - user navigates per comp
   try {
     var res = await fetch(API_BASE_URL + "/evaluaties/" + currentEval.id + "/reflectie", {
       method: "PUT",
