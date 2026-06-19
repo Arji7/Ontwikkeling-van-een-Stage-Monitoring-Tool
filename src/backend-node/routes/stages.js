@@ -481,7 +481,9 @@ router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, re
               g.email       AS student_email,
               dg.voornaam   AS docent_voornaam,
               dg.achternaam AS docent_achternaam,
-              so2.status    AS overeenkomst_status
+              so2.status    AS overeenkomst_status,
+              EXISTS(SELECT 1 FROM overeenkomst_handtekening oh
+                     WHERE oh.overeenkomst_id = so2.id AND oh.rol = 'commissielid') AS commissie_getekend
        FROM stage s
        LEFT JOIN bedrijf  b  ON b.id  = s.bedrijf_id
        LEFT JOIN student  st ON st.id = s.student_id
