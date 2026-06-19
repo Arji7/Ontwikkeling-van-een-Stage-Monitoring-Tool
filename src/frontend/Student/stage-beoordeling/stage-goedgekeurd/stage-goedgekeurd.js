@@ -32,6 +32,11 @@ fetch(API_BASE + '/stages/mijn', {
     document.getElementById('remarkTekst').textContent = '"' + stage.feedback + '"';
     wrap.style.display = 'block';
   }
+
+  var btnOvereenkomst = document.getElementById('btnOvereenkomst');
+  if (btnOvereenkomst && stage.id) {
+    btnOvereenkomst.href = '../../stageovereenkomst-document/stageovereenkomst-document.html';
+  }
 })
 .catch(function(err) { console.error('Kon stage niet ophalen:', err); });
 
