@@ -15,10 +15,8 @@
   var studentVelden      = document.getElementById('studentVelden');
   var docentVelden       = document.getElementById('docentVelden');
   var mentorVelden       = document.getElementById('mentorVelden');
-  var bedrijfVelden      = document.getElementById('bedrijfVelden');
-  var nieuwBedrijfVelden = document.getElementById('nieuwBedrijfVelden');
-  var bedrijfSelect      = document.getElementById('bedrijfSelect');
-  var mentorBedrijf      = document.getElementById('mentorBedrijf');
+  var bedrijfVelden = document.getElementById('bedrijfVelden');
+  var mentorBedrijf = document.getElementById('mentorBedrijf');
 
   var headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
 
@@ -33,12 +31,11 @@
   emailEl.addEventListener('input', updatePreview);
   wachtwoordEl.addEventListener('input', updateChecklist);
 
-  bedrijfSelect.addEventListener('change', function () {
-    nieuwBedrijfVelden.style.display = bedrijfSelect.value === '' ? '' : 'none';
-  });
-
-  // Bedrijf email/wachtwoord ook luisteren voor preview
   document.getElementById('bedrijfEmail').addEventListener('input', updatePreview);
+  document.getElementById('bedrijfNaam').addEventListener('input', updateChecklist);
+  document.getElementById('bedrijfEmail').addEventListener('input', updateChecklist);
+  document.getElementById('bedrijfWachtwoord').addEventListener('input', updateChecklist);
+  document.getElementById('bedrijfNaam').addEventListener('input', updatePreview);
 
   async function laadBedrijven() {
     try {
@@ -46,11 +43,10 @@
       if (!res.ok) return;
       var bedrijven = await res.json();
       bedrijven.forEach(function (b) {
-        var opt1 = document.createElement('option');
-        opt1.value = b.id;
-        opt1.textContent = b.naam + (b.stad ? ' — ' + b.stad : '');
-        bedrijfSelect.appendChild(opt1);
-        mentorBedrijf.appendChild(opt1.cloneNode(true));
+        var opt = document.createElement('option');
+        opt.value = b.id;
+        opt.textContent = b.naam + (b.stad ? ' — ' + b.stad : '');
+        mentorBedrijf.appendChild(opt);
       });
     } catch (err) { console.error('Bedrijven laden fout:', err); }
   }
@@ -68,6 +64,7 @@
         select.appendChild(opt);
       });
     } catch (err) { console.error('Opleidingen laden fout:', err); }
+
   }
 
   function onRolChange() {
@@ -77,15 +74,16 @@
     var isBedrijf = rol === 'bedrijf';
 
     stapGegevens.style.display = '';
-
-    // Account sectie (voornaam, achternaam, email, ww) verbergen bij bedrijf
     accountSectie.style.display = isBedrijf ? 'none' : '';
 
-    // Required aanpassen
     voornaamEl.required   = !isBedrijf;
     achternaamEl.required = !isBedrijf;
     emailEl.required      = !isBedrijf;
     wachtwoordEl.required = !isBedrijf;
+    voornaamEl.disabled   = isBedrijf;
+    achternaamEl.disabled = isBedrijf;
+    emailEl.disabled      = isBedrijf;
+    wachtwoordEl.disabled = isBedrijf;
 
     studentVelden.style.display = 'none';
     docentVelden.style.display  = 'none';
@@ -148,12 +146,6 @@
     }
   }
 
-  // Luister ook op bedrijf velden voor checklist
-  document.getElementById('bedrijfNaam').addEventListener('input', updateChecklist);
-  document.getElementById('bedrijfEmail').addEventListener('input', updateChecklist);
-  document.getElementById('bedrijfWachtwoord').addEventListener('input', updateChecklist);
-  document.getElementById('bedrijfNaam').addEventListener('input', updatePreview);
-
   function setCheck(id, ok) {
     var el = document.getElementById(id);
     if (el) el.classList.toggle('done', ok);
@@ -170,14 +162,13 @@
     var rol = gekozenRol.value;
     var isBedrijf = rol === 'bedrijf';
 
-    // Validatie
     if (isBedrijf) {
       var bEmail = document.getElementById('bedrijfEmail').value.trim();
       var bWw    = document.getElementById('bedrijfWachtwoord').value;
       if (!bEmail) { toonFeedback('Vul een e-mailadres in voor het bedrijf.', 'error'); return; }
       if (!bWw || bWw.length < 8) { toonFeedback('Wachtwoord moet minimaal 8 tekens zijn.', 'error'); return; }
-      if (bedrijfSelect.value === '' && !document.getElementById('bedrijfNaam').value.trim()) {
-        toonFeedback('Vul een bedrijfsnaam in of selecteer een bestaand bedrijf.', 'error');
+      if (!document.getElementById('bedrijfNaam').value.trim()) {
+        toonFeedback('Vul een bedrijfsnaam in.', 'error');
         return;
       }
     }
@@ -188,44 +179,30 @@
     try {
       var bedrijf_id = null;
 
-      // Bedrijf aanmaken of selecteren
-      if (rol === 'bedrijf' || rol === 'mentor') {
-        var selectEl = rol === 'bedrijf' ? bedrijfSelect : mentorBedrijf;
-        if (rol === 'bedrijf') {
-          if (selectEl.value !== '') {
-            bedrijf_id = parseInt(selectEl.value);
-          } else {
-            var bRes = await fetch(API_BASE + '/admin/bedrijven', {
-              method: 'POST', headers: headers,
-              body: JSON.stringify({
-                naam: document.getElementById('bedrijfNaam').value.trim(),
-                sector: (document.getElementById('bedrijfSector').value || '').trim(),
-                adres: (document.getElementById('bedrijfAdres').value || '').trim(),
-                postcode: (document.getElementById('bedrijfPostcode').value || '').trim(),
-                stad: (document.getElementById('bedrijfStad').value || '').trim(),
-                website: (document.getElementById('bedrijfWebsite').value || '').trim(),
-                btw_nummer: (document.getElementById('bedrijfBtw').value || '').trim()
-              })
-            });
-            if (!bRes.ok) { var bErr = await bRes.json(); throw new Error(bErr.error || 'Bedrijf aanmaken mislukt.'); }
-            bedrijf_id = (await bRes.json()).id;
-          }
-        } else if (selectEl.value) {
-          bedrijf_id = parseInt(selectEl.value);
-        }
+      if (rol === 'bedrijf') {
+        var bRes = await fetch(API_BASE + '/admin/bedrijven', {
+          method: 'POST', headers: headers,
+          body: JSON.stringify({
+            naam: document.getElementById('bedrijfNaam').value.trim(),
+            sector: (document.getElementById('bedrijfSector').value || '').trim(),
+            adres: (document.getElementById('bedrijfAdres').value || '').trim(),
+            postcode: (document.getElementById('bedrijfPostcode').value || '').trim(),
+            stad: (document.getElementById('bedrijfStad').value || '').trim(),
+            website: (document.getElementById('bedrijfWebsite').value || '').trim(),
+            btw_nummer: (document.getElementById('bedrijfBtw').value || '').trim()
+          })
+        });
+        var bData = await bRes.json();
+        if (!bRes.ok) throw new Error(bData.error || 'Bedrijf aanmaken mislukt.');
+        bedrijf_id = bData.id;
+      } else if (rol === 'mentor' && mentorBedrijf.value) {
+        bedrijf_id = parseInt(mentorBedrijf.value);
       }
 
-      // Gebruiker body
       var body = { rollen: [rol], bedrijf_id: bedrijf_id };
 
       if (isBedrijf) {
-        // Bij bedrijf: bedrijfsnaam als voor+achternaam, bedrijf email/ww
-        var bNaamVal = document.getElementById('bedrijfNaam').value.trim();
-        if (bedrijfSelect.value !== '') {
-          var geselecteerd = bedrijfSelect.options[bedrijfSelect.selectedIndex].textContent.split(' — ')[0];
-          bNaamVal = geselecteerd;
-        }
-        body.voornaam   = bNaamVal;
+        body.voornaam   = document.getElementById('bedrijfNaam').value.trim();
         body.achternaam = '';
         body.email      = document.getElementById('bedrijfEmail').value.trim();
         body.wachtwoord = document.getElementById('bedrijfWachtwoord').value;
@@ -237,8 +214,9 @@
       }
 
       if (rol === 'student') {
-        body.studentnummer = (document.getElementById('studentNummer').value || '').trim();
-        body.opleiding_id  = document.getElementById('studentOpleiding').value || null;
+        body.studentnummer  = (document.getElementById('studentNummer').value || '').trim();
+        body.opleiding_id   = document.getElementById('studentOpleiding').value || null;
+        body.academiejaar = document.getElementById('studentAcademiejaar').value || null;
       }
       if (rol === 'docent') {
         body.titel = (document.getElementById('docentTitel').value || '').trim();

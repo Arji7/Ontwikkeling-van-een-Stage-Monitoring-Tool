@@ -39,6 +39,17 @@ router.get('/stats', authMiddleware, hasRole('admin'), async (req, res) => {
   }
 });
 
+// GET /api/admin/academiejaren
+router.get('/academiejaren', authMiddleware, hasRole('admin'), async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT id, naam, actief FROM academiejaar ORDER BY naam DESC');
+    res.json(rows);
+  } catch (err) {
+    console.error('Academiejaren ophalen fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
 // GET /api/admin/gebruikers — alle gebruikers met rollen
 router.get('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
@@ -61,8 +72,8 @@ router.get('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => 
 // POST /api/admin/gebruikers — nieuwe gebruiker aanmaken
 router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { voornaam, achternaam, email, wachtwoord, rollen, bedrijf_id, studentnummer, opleiding_id, titel, functie } = req.body;
-    if (!voornaam || !achternaam || !email || !wachtwoord) {
+    const { voornaam, achternaam, email, wachtwoord, rollen, bedrijf_id, studentnummer, opleiding_id, academiejaar, titel, functie } = req.body;
+    if (!voornaam || !email || !wachtwoord) {
       return res.status(400).json({ error: 'Vul alle velden in.' });
     }
 
@@ -86,9 +97,19 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
         );
         if (rolNaam === 'student') {
           const nr = studentnummer || ('STU' + String(gebruikerId).padStart(5, '0'));
+          let ajId = null;
+          if (academiejaar) {
+            const [[bestaandAj]] = await db.query('SELECT id FROM academiejaar WHERE naam = ?', [academiejaar]);
+            if (bestaandAj) {
+              ajId = bestaandAj.id;
+            } else {
+              const [ajResult] = await db.query('INSERT INTO academiejaar (naam) VALUES (?)', [academiejaar]);
+              ajId = ajResult.insertId;
+            }
+          }
           await db.query(
-            'INSERT INTO student (gebruiker_id, studentnummer, opleiding_id) VALUES (?, ?, ?)',
-            [gebruikerId, nr, opleiding_id || null]
+            'INSERT INTO student (gebruiker_id, studentnummer, opleiding_id, academiejaar_id) VALUES (?, ?, ?, ?)',
+            [gebruikerId, nr, opleiding_id || null, ajId]
           );
         }
         if (rolNaam === 'docent') {

@@ -125,6 +125,10 @@
                   </select>
                 </div>
               </div>
+              <div class="field">
+                <label>Academiejaar</label>
+                <input type="text" id="studentAcademiejaar" placeholder="bijv. 2025-2026" />
+              </div>
             </section>
 
             <!-- DOCENT VELDEN -->
@@ -156,14 +160,7 @@
             <!-- BEDRIJF VELDEN -->
             <section class="form-section" id="bedrijfVelden" style="display:none">
               <h2>Bedrijfsgegevens</h2>
-              <p class="section-sub">Koppel aan een bestaand of nieuw bedrijf</p>
-              <div class="field">
-                <label>Bedrijf selecteren</label>
-                <select id="bedrijfSelect">
-                  <option value="">— Nieuw bedrijf aanmaken —</option>
-                </select>
-              </div>
-              <div id="nieuwBedrijfVelden">
+              <p class="section-sub">Vul de gegevens in van het nieuwe bedrijf</p>
                 <div class="field">
                   <label>Bedrijfsnaam <span class="req">*</span></label>
                   <input type="text" id="bedrijfNaam" placeholder="bijv. TechCorp BV" />
@@ -196,7 +193,6 @@
                   <label>BTW-nummer</label>
                   <input type="text" id="bedrijfBtw" placeholder="bijv. BE0123.456.789" />
                 </div>
-              </div>
 
               <h2 style="margin-top:24px">Inloggegevens bedrijf</h2>
               <p class="section-sub">E-mail en wachtwoord waarmee het bedrijf kan inloggen</p>
