@@ -7,6 +7,7 @@
 
     var isDocent    = rollen.indexOf('docent') !== -1;
     var isCommissie = rollen.indexOf('commissielid') !== -1 || rollen.indexOf('admin') !== -1;
+    var isStudent   = rollen.indexOf('student') !== -1;
     var isCombined  = isDocent && isCommissie;
 
     var root        = window.FRONTEND_ROOT || '../../';
@@ -21,7 +22,7 @@
       addLink(nav, root + 'Docent/dashboard/dashboard.html',          'Dashboard',       currentPage === 'docent-dashboard');
       addLink(nav, root + 'Docent/mijn-studenten/mijn-studenten.html','Mijn studenten',  ['mijn-studenten','logboek-inkijken','student-detail','rubriek'].indexOf(currentPage) !== -1);
       addLabel(nav, 'Stagecommissie');
-      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Stageaanvragen', ['commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
+      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Stageaanvragen', ['commissie-aanvragen','commissie-beoordeling','stageovereenkomst-ondertekend'].indexOf(currentPage) !== -1);
       addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html', 'Lopende stages', currentPage === 'commissie-lopende-stages');
 
     } else if (isDocent) {
@@ -29,8 +30,14 @@
       addLink(nav, root + 'Docent/mijn-studenten/mijn-studenten.html','Mijn studenten', ['mijn-studenten','logboek-inkijken','student-detail','rubriek'].indexOf(currentPage) !== -1);
 
     } else if (isCommissie) {
-      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',    ['commissie-aanvragen','commissie-beoordeling'].indexOf(currentPage) !== -1);
+      addLink(nav, root + 'Commisie/aanvragen.overzicht/aanvragen.overzicht.html', 'Aanvragen',    ['commissie-aanvragen','commissie-beoordeling','stageovereenkomst-ondertekend'].indexOf(currentPage) !== -1);
       addLink(nav, root + 'Commisie/lopende-stages/lopende-stages.html', 'Lopende stages', currentPage === 'commissie-lopende-stages');
+
+    } else if (isStudent) {
+      addLink(nav, root + 'Student/empty-stage/empty-stage.html', 'Dashboard', currentPage === 'student-dashboard');
+      addLink(nav, root + 'Student/mijn-stage/mijn-stage.html', 'Mijn stage', ['student-mijn-stage','stageovereenkomst-ondertekend'].indexOf(currentPage) !== -1);
+      addLink(nav, root + 'Student/logboeken/logboeken.html', 'Logboeken', currentPage === 'student-logboeken');
+      addLink(nav, root + 'Student/evaluaties/evaluaties.html', 'Evaluaties', currentPage === 'student-evaluaties');
     }
 
     // Rolnaam in sidebar footer aanpassen
@@ -39,6 +46,7 @@
       if (isCombined)       roleEl.textContent = 'Docent · Commissie';
       else if (isDocent)    roleEl.textContent = 'Docent';
       else if (isCommissie) roleEl.textContent = 'Stagecommissie';
+      else if (isStudent)   roleEl.textContent = 'Student';
     }
 
     // Naam + avatar invullen (beide ID-conventies worden ondersteund)

@@ -233,7 +233,7 @@ async function bevestigOndertekening(token) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Ondertekenen mislukt.");
 
-    window.location.href = "../stageovereenkomst-ondertekend/stageovereenkomst-ondertekend.html";
+    window.location.href = "../stageovereenkomst-ondertekend/stageovereenkomst-ondertekend.html?stage_id=" + encodeURIComponent(huidigeStageId);
   } catch (err) {
     console.error("Kon niet ondertekenen:", err);
     errEl.textContent = err.message || "Er ging iets mis.";

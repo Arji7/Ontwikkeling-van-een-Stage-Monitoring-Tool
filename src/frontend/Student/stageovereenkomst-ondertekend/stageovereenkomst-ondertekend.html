@@ -13,18 +13,13 @@
     <aside class="sidebar">
       <div class="sidebar-brand">StageMonitor</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
-      <nav class="sidebar-nav">
-        <a href="../empty-stage/empty-stage.html" class="nav-item active">Dashboard</a>
-        <a href="../mijn-stage/mijn-stage.html" class="nav-item">Mijn stage</a>
-        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
-        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
-      </nav>
+      <nav class="sidebar-nav"></nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
           <div class="user-avatar" id="sidebarUserAvatar">??</div>
           <div class="user-info">
             <span class="user-name" id="sidebarUserName">...</span>
-            <span class="user-role">Student</span>
+            <span class="user-role">...</span>
           </div>
         </div>
         <a href="../../inloggen/inloggen.html" class="sidebar-logout" onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
@@ -66,16 +61,12 @@
   </div>
 
   <script src="../../config.js"></script>
-  <script src="stageovereenkomst-ondertekend.js"></script>
   <script>
-    (function () {
-      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
-      var name = u.name || "Student";
-      var nEl = document.getElementById("sidebarUserName");
-      var aEl = document.getElementById("sidebarUserAvatar");
-      if (nEl) nEl.textContent = name;
-      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
-    })();
+    window.SIDEBAR_PAGE = 'stageovereenkomst-ondertekend';
+    window.FRONTEND_ROOT = '../../';
   </script>
+  <script src="../../sidebar-builder.js"></script>
+  <script src="stageovereenkomst-ondertekend.js"></script>
+  <script src="../sidebar-lock.js"></script>
 </body>
 </html>
