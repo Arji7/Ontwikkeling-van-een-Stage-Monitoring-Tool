@@ -64,6 +64,7 @@
         select.appendChild(opt);
       });
     } catch (err) { console.error('Opleidingen laden fout:', err); }
+
   }
 
   function onRolChange() {
@@ -213,8 +214,9 @@
       }
 
       if (rol === 'student') {
-        body.studentnummer = (document.getElementById('studentNummer').value || '').trim();
-        body.opleiding_id  = document.getElementById('studentOpleiding').value || null;
+        body.studentnummer  = (document.getElementById('studentNummer').value || '').trim();
+        body.opleiding_id   = document.getElementById('studentOpleiding').value || null;
+        body.academiejaar = document.getElementById('studentAcademiejaar').value || null;
       }
       if (rol === 'docent') {
         body.titel = (document.getElementById('docentTitel').value || '').trim();
