@@ -20,6 +20,19 @@ async function getStudentId(gebruikerId) {
   return rijen[0].id;
 }
 
+async function getBedrijfIdVoorAccount(gebruikerId) {
+  try {
+    const [[bedrijfAccount]] = await db.query(
+      'SELECT bedrijf_id FROM bedrijf_account WHERE gebruiker_id = ?',
+      [gebruikerId]
+    );
+    return bedrijfAccount ? bedrijfAccount.bedrijf_id : null;
+  } catch (err) {
+    if (err && err.code === 'ER_NO_SUCH_TABLE') return null;
+    throw err;
+  }
+}
+
 // Hulpfunctie: heeft de gebruiker een staf-rol (docent/mentor/commissielid/admin)?
 function isStaf(user) {
   const stafRollen = ['docent', 'mentor', 'commissielid', 'admin'];
@@ -58,15 +71,12 @@ router.get('/overeenkomst-document', authMiddleware, async (req, res) => {
       whereClause = 'WHERE s.id = ?';
       params = [stageIdParam];
     } else if (stageIdParam && (req.user.rollen || []).includes('bedrijf')) {
-      const [[bedrijfProfiel]] = await db.query(
-        'SELECT bedrijf_id FROM mentor WHERE gebruiker_id = ?',
-        [req.user.id]
-      );
-      if (!bedrijfProfiel || !bedrijfProfiel.bedrijf_id) {
+      const bedrijfId = await getBedrijfIdVoorAccount(req.user.id);
+      if (!bedrijfId) {
         return res.status(403).json({ error: 'Geen bedrijfprofiel gevonden.' });
       }
       whereClause = 'WHERE s.id = ? AND s.bedrijf_id = ?';
-      params = [stageIdParam, bedrijfProfiel.bedrijf_id];
+      params = [stageIdParam, bedrijfId];
     } else {
       const studentId = await getStudentId(req.user.id);
       if (!studentId) return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
@@ -377,6 +387,42 @@ router.get('/mentor/mijn', authMiddleware, async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error('Mentor stages fout:', err);
+    res.status(500).json({ error: 'Serverfout.' });
+  }
+});
+
+// GET /api/stages/bedrijf/mijn — stages van ingelogd bedrijf
+router.get('/bedrijf/mijn', authMiddleware, hasRole('bedrijf'), async (req, res) => {
+  try {
+    const bedrijfId = await getBedrijfIdVoorAccount(req.user.id);
+
+    if (!bedrijfId) {
+      return res.status(403).json({ error: 'Geen bedrijf gekoppeld aan dit account.' });
+    }
+
+    const [rows] = await db.query(
+      `SELECT s.*,
+              b.naam        AS bedrijf_naam,
+              sg.voornaam   AS student_voornaam,
+              sg.achternaam AS student_achternaam,
+              sg.email      AS student_email,
+              dg.voornaam   AS docent_voornaam,
+              dg.achternaam AS docent_achternaam
+       FROM stage s
+       LEFT JOIN bedrijf   b  ON b.id  = s.bedrijf_id
+       LEFT JOIN student   st ON st.id = s.student_id
+       LEFT JOIN gebruiker sg ON sg.id = st.gebruiker_id
+       LEFT JOIN docent    d  ON d.id  = s.docent_id
+       LEFT JOIN gebruiker dg ON dg.id = d.gebruiker_id
+       WHERE s.bedrijf_id = ?
+         AND s.status IN ('goedgekeurd', 'wacht_op_overeenkomst', 'actief')
+       ORDER BY s.aangemaakt_op DESC`,
+      [bedrijfId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('Bedrijf stages fout:', err);
     res.status(500).json({ error: 'Serverfout.' });
   }
 });
@@ -745,13 +791,13 @@ router.post('/:id/onderteken', authMiddleware, async (req, res) => {
 
     const rollen = req.user.rollen || [];
     let rol = null;
-    let bedrijfProfiel = null;
+    let bedrijfId = null;
     if (rollen.includes('bedrijf')) {
-      [[bedrijfProfiel]] = await db.query('SELECT bedrijf_id FROM mentor WHERE gebruiker_id = ?', [req.user.id]);
+      bedrijfId = await getBedrijfIdVoorAccount(req.user.id);
     }
     if (rollen.includes('student') && stage.student_gebruiker_id === req.user.id) {
       rol = 'student';
-    } else if (rollen.includes('bedrijf') && bedrijfProfiel && bedrijfProfiel.bedrijf_id === stage.bedrijf_id) {
+    } else if (rollen.includes('bedrijf') && bedrijfId && Number(bedrijfId) === Number(stage.bedrijf_id)) {
       rol = 'bedrijf';
     } else if (rollen.includes('commissielid') || rollen.includes('admin')) {
       rol = 'commissielid';
