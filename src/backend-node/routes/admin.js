@@ -91,8 +91,8 @@ router.get('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => 
 // POST /api/admin/gebruikers — nieuwe gebruiker aanmaken
 router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { voornaam, achternaam, email, persoonlijke_email, wachtwoord, rollen, bedrijf_id, studentnummer, opleiding_id, titel, functie } = req.body;
-    if (!voornaam || !email || !persoonlijke_email || !wachtwoord) {
+    const { voornaam, achternaam, email, wachtwoord, rollen, bedrijf_id, studentnummer, opleiding_id, academiejaar, titel, functie } = req.body;
+    if (!email || !wachtwoord) {
       return res.status(400).json({ error: 'Vul alle velden in.' });
     }
 
@@ -101,8 +101,8 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
 
     const hash = await bcrypt.hash(wachtwoord, 10);
     const [result] = await db.query(
-      'INSERT INTO gebruiker (voornaam, achternaam, email, persoonlijke_email, wachtwoord_hash, actief) VALUES (?, ?, ?, ?, ?, TRUE)',
-      [voornaam, achternaam, email, persoonlijke_email, hash]
+      'INSERT INTO gebruiker (voornaam, achternaam, email, wachtwoord_hash, actief) VALUES (?, ?, ?, ?, TRUE)',
+      [voornaam || '', achternaam || '', email, hash]
     );
     const gebruikerId = result.insertId;
 
@@ -130,22 +130,27 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
             [gebruikerId, bedrijf_id || null, functie || null]
           );
         }
-        if (rolNaam === 'bedrijf') {
+        if (rolNaam === 'bedrijf' && bedrijf_id) {
           await db.query(
-            'INSERT INTO bedrijf_account (gebruiker_id, bedrijf_id) VALUES (?, ?)',
-            [gebruikerId, bedrijf_id || null]
+            'INSERT INTO mentor (gebruiker_id, bedrijf_id) VALUES (?, ?)',
+            [gebruikerId, bedrijf_id]
           );
         }
       }
     }
 
-    const mailResultaat = await stuurAccountgegevensMail({
-      naar: persoonlijke_email,
-      naam: `${voornaam || ''} ${achternaam || ''}`.trim(),
-      accountEmail: email,
-      tijdelijkWachtwoord: wachtwoord,
-      rollen
-    });
+    let mailResultaat = { verzonden: false, reden: 'Geen persoonlijke email opgegeven' };
+    try {
+      mailResultaat = await stuurAccountgegevensMail({
+        naar: email,
+        naam: `${voornaam || ''} ${achternaam || ''}`.trim(),
+        accountEmail: email,
+        tijdelijkWachtwoord: wachtwoord,
+        rollen
+      });
+    } catch (mailErr) {
+      console.error('Mail verzenden fout:', mailErr);
+    }
 
     res.status(201).json({
       id: gebruikerId,
