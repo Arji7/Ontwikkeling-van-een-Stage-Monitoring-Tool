@@ -3,6 +3,7 @@ const router  = express.Router();
 const db      = require('../db');
 const { authMiddleware } = require('../middleware/authMiddelware');
 const bcrypt  = require('bcrypt');
+const { stuurAccountgegevensMail } = require('../utils/accountMailer');
 
 function hasRole(...rollen) {
   return (req, res, next) => {
@@ -11,6 +12,18 @@ function hasRole(...rollen) {
     if (!heeftRol) return res.status(403).json({ error: 'Geen toegang.' });
     next();
   };
+}
+
+async function heeftKolom(tabel, kolom) {
+  const [[result]] = await db.query(
+    `SELECT COUNT(*) AS aantal
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = ?
+       AND COLUMN_NAME = ?`,
+    [tabel, kolom]
+  );
+  return result.aantal > 0;
 }
 
 // GET /api/admin/stats — dashboard statistieken
@@ -53,8 +66,14 @@ router.get('/academiejaren', authMiddleware, hasRole('admin'), async (req, res) 
 // GET /api/admin/gebruikers — alle gebruikers met rollen
 router.get('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
+    const persoonlijkeEmailSelect = await heeftKolom('gebruiker', 'persoonlijke_email')
+      ? 'g.persoonlijke_email'
+      : "''";
+
     const [rows] = await db.query(
-      `SELECT g.id, g.voornaam, g.achternaam, g.email, g.actief, g.aangemaakt_op,
+      `SELECT g.id, g.voornaam, g.achternaam, g.email,
+              ${persoonlijkeEmailSelect} AS persoonlijke_email,
+              g.actief, g.aangemaakt_op,
               GROUP_CONCAT(r.naam SEPARATOR ', ') AS rollen
        FROM gebruiker g
        LEFT JOIN gebruiker_rol gr ON gr.gebruiker_id = g.id
@@ -72,8 +91,8 @@ router.get('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => 
 // POST /api/admin/gebruikers — nieuwe gebruiker aanmaken
 router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { voornaam, achternaam, email, wachtwoord, rollen, bedrijf_id, studentnummer, opleiding_id, academiejaar, titel, functie } = req.body;
-    if (!voornaam || !email || !wachtwoord) {
+    const { voornaam, achternaam, email, persoonlijke_email, wachtwoord, rollen, bedrijf_id, studentnummer, opleiding_id, titel, functie } = req.body;
+    if (!voornaam || !email || !persoonlijke_email || !wachtwoord) {
       return res.status(400).json({ error: 'Vul alle velden in.' });
     }
 
@@ -82,8 +101,8 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
 
     const hash = await bcrypt.hash(wachtwoord, 10);
     const [result] = await db.query(
-      'INSERT INTO gebruiker (voornaam, achternaam, email, wachtwoord_hash, actief) VALUES (?, ?, ?, ?, TRUE)',
-      [voornaam, achternaam, email, hash]
+      'INSERT INTO gebruiker (voornaam, achternaam, email, persoonlijke_email, wachtwoord_hash, actief) VALUES (?, ?, ?, ?, ?, TRUE)',
+      [voornaam, achternaam, email, persoonlijke_email, hash]
     );
     const gebruikerId = result.insertId;
 
@@ -97,19 +116,9 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
         );
         if (rolNaam === 'student') {
           const nr = studentnummer || ('STU' + String(gebruikerId).padStart(5, '0'));
-          let ajId = null;
-          if (academiejaar) {
-            const [[bestaandAj]] = await db.query('SELECT id FROM academiejaar WHERE naam = ?', [academiejaar]);
-            if (bestaandAj) {
-              ajId = bestaandAj.id;
-            } else {
-              const [ajResult] = await db.query('INSERT INTO academiejaar (naam) VALUES (?)', [academiejaar]);
-              ajId = ajResult.insertId;
-            }
-          }
           await db.query(
-            'INSERT INTO student (gebruiker_id, studentnummer, opleiding_id, academiejaar_id) VALUES (?, ?, ?, ?)',
-            [gebruikerId, nr, opleiding_id || null, ajId]
+            'INSERT INTO student (gebruiker_id, studentnummer, opleiding_id) VALUES (?, ?, ?)',
+            [gebruikerId, nr, opleiding_id || null]
           );
         }
         if (rolNaam === 'docent') {
@@ -121,10 +130,29 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
             [gebruikerId, bedrijf_id || null, functie || null]
           );
         }
+        if (rolNaam === 'bedrijf') {
+          await db.query(
+            'INSERT INTO bedrijf_account (gebruiker_id, bedrijf_id) VALUES (?, ?)',
+            [gebruikerId, bedrijf_id || null]
+          );
+        }
       }
     }
 
-    res.status(201).json({ id: gebruikerId, message: 'Gebruiker aangemaakt.' });
+    const mailResultaat = await stuurAccountgegevensMail({
+      naar: persoonlijke_email,
+      naam: `${voornaam || ''} ${achternaam || ''}`.trim(),
+      accountEmail: email,
+      tijdelijkWachtwoord: wachtwoord,
+      rollen
+    });
+
+    res.status(201).json({
+      id: gebruikerId,
+      message: 'Gebruiker aangemaakt.',
+      mail_verzonden: mailResultaat.verzonden,
+      mail_status: mailResultaat.reden || 'Verzonden'
+    });
   } catch (err) {
     console.error('Admin gebruiker aanmaken fout:', err);
     res.status(500).json({ error: 'Serverfout.' });
@@ -134,13 +162,13 @@ router.post('/gebruikers', authMiddleware, hasRole('admin'), async (req, res) =>
 // PUT /api/admin/gebruikers/:id — gebruiker bewerken
 router.put('/gebruikers/:id', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { voornaam, achternaam, email, actief, wachtwoord, rollen } = req.body;
+    const { voornaam, achternaam, email, persoonlijke_email, actief, wachtwoord, rollen } = req.body;
     const gebruikerId = req.params.id;
 
     if (voornaam && email) {
       await db.query(
-        'UPDATE gebruiker SET voornaam = ?, achternaam = ?, email = ?, actief = ? WHERE id = ?',
-        [voornaam, achternaam || '', email, actief, gebruikerId]
+        'UPDATE gebruiker SET voornaam = ?, achternaam = ?, email = ?, persoonlijke_email = ?, actief = ? WHERE id = ?',
+        [voornaam, achternaam || '', email, persoonlijke_email || null, actief, gebruikerId]
       );
     } else {
       await db.query('UPDATE gebruiker SET actief = ? WHERE id = ?', [actief, gebruikerId]);

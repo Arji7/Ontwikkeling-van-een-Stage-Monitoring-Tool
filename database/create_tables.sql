@@ -18,6 +18,7 @@ CREATE TABLE gebruiker (
   voornaam        VARCHAR(100) NOT NULL,
   achternaam      VARCHAR(100) NOT NULL,
   email           VARCHAR(255) NOT NULL UNIQUE,
+  persoonlijke_email VARCHAR(255),
   wachtwoord_hash VARCHAR(255) NOT NULL,
   actief          BOOLEAN      NOT NULL DEFAULT TRUE,
   aangemaakt_op   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -73,10 +74,8 @@ CREATE TABLE student (
   gebruiker_id    INT NOT NULL UNIQUE,
   studentnummer   VARCHAR(20) UNIQUE,
   opleiding_id    INT,
-  academiejaar_id INT,
   FOREIGN KEY (gebruiker_id)    REFERENCES gebruiker(id)    ON DELETE CASCADE,
-  FOREIGN KEY (opleiding_id)    REFERENCES opleiding(id)    ON DELETE SET NULL,
-  FOREIGN KEY (academiejaar_id) REFERENCES academiejaar(id) ON DELETE SET NULL
+  FOREIGN KEY (opleiding_id)    REFERENCES opleiding(id)    ON DELETE SET NULL
 );
 
 CREATE TABLE docent (
@@ -104,6 +103,15 @@ CREATE TABLE mentor (
   gebruiker_id INT NOT NULL UNIQUE,
   bedrijf_id   INT,
   functie      VARCHAR(100),
+  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE,
+  FOREIGN KEY (bedrijf_id)   REFERENCES bedrijf(id)   ON DELETE SET NULL
+);
+
+CREATE TABLE bedrijf_account (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  gebruiker_id  INT NOT NULL UNIQUE,
+  bedrijf_id    INT,
+  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE,
   FOREIGN KEY (bedrijf_id)   REFERENCES bedrijf(id)   ON DELETE SET NULL
 );
