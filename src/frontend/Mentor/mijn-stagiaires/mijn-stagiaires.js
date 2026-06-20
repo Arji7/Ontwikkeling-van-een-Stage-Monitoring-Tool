@@ -68,8 +68,12 @@
       var naam     = esc((s.student_voornaam || '') + ' ' + (s.student_achternaam || ''));
       var init     = naam.trim().split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
       var k        = kleur(naam);
-      var huidig   = s.huidige_week  || 0;
-      var totaal   = s.totaal_weken  || 14;
+      var totaal   = s.startdatum && s.einddatum
+        ? Math.max(1, Math.round((new Date(s.einddatum) - new Date(s.startdatum)) / (7*24*60*60*1000)))
+        : (s.totaal_weken || 14);
+      var huidig   = s.startdatum
+        ? Math.max(0, Math.min(totaal, Math.round((new Date() - new Date(s.startdatum)) / (7*24*60*60*1000))))
+        : (s.huidige_week || 0);
       var pct      = Math.min(100, Math.round((huidig / totaal) * 100));
       var cat      = stageCategorie(s);
       var pgKlasse = cat === 'actief' ? 'actief' : cat === 'afgerond' ? 'afgerond' : 'inactief';
