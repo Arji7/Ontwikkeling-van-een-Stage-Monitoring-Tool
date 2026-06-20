@@ -26,9 +26,13 @@
   laadBedrijven();
   laadOpleidingen();
 
+  var commissieCheckWrap = document.getElementById('commissieCheckWrap');
+  var ookCommissieEl = document.getElementById('ookCommissie');
+
   document.querySelectorAll('input[name="rol"]').forEach(function (r) {
     r.addEventListener('change', onRolChange);
   });
+  ookCommissieEl.addEventListener('change', updatePreview);
   voornaamEl.addEventListener('input', updatePreview);
   achternaamEl.addEventListener('input', updatePreview);
   emailEl.addEventListener('input', updatePreview);
@@ -102,6 +106,8 @@
     docentVelden.style.display  = 'none';
     mentorVelden.style.display  = 'none';
     bedrijfVelden.style.display = 'none';
+    commissieCheckWrap.style.display = rol === 'docent' ? '' : 'none';
+    if (rol !== 'docent') ookCommissieEl.checked = false;
 
     switch (rol) {
       case 'student': studentVelden.style.display = ''; break;
@@ -156,7 +162,9 @@
     if (gekozenRol) {
       var labelMap = { student: 'Student', docent: 'Docent', mentor: 'Stagementor', commissielid: 'Commissie', bedrijf: 'Bedrijf' };
       var classMap = { student: 'badge-student', docent: 'badge-docent', mentor: 'badge-stagementor', commissielid: 'badge-commissie', bedrijf: 'badge-bedrijf' };
-      prevRolEl.textContent = labelMap[rol] || rol;
+      var rolLabel = labelMap[rol] || rol;
+      if (rol === 'docent' && ookCommissieEl.checked) rolLabel += ' + Commissie';
+      prevRolEl.textContent = rolLabel;
       prevRolEl.className   = 'badge ' + (classMap[rol] || '');
     } else {
       prevRolEl.textContent = '—';
@@ -245,7 +253,9 @@
         bedrijf_id = parseInt(mentorBedrijf.value, 10);
       }
 
-      var body = { rollen: [rol], bedrijf_id: bedrijf_id };
+      var rollen = [rol];
+      if (rol === 'docent' && ookCommissieEl.checked) rollen.push('commissielid');
+      var body = { rollen: rollen, bedrijf_id: bedrijf_id };
 
       if (isBedrijf) {
         body.voornaam   = getGeselecteerdeBedrijfsnaam() || document.getElementById('bedrijfNaam').value.trim();

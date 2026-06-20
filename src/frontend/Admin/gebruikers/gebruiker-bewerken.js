@@ -9,6 +9,8 @@
   const persoonlijkeEmailEl = document.getElementById('persoonlijkeEmail');
   const feedbackMsg  = document.getElementById('feedbackMsg');
   const submitBtn    = document.getElementById('submitBtn');
+  const commissieCheckWrap = document.getElementById('commissieCheckWrap');
+  const ookCommissieEl = document.getElementById('ookCommissie');
 
   document.addEventListener('DOMContentLoaded', async () => {
     if (!gebruikerId) {
@@ -36,9 +38,14 @@
       persoonlijkeEmailEl.value = gebruiker.persoonlijke_email || '';
 
       var rollen = gebruiker.rollen ? gebruiker.rollen.split(', ') : [];
-      var eersteRol = rollen[0] || 'student';
-      var rolRadio  = document.querySelector('input[name="rol"][value="' + eersteRol + '"]');
+      var hoofdRol = rollen.includes('docent') ? 'docent' : (rollen[0] || 'student');
+      var rolRadio  = document.querySelector('input[name="rol"][value="' + hoofdRol + '"]');
       if (rolRadio) rolRadio.checked = true;
+
+      if (hoofdRol === 'docent') {
+        commissieCheckWrap.style.display = '';
+        if (rollen.includes('commissielid')) ookCommissieEl.checked = true;
+      }
 
       var statusVal   = (gebruiker.actief === 1 || gebruiker.actief === true) ? 'actief' : 'inactief';
       var statusRadio = document.querySelector('input[name="status"][value="' + statusVal + '"]');
@@ -59,7 +66,15 @@
     achternaamEl.addEventListener('input', updatePreview);
     emailEl.addEventListener('input', updatePreview);
     persoonlijkeEmailEl.addEventListener('input', updatePreview);
-    document.querySelectorAll('input[name="rol"]').forEach(function (r) { r.addEventListener('change', updatePreview); });
+    ookCommissieEl.addEventListener('change', updatePreview);
+    document.querySelectorAll('input[name="rol"]').forEach(function (r) {
+      r.addEventListener('change', function () {
+        var isDocent = r.value === 'docent' && r.checked;
+        commissieCheckWrap.style.display = isDocent ? '' : 'none';
+        if (!isDocent) ookCommissieEl.checked = false;
+        updatePreview();
+      });
+    });
     document.querySelectorAll('input[name="status"]').forEach(function (r) { r.addEventListener('change', updatePreview); });
   });
 
@@ -89,7 +104,9 @@
     if (gekozenRol && prevRolEl) {
       var labelMap = { student: 'Student', docent: 'Docent', mentor: 'Stagementor', commissielid: 'Commissie', admin: 'Admin', bedrijf: 'Bedrijf' };
       var classMap = { student: 'badge badge-student', docent: 'badge badge-docent', mentor: 'badge badge-stagementor', commissielid: 'badge badge-commissie', admin: 'badge badge-admin', bedrijf: 'badge badge-bedrijf' };
-      prevRolEl.textContent = labelMap[gekozenRol.value] || gekozenRol.value;
+      var rolLabel = labelMap[gekozenRol.value] || gekozenRol.value;
+      if (gekozenRol.value === 'docent' && ookCommissieEl.checked) rolLabel += ' + Commissie';
+      prevRolEl.textContent = rolLabel;
       prevRolEl.className   = classMap[gekozenRol.value] || 'badge';
     }
 
@@ -134,7 +151,9 @@
           email: emailEl.value,
           persoonlijke_email: persoonlijkeEmailEl.value,
           actief: actief,
-          rollen: [gekozenRol.value],
+          rollen: gekozenRol.value === 'docent' && ookCommissieEl.checked
+            ? ['docent', 'commissielid']
+            : [gekozenRol.value],
           wachtwoord: (document.getElementById('nieuwWachtwoord') || {}).value || undefined
         })
       });
