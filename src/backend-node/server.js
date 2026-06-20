@@ -29,6 +29,7 @@ app.use('/api/logboeken',   require('./routes/logboeken'));
 app.use('/api/evaluaties',  require('./routes/evaluaties'));
 app.use('/api/competenties',require('./routes/competenties'));
 app.use('/api/documenten',  require('./routes/documenten'));
+app.use('/api/bedrijven',   require('./routes/bedrijven'));
 app.use('/api/admin',       require('./routes/admin'));
 
 // Start server
