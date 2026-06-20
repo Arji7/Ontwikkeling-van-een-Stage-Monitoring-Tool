@@ -28,6 +28,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     })[0];
 
     // Als niet goedgekeurd: redirect naar passende pagina
+    if (stage.status === "afgerond") {
+      window.location.href = "../stage-beoordeling/stage-afgerond/stage-afgerond.html";
+      return;
+    }
     if (stage.status === "aanpassingen_vereist") {
       window.location.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
       return;
@@ -117,11 +121,11 @@ function vulPaginaIn(d) {
     statusEl.textContent = "Stage loopt";
     statusEl.className = "info-value status-success";
   } else if (d.status === "wacht_op_overeenkomst") {
-    statusEl.textContent = "Goedgekeurd — wacht op overeenkomst";
-    statusEl.className = "info-value status-success";
+    statusEl.textContent = "Wacht op ondertekening";
+    statusEl.className = "info-value status-pending";
   } else {
-    statusEl.textContent = "Goedgekeurd — wacht op overeenkomst";
-    statusEl.className = "info-value status-success";
+    statusEl.textContent = "Goedgekeurd";
+    statusEl.className = "info-value status-pending";
   }
 
   // Stagevoorstel kaart — link + datum
@@ -134,10 +138,15 @@ function vulPaginaIn(d) {
   ["kaartLogboeken", "kaartEvaluaties"].forEach(function (id) {
     const kaart = document.getElementById(id);
     if (!kaart) return;
+    const badge = kaart.querySelector(".card-badge");
     if (!isActief) {
       kaart.style.opacity = "0.55";
       kaart.style.cursor = "not-allowed";
-      kaart.style.pointerEvents = "none"; // blokkeert klikken
+      kaart.style.pointerEvents = "none";
+    } else if (badge) {
+      badge.textContent = "Actief";
+      badge.classList.remove("badge-gray");
+      badge.classList.add("badge-green");
     }
   });
 }
