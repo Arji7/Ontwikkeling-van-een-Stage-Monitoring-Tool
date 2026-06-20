@@ -320,6 +320,16 @@ router.post('/:id/indienen', authMiddleware, hasRole('docent', 'admin'), async (
       return res.status(400).json({ error: 'Alleen evaluaties met status "open" kunnen ingediend worden.' });
     }
 
+    const ev = evaluaties[0];
+    const isEind = ev.type === 'eind';
+    const heeftEindcijfer = ev.officieel_eindcijfer !== null && ev.officieel_eindcijfer !== undefined;
+
+    if (isEind && heeftEindcijfer) {
+      await db.query("UPDATE evaluatie SET status = 'afgerond' WHERE id = ?", [req.params.id]);
+      await db.query("UPDATE stage SET status = 'afgerond' WHERE id = ?", [ev.stage_id]);
+      return res.json({ message: 'Eindevaluatie afgerond, stage afgesloten.', stage_afgerond: true });
+    }
+
     await db.query("UPDATE evaluatie SET status = 'ingediend' WHERE id = ?", [req.params.id]);
     res.json({ message: 'Evaluatie ingediend' });
   } catch (err) {
