@@ -11,7 +11,7 @@ const CONFIG = {
     docent:       "../Docent/dashboard/dashboard.html",
     admin:        "../Admin/Dashboard/dashboard.html",
     mentor:       "../Mentor/dashboard/dashboard.html",
-    bedrijf:      "../Student/stageovereenkomst-document/stageovereenkomst-document.html",
+    bedrijf:      "../Bedrijf/dashboard/dashboard.html",
     commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
   },
   // Prioriteit bij meerdere rollen (hoogste eerst)
