@@ -150,7 +150,10 @@
         <!-- Actieknoppen onderaan -->
         <div class="detail-bottom-actions">
           <a class="btn btn-danger" href="../aanvragen.overzicht/aanvragen.overzicht.html">Terug</a>
-          <a class="btn btn-secondary" id="btnOvereenkomst" style="display:none;" href="#">Overeenkomst bekijken/tekenen</a>
+          <a class="btn btn-sign" id="btnOvereenkomst" style="display:none;" href="#">
+            <span class="btn-icon">✍</span>
+            <span>Overeenkomst bekijken en tekenen</span>
+          </a>
           <button class="btn btn-primary" id="btnBeslissing">Beslissing versturen →</button>
         </div>
       </div>
@@ -173,12 +176,36 @@
         <div class="side-card">
           <div class="side-card-title">Beslissing nemen</div>
 
-          <div class="docent-wrap" style="margin-bottom:14px; display:none;">
-            <label for="docentSelect" style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Begeleidende docent toekennen <span style="font-weight:400; color:#888;">(optioneel)</span></label>
-            <select id="docentSelect" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;">
+          <div class="docent-wrap">
+            <label for="docentSelect" class="docent-label">
+              Begeleidende docent toekennen <span class="opt">(verplicht bij goedkeuren)</span>
+            </label>
+            <select id="docentSelect">
               <option value="">-- Geen docent toekennen --</option>
             </select>
           </div>
+
+          <div class="koppeling-wrap" id="bedrijfKoppelingWrap" style="display:none;">
+            <label for="bedrijfSelect" class="docent-label">
+              Bedrijf koppelen <span class="opt">(uit database)</span>
+            </label>
+            <select id="bedrijfSelect">
+              <option value="">-- Huidig bedrijf behouden --</option>
+            </select>
+          </div>
+
+          <div class="koppeling-wrap" id="mentorKoppelingWrap" style="display:none;">
+            <label for="mentorSelect" class="docent-label">
+              Stagementor koppelen <span class="opt">(uit database)</span>
+            </label>
+            <select id="mentorSelect">
+              <option value="">-- Geen mentoraccount koppelen --</option>
+            </select>
+          </div>
+
+          <button class="btn-koppeling" id="btnKoppelingOpslaan" type="button" style="display:none;">
+            Koppeling opslaan
+          </button>
 
           <div class="beslissing-option beslissing-ok" data-value="goedkeuren" id="optGoedkeuren">
             <span class="beslissing-icon">✅</span>
