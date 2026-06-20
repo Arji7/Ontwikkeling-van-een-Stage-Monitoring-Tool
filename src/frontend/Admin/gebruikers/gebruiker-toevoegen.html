@@ -160,7 +160,16 @@
             <!-- BEDRIJF VELDEN -->
             <section class="form-section" id="bedrijfVelden" style="display:none">
               <h2>Bedrijfsgegevens</h2>
-              <p class="section-sub">Vul de gegevens in van het nieuwe bedrijf</p>
+              <p class="section-sub">Koppel dit account aan een bestaand bedrijf of maak een nieuw bedrijf aan</p>
+                <div class="field">
+                  <label>Bestaand bedrijf koppelen</label>
+                  <select id="bedrijfSelect">
+                    <option value="">— Nieuw bedrijf aanmaken —</option>
+                  </select>
+                  <span class="field-hint">Kies een bestaand bedrijf als het al in de databank staat</span>
+                </div>
+
+              <div id="nieuwBedrijfVelden">
                 <div class="field">
                   <label>Bedrijfsnaam <span class="req">*</span></label>
                   <input type="text" id="bedrijfNaam" placeholder="bijv. TechCorp BV" />
@@ -193,6 +202,7 @@
                   <label>BTW-nummer</label>
                   <input type="text" id="bedrijfBtw" placeholder="bijv. BE0123.456.789" />
                 </div>
+              </div>
 
               <h2 style="margin-top:24px">Inloggegevens bedrijf</h2>
               <p class="section-sub">E-mail en wachtwoord waarmee het bedrijf kan inloggen</p>

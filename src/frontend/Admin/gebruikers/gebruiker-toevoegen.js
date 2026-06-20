@@ -17,6 +17,8 @@
   var mentorVelden       = document.getElementById('mentorVelden');
   var bedrijfVelden = document.getElementById('bedrijfVelden');
   var mentorBedrijf = document.getElementById('mentorBedrijf');
+  var bedrijfSelect = document.getElementById('bedrijfSelect');
+  var nieuwBedrijfVelden = document.getElementById('nieuwBedrijfVelden');
 
   var headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
 
@@ -36,6 +38,7 @@
   document.getElementById('bedrijfEmail').addEventListener('input', updateChecklist);
   document.getElementById('bedrijfWachtwoord').addEventListener('input', updateChecklist);
   document.getElementById('bedrijfNaam').addEventListener('input', updatePreview);
+  bedrijfSelect.addEventListener('change', onBedrijfSelectChange);
 
   async function laadBedrijven() {
     try {
@@ -47,6 +50,11 @@
         opt.value = b.id;
         opt.textContent = b.naam + (b.stad ? ' — ' + b.stad : '');
         mentorBedrijf.appendChild(opt);
+
+        var bedrijfOpt = document.createElement('option');
+        bedrijfOpt.value = b.id;
+        bedrijfOpt.textContent = b.naam + (b.stad ? ' — ' + b.stad : '');
+        bedrijfSelect.appendChild(bedrijfOpt);
       });
     } catch (err) { console.error('Bedrijven laden fout:', err); }
   }
@@ -97,7 +105,30 @@
       case 'bedrijf': bedrijfVelden.style.display = ''; break;
     }
 
+    onBedrijfSelectChange();
     updatePreview();
+  }
+
+  function onBedrijfSelectChange() {
+    var bestaandBedrijfGekozen = !!bedrijfSelect.value;
+
+    nieuwBedrijfVelden.style.display = bestaandBedrijfGekozen ? 'none' : '';
+    document.getElementById('bedrijfNaam').disabled = bestaandBedrijfGekozen;
+    document.getElementById('bedrijfSector').disabled = bestaandBedrijfGekozen;
+    document.getElementById('bedrijfWebsite').disabled = bestaandBedrijfGekozen;
+    document.getElementById('bedrijfAdres').disabled = bestaandBedrijfGekozen;
+    document.getElementById('bedrijfPostcode').disabled = bestaandBedrijfGekozen;
+    document.getElementById('bedrijfStad').disabled = bestaandBedrijfGekozen;
+    document.getElementById('bedrijfBtw').disabled = bestaandBedrijfGekozen;
+
+    updatePreview();
+    updateChecklist();
+  }
+
+  function getGeselecteerdeBedrijfsnaam() {
+    if (!bedrijfSelect.value) return '';
+    var optie = bedrijfSelect.options[bedrijfSelect.selectedIndex];
+    return optie ? optie.textContent.split(' — ')[0].trim() : '';
   }
 
   function updatePreview() {
@@ -107,7 +138,8 @@
 
     if (isBedrijf) {
       var bNaam = (document.getElementById('bedrijfNaam').value || '').trim();
-      document.getElementById('prevNaam').textContent  = bNaam || '—';
+      var gekozenBedrijfsnaam = getGeselecteerdeBedrijfsnaam();
+      document.getElementById('prevNaam').textContent  = gekozenBedrijfsnaam || bNaam || '—';
       document.getElementById('prevEmail').textContent = document.getElementById('bedrijfEmail').value || '—';
     } else {
       var naam = (voornaamEl.value + ' ' + achternaamEl.value).trim();
@@ -136,7 +168,7 @@
     setCheck('chk-rol', !!gekozenRol);
 
     if (isBedrijf) {
-      setCheck('chk-naam',  !!(document.getElementById('bedrijfNaam').value.trim()));
+      setCheck('chk-naam',  !!(bedrijfSelect.value || document.getElementById('bedrijfNaam').value.trim()));
       setCheck('chk-email', !!document.getElementById('bedrijfEmail').value.trim());
       setCheck('chk-ww',    (document.getElementById('bedrijfWachtwoord').value || '').length >= 8);
     } else {
@@ -167,7 +199,7 @@
       var bWw    = document.getElementById('bedrijfWachtwoord').value;
       if (!bEmail) { toonFeedback('Vul een e-mailadres in voor het bedrijf.', 'error'); return; }
       if (!bWw || bWw.length < 8) { toonFeedback('Wachtwoord moet minimaal 8 tekens zijn.', 'error'); return; }
-      if (!document.getElementById('bedrijfNaam').value.trim()) {
+      if (!bedrijfSelect.value && !document.getElementById('bedrijfNaam').value.trim()) {
         toonFeedback('Vul een bedrijfsnaam in.', 'error');
         return;
       }
@@ -180,29 +212,33 @@
       var bedrijf_id = null;
 
       if (rol === 'bedrijf') {
-        var bRes = await fetch(API_BASE + '/admin/bedrijven', {
-          method: 'POST', headers: headers,
-          body: JSON.stringify({
-            naam: document.getElementById('bedrijfNaam').value.trim(),
-            sector: (document.getElementById('bedrijfSector').value || '').trim(),
-            adres: (document.getElementById('bedrijfAdres').value || '').trim(),
-            postcode: (document.getElementById('bedrijfPostcode').value || '').trim(),
-            stad: (document.getElementById('bedrijfStad').value || '').trim(),
-            website: (document.getElementById('bedrijfWebsite').value || '').trim(),
-            btw_nummer: (document.getElementById('bedrijfBtw').value || '').trim()
-          })
-        });
-        var bData = await bRes.json();
-        if (!bRes.ok) throw new Error(bData.error || 'Bedrijf aanmaken mislukt.');
-        bedrijf_id = bData.id;
+        if (bedrijfSelect.value) {
+          bedrijf_id = parseInt(bedrijfSelect.value, 10);
+        } else {
+          var bRes = await fetch(API_BASE + '/admin/bedrijven', {
+            method: 'POST', headers: headers,
+            body: JSON.stringify({
+              naam: document.getElementById('bedrijfNaam').value.trim(),
+              sector: (document.getElementById('bedrijfSector').value || '').trim(),
+              adres: (document.getElementById('bedrijfAdres').value || '').trim(),
+              postcode: (document.getElementById('bedrijfPostcode').value || '').trim(),
+              stad: (document.getElementById('bedrijfStad').value || '').trim(),
+              website: (document.getElementById('bedrijfWebsite').value || '').trim(),
+              btw_nummer: (document.getElementById('bedrijfBtw').value || '').trim()
+            })
+          });
+          var bData = await bRes.json();
+          if (!bRes.ok) throw new Error(bData.error || 'Bedrijf aanmaken mislukt.');
+          bedrijf_id = bData.id;
+        }
       } else if (rol === 'mentor' && mentorBedrijf.value) {
-        bedrijf_id = parseInt(mentorBedrijf.value);
+        bedrijf_id = parseInt(mentorBedrijf.value, 10);
       }
 
       var body = { rollen: [rol], bedrijf_id: bedrijf_id };
 
       if (isBedrijf) {
-        body.voornaam   = document.getElementById('bedrijfNaam').value.trim();
+        body.voornaam   = getGeselecteerdeBedrijfsnaam() || document.getElementById('bedrijfNaam').value.trim();
         body.achternaam = '';
         body.email      = document.getElementById('bedrijfEmail').value.trim();
         body.wachtwoord = document.getElementById('bedrijfWachtwoord').value;

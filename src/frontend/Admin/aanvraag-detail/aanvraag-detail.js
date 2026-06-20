@@ -6,6 +6,9 @@ const BESLISSING_MAP = {
   afwijzen:    "afgekeurd",
 };
 
+let huidigeStage = null;
+let alleMentoren = [];
+
 function authHeaders() {
   return {
     "Content-Type": "application/json",
@@ -62,7 +65,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   laadStage();
   laadDocenten();
+  laadBedrijven();
+  laadMentoren();
   initBeslissing();
+  initKoppelingen();
 });
 
 async function laadStage() {
@@ -84,6 +90,7 @@ async function laadStage() {
 }
 
 function vulPaginaIn(d) {
+  huidigeStage = d;
   const naam = `${d.student_voornaam ?? ""} ${d.student_achternaam ?? ""}`.trim() || "Onbekend";
   const init = naam.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -131,16 +138,13 @@ function vulPaginaIn(d) {
   txt("histBehandeling", `Automatisch · ${formatDateTime(d.aangemaakt_op)}`);
 
   if (d.docent_id) {
-    const select = document.getElementById("docentSelect");
-    if (select) {
-      const interval = setInterval(() => {
-        if (select.querySelector(`option[value="${d.docent_id}"]`)) {
-          select.value = d.docent_id;
-          clearInterval(interval);
-        }
-      }, 100);
-      setTimeout(() => clearInterval(interval), 5000);
-    }
+    setSelectValueWhenReady("docentSelect", d.docent_id);
+  }
+  if (d.bedrijf_id) {
+    setSelectValueWhenReady("bedrijfSelect", d.bedrijf_id);
+  }
+  if (d.mentor_id) {
+    setSelectValueWhenReady("mentorSelect", d.mentor_id);
   }
 }
 
@@ -162,6 +166,76 @@ async function laadDocenten() {
   }
 }
 
+async function laadBedrijven() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/bedrijven`, { headers: authHeaders() });
+    if (!res.ok) return;
+    const bedrijven = await res.json();
+    const select = document.getElementById("bedrijfSelect");
+    if (!select) return;
+    bedrijven.forEach(b => {
+      const opt = document.createElement("option");
+      opt.value = b.id;
+      opt.textContent = b.naam + (b.stad ? ` — ${b.stad}` : "");
+      select.appendChild(opt);
+    });
+    if (huidigeStage && huidigeStage.bedrijf_id) {
+      select.value = huidigeStage.bedrijf_id;
+    }
+  } catch (err) {
+    console.error("Bedrijven laden fout:", err);
+  }
+}
+
+async function laadMentoren() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/gebruikers/mentoren`, { headers: authHeaders() });
+    if (!res.ok) return;
+    alleMentoren = await res.json();
+    const select = document.getElementById("mentorSelect");
+    if (!select) return;
+    alleMentoren.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.mentor_id;
+      const naam = `${m.voornaam ?? ""} ${m.achternaam ?? ""}`.trim();
+      const bedrijf = m.bedrijf_naam ? ` — ${m.bedrijf_naam}` : "";
+      opt.textContent = `${naam} (${m.email})${bedrijf}`;
+      select.appendChild(opt);
+    });
+    if (huidigeStage && huidigeStage.mentor_id) {
+      select.value = huidigeStage.mentor_id;
+    }
+  } catch (err) {
+    console.error("Mentoren laden fout:", err);
+  }
+}
+
+function initKoppelingen() {
+  const mentorSelect = document.getElementById("mentorSelect");
+  const bedrijfSelect = document.getElementById("bedrijfSelect");
+  if (!mentorSelect || !bedrijfSelect) return;
+
+  mentorSelect.addEventListener("change", function () {
+    const mentor = alleMentoren.find(m => String(m.mentor_id) === String(mentorSelect.value));
+    if (mentor && mentor.bedrijf_id) {
+      bedrijfSelect.value = mentor.bedrijf_id;
+    }
+  });
+}
+
+function setSelectValueWhenReady(selectId, value) {
+  const select = document.getElementById(selectId);
+  if (!select || value == null) return;
+
+  const interval = setInterval(() => {
+    if (select.querySelector(`option[value="${value}"]`)) {
+      select.value = value;
+      clearInterval(interval);
+    }
+  }, 100);
+  setTimeout(() => clearInterval(interval), 5000);
+}
+
 function initBeslissing() {
   const opties = document.querySelectorAll(".beslissing-option[data-value]");
   let gekozen = null;
@@ -180,6 +254,8 @@ function initBeslissing() {
     const id       = getStageId();
     const feedback = document.getElementById("feedbackText")?.value?.trim() || "";
     const docentId = document.getElementById("docentSelect")?.value || null;
+    const bedrijfId = document.getElementById("bedrijfSelect")?.value || null;
+    const mentorId = document.getElementById("mentorSelect")?.value || null;
     const beslissing = BESLISSING_MAP[gekozen];
 
     if (gekozen === "wijzigingen" && !feedback) {
@@ -190,7 +266,13 @@ function initBeslissing() {
       const res = await fetch(`${API_BASE_URL}/stages/${id}/beslissing`, {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ beslissing, opmerking: feedback, docent_id: docentId || null }),
+        body: JSON.stringify({
+          beslissing,
+          opmerking: feedback,
+          docent_id: docentId || null,
+          bedrijf_id: bedrijfId || null,
+          mentor_id: mentorId || null
+        }),
       });
       const data = await res.json();
       if (!res.ok) { alert("Fout: " + (data.error || "onbekende fout")); return; }
