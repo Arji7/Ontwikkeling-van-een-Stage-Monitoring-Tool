@@ -4,8 +4,30 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.href = "../../inloggen/inloggen.html";
     return;
   }
+  stelTerugKnopIn();
   laadOvereenkomstData(token);
 });
+
+function stelTerugKnopIn() {
+  const user = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  const rollen = user.rollen || (user.role ? [user.role] : []);
+  const btn = document.getElementById("btnTerugDashboard");
+  if (!btn) return;
+
+  if (rollen.includes("bedrijf")) {
+    btn.href = "../../Bedrijf/dashboard/dashboard.html";
+    btn.textContent = "Terug naar mijn stagiairs";
+  } else if (rollen.includes("admin")) {
+    btn.href = "../../Admin/Dashboard/dashboard.html";
+    btn.textContent = "Terug naar dashboard";
+  } else if (rollen.includes("commissielid")) {
+    btn.href = "../../Commisie/aanvragen.overzicht/aanvragen.overzicht.html";
+    btn.textContent = "Terug naar aanvragen";
+  } else {
+    btn.href = "../empty-stage/empty-stage.html";
+    btn.textContent = "Terug naar dashboard";
+  }
+}
 
 async function laadOvereenkomstData(token) {
   try {
