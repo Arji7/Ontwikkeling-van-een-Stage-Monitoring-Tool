@@ -293,6 +293,22 @@ async function selectEvalType(type) {
   renderEvalScores();
 }
 
+function updateLiveScores() {
+  verzamelInputsNaarMemory();
+  let total = 0, count = 0;
+  evalCompetentiesData.forEach(comp => {
+    (comp.scores || []).forEach(sc => {
+      if (sc.score_docent) { total += sc.score_docent; count++; }
+    });
+  });
+  const avg = count > 0 ? ((total / (count * 5)) * 20).toFixed(1) : "—";
+  document.getElementById("evalDocentScore").textContent = avg + "/20";
+  document.getElementById("evalDocentSub").textContent = count > 0 ? count + " ingevuld" : "berekend uit competenties";
+  if (!currentEval.officieel_eindcijfer) {
+    document.getElementById("evalEindcijferInput").value = avg !== "—" ? avg : "";
+  }
+}
+
 function renderEvalScores() {
   if (!currentEval) return;
   const comps = evalCompetentiesData.length > 0 ? evalCompetentiesData : [];
@@ -305,8 +321,8 @@ function renderEvalScores() {
     });
   });
 
-  const mentorAvg = mentorCount > 0 ? ((mentorTotal / mentorCount) * 4).toFixed(1) : "—";
-  const docentAvg = docentCount > 0 ? ((docentTotal / docentCount) * 4).toFixed(1) : "—";
+  const mentorAvg = mentorCount > 0 ? ((mentorTotal / (mentorCount * 5)) * 20).toFixed(1) : "—";
+  const docentAvg = docentCount > 0 ? ((docentTotal / (docentCount * 5)) * 20).toFixed(1) : "—";
 
   document.getElementById("evalMentorScore").textContent = mentorAvg + "/20";
   document.getElementById("evalDocentScore").textContent = docentAvg + "/20";
@@ -437,7 +453,7 @@ function selectComp(compId) {
   // Auto-save on change
   if (!isReadonly) {
     detail.querySelectorAll(".eval-score-input, .eval-feedback-input").forEach(el => {
-      el.addEventListener("change", () => saveScores());
+      el.addEventListener("change", () => { updateLiveScores(); saveScores(); });
     });
   }
 }
