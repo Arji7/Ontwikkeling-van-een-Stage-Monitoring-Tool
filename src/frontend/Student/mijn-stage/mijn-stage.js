@@ -18,22 +18,27 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // Meest relevante stage (zelfde prioriteit als dashboard)
-    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
-    const stage = stages.slice().sort(function (a, b) {
-      const pa = PRIORITEIT.indexOf(a.status);
-      const pb = PRIORITEIT.indexOf(b.status);
-      if (pa !== pb) return pa - pb;
-      return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
-    })[0];
+    // Splits in niet-afgeronde en afgeronde stages
+    const nietAfgerond = stages.filter(function (s) { return s.status !== "afgerond"; });
+    const afgerond = stages.filter(function (s) { return s.status === "afgerond"; });
 
-    // Als niet goedgekeurd: redirect naar passende pagina
+    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
+    function sorteerOp(arr) {
+      return arr.slice().sort(function (a, b) {
+        const pa = PRIORITEIT.indexOf(a.status);
+        const pb = PRIORITEIT.indexOf(b.status);
+        if (pa !== pb) return pa - pb;
+        return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
+      });
+    }
+
+    // Als er een nieuw (niet-afgerond) voorstel is → toon dat
+    // Anders → toon de afgeronde stage
+    const stage = nietAfgerond.length > 0 ? sorteerOp(nietAfgerond)[0] : sorteerOp(afgerond)[0];
+
+    // Afgeronde stage zonder nieuw voorstel → altijd naar afgerond-pagina
     if (stage.status === "afgerond") {
-      if (!localStorage.getItem("afgerond_gezien_" + stage.id)) {
-        window.location.href = "../stage-beoordeling/stage-afgerond/stage-afgerond.html";
-        return;
-      }
-      window.location.href = "../stage-aanvraag/stage-aanvraag.html";
+      window.location.href = "../stage-beoordeling/stage-afgerond/stage-afgerond.html";
       return;
     }
     if (stage.status === "aanpassingen_vereist") {
@@ -121,7 +126,10 @@ function vulPaginaIn(d) {
     start + " — " + eind + (weken ? " (" + weken + " weken)" : "");
 
   const statusEl = document.getElementById("tabelStatus");
-  if (d.status === "actief") {
+  if (d.status === "afgerond") {
+    statusEl.textContent = "Stage afgerond";
+    statusEl.className = "info-value status-success";
+  } else if (d.status === "actief") {
     statusEl.textContent = "Stage loopt";
     statusEl.className = "info-value status-success";
   } else if (d.status === "wacht_op_overeenkomst") {
