@@ -6,6 +6,7 @@
   const voornaamEl   = document.getElementById('voornaam');
   const achternaamEl = document.getElementById('achternaam');
   const emailEl      = document.getElementById('email');
+  const persoonlijkeEmailEl = document.getElementById('persoonlijkeEmail');
   const feedbackMsg  = document.getElementById('feedbackMsg');
   const submitBtn    = document.getElementById('submitBtn');
 
@@ -32,6 +33,7 @@
       voornaamEl.value   = gebruiker.voornaam || '';
       achternaamEl.value = gebruiker.achternaam || '';
       emailEl.value      = gebruiker.email || '';
+      persoonlijkeEmailEl.value = gebruiker.persoonlijke_email || '';
 
       var rollen = gebruiker.rollen ? gebruiker.rollen.split(', ') : [];
       var eersteRol = rollen[0] || 'student';
@@ -56,18 +58,32 @@
     voornaamEl.addEventListener('input', updatePreview);
     achternaamEl.addEventListener('input', updatePreview);
     emailEl.addEventListener('input', updatePreview);
+    persoonlijkeEmailEl.addEventListener('input', updatePreview);
     document.querySelectorAll('input[name="rol"]').forEach(function (r) { r.addEventListener('change', updatePreview); });
     document.querySelectorAll('input[name="status"]').forEach(function (r) { r.addEventListener('change', updatePreview); });
   });
 
   function updatePreview() {
-    var naam = (voornaamEl.value + ' ' + achternaamEl.value).trim();
+    var gekozenRol    = document.querySelector('input[name="rol"]:checked');
+    var gekozenStatus = document.querySelector('input[name="status"]:checked');
+    var isBedrijf = gekozenRol && gekozenRol.value === 'bedrijf';
+
+    achternaamEl.required = !isBedrijf;
+    if (isBedrijf) {
+      achternaamEl.value = '';
+    }
+    var reqEl = document.getElementById('achternaamReq');
+    var hintEl = document.getElementById('achternaamHint');
+    if (reqEl) reqEl.style.display = isBedrijf ? 'none' : '';
+    if (hintEl) hintEl.style.display = isBedrijf ? '' : 'none';
+
+    var naam = isBedrijf
+      ? voornaamEl.value.trim()
+      : (voornaamEl.value + ' ' + achternaamEl.value).trim();
     var el;
     el = document.getElementById('prevNaam');  if (el) el.textContent = naam || '—';
     el = document.getElementById('prevEmail'); if (el) el.textContent = emailEl.value || '—';
-
-    var gekozenRol    = document.querySelector('input[name="rol"]:checked');
-    var gekozenStatus = document.querySelector('input[name="status"]:checked');
+    el = document.getElementById('prevPersoonlijkeEmail'); if (el) el.textContent = persoonlijkeEmailEl.value || '—';
 
     var prevRolEl = document.getElementById('prevRol');
     if (gekozenRol && prevRolEl) {
@@ -83,7 +99,7 @@
       prevStatusEl.className   = gekozenStatus.value === 'actief' ? 'badge badge-actief' : 'badge badge-inactief';
     }
 
-    setCheck('chk-naam',  !!(voornaamEl.value.trim() && achternaamEl.value.trim()));
+    setCheck('chk-naam',  !!(voornaamEl.value.trim() && (isBedrijf || achternaamEl.value.trim())));
     setCheck('chk-email', !!emailEl.value.trim());
     setCheck('chk-rol',   !!gekozenRol);
   }
@@ -103,6 +119,7 @@
 
     var gekozenStatus = document.querySelector('input[name="status"]:checked');
     var actief = gekozenStatus ? gekozenStatus.value === 'actief' : true;
+    var isBedrijf = gekozenRol.value === 'bedrijf';
 
     submitBtn.disabled    = true;
     submitBtn.textContent = 'Opslaan…';
@@ -113,8 +130,9 @@
         headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           voornaam: voornaamEl.value,
-          achternaam: achternaamEl.value,
+          achternaam: isBedrijf ? '' : achternaamEl.value,
           email: emailEl.value,
+          persoonlijke_email: persoonlijkeEmailEl.value,
           actief: actief,
           rollen: [gekozenRol.value],
           wachtwoord: (document.getElementById('nieuwWachtwoord') || {}).value || undefined

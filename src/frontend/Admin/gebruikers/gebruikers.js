@@ -17,18 +17,25 @@
       var res = await fetch(API_BASE + '/admin/gebruikers', {
         headers: { 'Authorization': 'Bearer ' + token }
       });
-      var data = res.ok ? await res.json() : [];
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) {
+        throw new Error(data.error || 'Gebruikers laden mislukt.');
+      }
       allGebruikers = data.map(function (g) {
         return {
           id: g.id,
           naam: (g.voornaam || '') + ' ' + (g.achternaam || ''),
           email: g.email,
+          persoonlijke_email: g.persoonlijke_email || '',
           actief: g.actief === 1 || g.actief === true,
           rollen: g.rollen ? g.rollen.split(', ') : []
         };
       });
     } catch (e) {
       allGebruikers = [];
+      if (emptyMsg) {
+        emptyMsg.textContent = e.message || 'Gebruikers konden niet geladen worden.';
+      }
     }
   }
 
@@ -59,7 +66,9 @@
     const status = statusFilter.value;
 
     const filtered = allGebruikers.filter(g => {
-      const zoekMatch   = g.naam.toLowerCase().includes(q) || g.email.toLowerCase().includes(q);
+      const zoekMatch   = g.naam.toLowerCase().includes(q) ||
+        g.email.toLowerCase().includes(q) ||
+        g.persoonlijke_email.toLowerCase().includes(q);
       const rolMatch    = !rol    || g.rollen.includes(rol);
       const statusMatch = !status ||
         (status === 'actief'   &&  g.actief) ||

@@ -8,6 +8,7 @@
   var voornaamEl   = document.getElementById('voornaam');
   var achternaamEl = document.getElementById('achternaam');
   var emailEl      = document.getElementById('email');
+  var persoonlijkeEmailEl = document.getElementById('persoonlijkeEmail');
   var wachtwoordEl = document.getElementById('wachtwoord');
 
   var stapGegevens       = document.getElementById('stapGegevens');
@@ -31,9 +32,11 @@
   voornaamEl.addEventListener('input', updatePreview);
   achternaamEl.addEventListener('input', updatePreview);
   emailEl.addEventListener('input', updatePreview);
+  persoonlijkeEmailEl.addEventListener('input', updateChecklist);
   wachtwoordEl.addEventListener('input', updateChecklist);
 
   document.getElementById('bedrijfEmail').addEventListener('input', updatePreview);
+  document.getElementById('bedrijfPersoonlijkeEmail').addEventListener('input', updateChecklist);
   document.getElementById('bedrijfNaam').addEventListener('input', updateChecklist);
   document.getElementById('bedrijfEmail').addEventListener('input', updateChecklist);
   document.getElementById('bedrijfWachtwoord').addEventListener('input', updateChecklist);
@@ -88,10 +91,12 @@
     achternaamEl.required = !isBedrijf;
     emailEl.required      = !isBedrijf;
     wachtwoordEl.required = !isBedrijf;
+    persoonlijkeEmailEl.required = !isBedrijf;
     voornaamEl.disabled   = isBedrijf;
     achternaamEl.disabled = isBedrijf;
     emailEl.disabled      = isBedrijf;
     wachtwoordEl.disabled = isBedrijf;
+    persoonlijkeEmailEl.disabled = isBedrijf;
 
     studentVelden.style.display = 'none';
     docentVelden.style.display  = 'none';
@@ -169,11 +174,11 @@
 
     if (isBedrijf) {
       setCheck('chk-naam',  !!(bedrijfSelect.value || document.getElementById('bedrijfNaam').value.trim()));
-      setCheck('chk-email', !!document.getElementById('bedrijfEmail').value.trim());
+      setCheck('chk-email', !!(document.getElementById('bedrijfEmail').value.trim() && document.getElementById('bedrijfPersoonlijkeEmail').value.trim()));
       setCheck('chk-ww',    (document.getElementById('bedrijfWachtwoord').value || '').length >= 8);
     } else {
       setCheck('chk-naam',  !!(voornaamEl.value.trim() && achternaamEl.value.trim()));
-      setCheck('chk-email', !!emailEl.value.trim());
+      setCheck('chk-email', !!(emailEl.value.trim() && persoonlijkeEmailEl.value.trim()));
       setCheck('chk-ww',    wachtwoordEl.value.length >= 8);
     }
   }
@@ -196,13 +201,18 @@
 
     if (isBedrijf) {
       var bEmail = document.getElementById('bedrijfEmail').value.trim();
+      var bPersoonlijkeEmail = document.getElementById('bedrijfPersoonlijkeEmail').value.trim();
       var bWw    = document.getElementById('bedrijfWachtwoord').value;
       if (!bEmail) { toonFeedback('Vul een e-mailadres in voor het bedrijf.', 'error'); return; }
+      if (!bPersoonlijkeEmail) { toonFeedback('Vul een persoonlijk/contact e-mailadres in voor het bedrijf.', 'error'); return; }
       if (!bWw || bWw.length < 8) { toonFeedback('Wachtwoord moet minimaal 8 tekens zijn.', 'error'); return; }
       if (!bedrijfSelect.value && !document.getElementById('bedrijfNaam').value.trim()) {
         toonFeedback('Vul een bedrijfsnaam in.', 'error');
         return;
       }
+    } else if (!persoonlijkeEmailEl.value.trim()) {
+      toonFeedback('Vul een persoonlijk e-mailadres in.', 'error');
+      return;
     }
 
     submitBtn.disabled    = true;
@@ -241,18 +251,19 @@
         body.voornaam   = getGeselecteerdeBedrijfsnaam() || document.getElementById('bedrijfNaam').value.trim();
         body.achternaam = '';
         body.email      = document.getElementById('bedrijfEmail').value.trim();
+        body.persoonlijke_email = document.getElementById('bedrijfPersoonlijkeEmail').value.trim();
         body.wachtwoord = document.getElementById('bedrijfWachtwoord').value;
       } else {
         body.voornaam   = voornaamEl.value.trim();
         body.achternaam = achternaamEl.value.trim();
         body.email      = emailEl.value.trim();
+        body.persoonlijke_email = persoonlijkeEmailEl.value.trim();
         body.wachtwoord = wachtwoordEl.value;
       }
 
       if (rol === 'student') {
         body.studentnummer  = (document.getElementById('studentNummer').value || '').trim();
         body.opleiding_id   = document.getElementById('studentOpleiding').value || null;
-        body.academiejaar = document.getElementById('studentAcademiejaar').value || null;
       }
       if (rol === 'docent') {
         body.titel = (document.getElementById('docentTitel').value || '').trim();
@@ -264,9 +275,13 @@
       var res = await fetch(API_BASE + '/admin/gebruikers', {
         method: 'POST', headers: headers, body: JSON.stringify(body)
       });
-      if (!res.ok) { var data = await res.json(); throw new Error(data.error || 'Fout'); }
+      var data = await res.json();
+      if (!res.ok) { throw new Error(data.error || 'Fout'); }
 
-      toonFeedback('Gebruiker succesvol aangemaakt! Doorsturen naar overzicht…', 'success');
+      var mailTekst = data.mail_verzonden
+        ? ' Accountgegevens zijn verzonden naar de persoonlijke e-mail.'
+        : ' Account aangemaakt, maar mail niet verzonden: ' + (data.mail_status || 'mail niet ingesteld') + '.';
+      toonFeedback('Gebruiker succesvol aangemaakt!' + mailTekst + ' Doorsturen naar overzicht…', 'success');
       setTimeout(function () { window.location.href = 'gebruikers.html'; }, 1500);
     } catch (err) {
       toonFeedback(err.message || 'Fout bij aanmaken.', 'error');
