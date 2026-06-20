@@ -276,11 +276,11 @@ router.get('/bedrijven/:id', authMiddleware, hasRole('admin'), async (req, res) 
 // POST /api/admin/bedrijven — nieuw bedrijf
 router.post('/bedrijven', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { naam, sector, adres, postcode, stad, website, btw_nummer } = req.body;
+    const { naam, sector, adres, postcode, stad, email, website, btw_nummer } = req.body;
     if (!naam) return res.status(400).json({ error: 'Naam is verplicht.' });
     const [result] = await db.query(
-      'INSERT INTO bedrijf (naam, sector, adres, postcode, stad, website, btw_nummer) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [naam, sector, adres, postcode, stad, website, btw_nummer]
+      'INSERT INTO bedrijf (naam, sector, adres, postcode, stad, email, website, btw_nummer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [naam, sector, adres, postcode, stad, email, website, btw_nummer]
     );
     res.status(201).json({ id: result.insertId, message: 'Bedrijf aangemaakt.' });
   } catch (err) {
@@ -292,10 +292,10 @@ router.post('/bedrijven', authMiddleware, hasRole('admin'), async (req, res) => 
 // PUT /api/admin/bedrijven/:id — bedrijf bewerken
 router.put('/bedrijven/:id', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    const { naam, sector, adres, postcode, stad, website, btw_nummer } = req.body;
+    const { naam, sector, adres, postcode, stad, email, website, btw_nummer } = req.body;
     await db.query(
-      'UPDATE bedrijf SET naam = ?, sector = ?, adres = ?, postcode = ?, stad = ?, website = ?, btw_nummer = ? WHERE id = ?',
-      [naam, sector, adres, postcode, stad, website, btw_nummer, req.params.id]
+      'UPDATE bedrijf SET naam = ?, sector = ?, adres = ?, postcode = ?, stad = ?, email = ?, website = ?, btw_nummer = ? WHERE id = ?',
+      [naam, sector, adres, postcode, stad, email, website, btw_nummer, req.params.id]
     );
     res.json({ message: 'Bedrijf bijgewerkt.' });
   } catch (err) {

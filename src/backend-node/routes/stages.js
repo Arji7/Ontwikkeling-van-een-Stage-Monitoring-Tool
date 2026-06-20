@@ -210,10 +210,10 @@ router.post('/', authMiddleware, async (req, res) => {
       bedrijf_id = bedrijfRows[0].id;
     } else {
       if (!bedrijfNieuw || !bedrijfNieuw.adres || !bedrijfNieuw.btw || !bedrijfNieuw.email) {
-        return res.status(400).json({ error: 'Vul de gegevens van het nieuwe bedrijf volledig in (adres, BTW, e-mail).' });
+        return res.status(400).json({ error: 'Vul de gegevens van het nieuwe bedrijf volledig in (adres, BTW en e-mail).' });
       }
       const [ins] = await db.query(
-        `INSERT INTO bedrijf (naam, sector, adres, postcode, stad, btw_nummer, website, email)
+        `INSERT INTO bedrijf (naam, sector, adres, postcode, stad, btw_nummer, email, website)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           bedrijf,
@@ -222,8 +222,8 @@ router.post('/', authMiddleware, async (req, res) => {
           bedrijfNieuw.postcode || null,
           bedrijfNieuw.stad || null,
           bedrijfNieuw.btw,
-          bedrijfNieuw.website || null,
           bedrijfNieuw.email,
+          bedrijfNieuw.website || null,
         ]
       );
       bedrijf_id = ins.insertId;

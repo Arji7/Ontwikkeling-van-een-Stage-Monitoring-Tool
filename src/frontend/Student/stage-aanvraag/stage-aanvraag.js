@@ -8,7 +8,6 @@ const isEditMode = !!stageId;
 
 // Verplichte velden: id => foutmelding
 const requiredFields = {
-  bedrijf:      "Naam bedrijf is verplicht.",
   mentor:       "Stagementor is verplicht.",
   mentorEmail:  "E-mail mentor is verplicht.",
   startDatum:   "Startdatum is verplicht.",
@@ -158,6 +157,12 @@ form.addEventListener("submit", function (event) {
     }
   }
 
+  const bedrijfNaam = getGekozenBedrijfNaam();
+  if (!bedrijfNaam) {
+    showError("bedrijf", "Naam bedrijf is verplicht.");
+    isValid = false;
+  }
+
   const email = document.getElementById("mentorEmail");
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (email.value.trim() && !emailPattern.test(email.value.trim())) {
@@ -183,8 +188,7 @@ form.addEventListener("submit", function (event) {
 
   if (!isValid) return;
 
-  const bedrijfNaam = document.getElementById("bedrijf").value.trim();
-  const isNieuw = !isBestaandBedrijf(bedrijfNaam);
+  const isNieuw = isNieuwBedrijfModus();
 
   if (isNieuw) {
     const verplichteNieuw = {

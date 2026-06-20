@@ -7,7 +7,7 @@ const { authMiddleware, hasRole } = require('../middleware/authMiddelware');
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const [rows] = await db.query(
-      'SELECT id, naam, sector, adres, postcode, stad, btw_nummer FROM bedrijf ORDER BY naam ASC'
+      'SELECT id, naam, sector, adres, postcode, stad, email, btw_nummer FROM bedrijf ORDER BY naam ASC'
     );
     res.json(rows);
   } catch (err) {
@@ -18,16 +18,16 @@ router.get('/', authMiddleware, async (req, res) => {
 
 // POST /api/bedrijven — nieuw bedrijf aanmaken (admin)
 router.post('/', authMiddleware, hasRole('admin'), async (req, res) => {
-  const { naam, sector, adres, postcode, stad, btw_nummer } = req.body;
+  const { naam, sector, adres, postcode, stad, email, btw_nummer } = req.body;
   if (!naam) return res.status(400).json({ error: 'Naam is verplicht.' });
   try {
     const [bestaand] = await db.query('SELECT id FROM bedrijf WHERE naam = ?', [naam]);
     if (bestaand.length > 0) return res.status(400).json({ error: 'Bedrijf met deze naam bestaat al.' });
 
     const [result] = await db.query(
-      `INSERT INTO bedrijf (naam, sector, adres, postcode, stad, btw_nummer)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [naam, sector || null, adres || null, postcode || null, stad || null, btw_nummer || null]
+      `INSERT INTO bedrijf (naam, sector, adres, postcode, stad, email, btw_nummer)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [naam, sector || null, adres || null, postcode || null, stad || null, email || null, btw_nummer || null]
     );
     res.status(201).json({ id: result.insertId, message: 'Bedrijf aangemaakt.' });
   } catch (err) {
@@ -38,12 +38,12 @@ router.post('/', authMiddleware, hasRole('admin'), async (req, res) => {
 
 // PUT /api/bedrijven/:id — bedrijf aanpassen (admin)
 router.put('/:id', authMiddleware, hasRole('admin'), async (req, res) => {
-  const { naam, sector, adres, postcode, stad, btw_nummer } = req.body;
+  const { naam, sector, adres, postcode, stad, email, btw_nummer } = req.body;
   try {
     await db.query(
-      `UPDATE bedrijf SET naam = ?, sector = ?, adres = ?, postcode = ?, stad = ?, btw_nummer = ?
+      `UPDATE bedrijf SET naam = ?, sector = ?, adres = ?, postcode = ?, stad = ?, email = ?, btw_nummer = ?
        WHERE id = ?`,
-      [naam, sector || null, adres || null, postcode || null, stad || null, btw_nummer || null, req.params.id]
+      [naam, sector || null, adres || null, postcode || null, stad || null, email || null, btw_nummer || null, req.params.id]
     );
     res.json({ message: 'Bedrijf bijgewerkt.' });
   } catch (err) {

@@ -93,6 +93,7 @@ CREATE TABLE bedrijf (
   postcode      VARCHAR(20),
   stad          VARCHAR(100),
   land          VARCHAR(100) NOT NULL DEFAULT 'Belgie',
+  email         VARCHAR(255),
   website       VARCHAR(255),
   btw_nummer    VARCHAR(50),
   aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
