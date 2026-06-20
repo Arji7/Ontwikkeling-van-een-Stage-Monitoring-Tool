@@ -159,8 +159,8 @@ function vulPaginaIn(d) {
 
   // Studentgegevens
   txt("detailNaam",     naam);
-  txt("detailLeeftijd", "—");
-  txt("detailTel",      "—");
+  txt("detailOpleiding",     d.opleiding_naam || "—");
+  txt("detailStudentnummer", d.studentnummer || "—");
   const emailStudent = document.getElementById("detailEmail");
   if (emailStudent && d.student_email) {
     emailStudent.textContent = d.student_email;

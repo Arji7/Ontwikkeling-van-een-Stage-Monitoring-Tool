@@ -41,6 +41,7 @@ body {
 .user-role { font-size: 10px; color: rgba(255,255,255,0.55); }
 .sidebar-logout { display: block; padding: 9px 22px; color: #f87171; text-decoration: none; font-size: 12px; font-weight: 500; }
 .sidebar-logout:hover { background: rgba(239,68,68,0.12); }
+.nav-group-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.45); padding: 14px 22px 5px; font-weight: 600; }
 
 .content { flex: 1; padding: 34px 44px; }
 

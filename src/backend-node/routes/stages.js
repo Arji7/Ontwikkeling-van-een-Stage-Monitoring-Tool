@@ -21,16 +21,11 @@ async function getStudentId(gebruikerId) {
 }
 
 async function getBedrijfIdVoorAccount(gebruikerId) {
-  try {
-    const [[bedrijfAccount]] = await db.query(
-      'SELECT bedrijf_id FROM bedrijf_account WHERE gebruiker_id = ?',
-      [gebruikerId]
-    );
-    return bedrijfAccount ? bedrijfAccount.bedrijf_id : null;
-  } catch (err) {
-    if (err && err.code === 'ER_NO_SUCH_TABLE') return null;
-    throw err;
-  }
+  const [[row]] = await db.query(
+    'SELECT bedrijf_id FROM mentor WHERE gebruiker_id = ? AND bedrijf_id IS NOT NULL LIMIT 1',
+    [gebruikerId]
+  );
+  return row ? row.bedrijf_id : null;
 }
 
 // Hulpfunctie: heeft de gebruiker een staf-rol (docent/mentor/commissielid/admin)?
@@ -229,11 +224,15 @@ router.post('/', authMiddleware, async (req, res) => {
       bedrijf_id = ins.insertId;
     }
 
+    // Actief academiejaar ophalen
+    const [[actiefJaar]] = await db.query('SELECT id FROM academiejaar WHERE actief = 1 LIMIT 1');
+    const academiejaarId = actiefJaar ? actiefJaar.id : null;
+
     // Stage aanmaken (docent_id wordt later toegekend door commissie/admin)
     const [stage] = await db.query(
-      `INSERT INTO stage (student_id, bedrijf_id, omschrijving, startdatum, einddatum, contact_naam, contact_email, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'ingediend')`,
-      [student_id, bedrijf_id, omschrijving, startDatum, eindDatum, mentor, mentorEmail]
+      `INSERT INTO stage (student_id, bedrijf_id, omschrijving, startdatum, einddatum, contact_naam, contact_email, status, academiejaar_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'ingediend', ?)`,
+      [student_id, bedrijf_id, omschrijving, startDatum, eindDatum, mentor, mentorEmail, academiejaarId]
     );
 
     // Geschiedenis opslaan
@@ -455,6 +454,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
               sg.voornaam   AS student_voornaam,
               sg.achternaam AS student_achternaam,
               sg.email      AS student_email,
+              st.studentnummer,
               o.naam        AS opleiding_naam,
               aj.naam       AS academiejaar_naam,
               dg.voornaam   AS docent_voornaam,

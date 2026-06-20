@@ -121,8 +121,8 @@ function vulPaginaIn(d) {
   txt("stageWeken", berekenWeken(d.startdatum, d.einddatum));
 
   txt("detailNaam", naam);
-  txt("detailLeeftijd", "—");
-  txt("detailTel", "—");
+  txt("detailOpleiding", d.opleiding_naam || "—");
+  txt("detailStudentnummer", d.studentnummer || "—");
   const emailStudent = document.getElementById("detailEmail");
   if (emailStudent && d.student_email) {
     emailStudent.textContent = d.student_email;
