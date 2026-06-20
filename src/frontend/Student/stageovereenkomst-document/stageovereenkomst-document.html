@@ -13,12 +13,7 @@
     <aside class="sidebar">
       <div class="sidebar-brand">StageMonitor</div>
       <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
-      <nav class="sidebar-nav">
-        <a href="../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
-        <a href="../mijn-stage/mijn-stage.html" class="nav-item active">Mijn stage</a>
-        <span class="nav-item locked">Logboeken <span class="lock">🔒</span></span>
-        <span class="nav-item locked">Evaluaties <span class="lock">🔒</span></span>
-      </nav>
+      <nav class="sidebar-nav"></nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
           <div class="user-avatar" id="sidebarUserAvatar">??</div>
@@ -171,7 +166,7 @@
           </div>
 
           <div class="signing-actions">
-            <button class="btn btn-primary" id="btnOndertekenen">Ondertekenen</button>
+            <button class="btn btn-primary" id="btnOndertekenen" disabled>Laden...</button>
           </div>
         </section>
 
@@ -197,6 +192,8 @@
     </div>
   </div>
 
+  <script>window.SIDEBAR_PAGE = 'student-overeenkomst'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../../sidebar-builder.js"></script>
   <script src="../../config.js"></script>
   <script src="stageovereenkomst-document.js"></script>
   <script>

@@ -25,6 +25,7 @@ let huidigeStageId = null;
 document.addEventListener("DOMContentLoaded", function () {
   const token = sessionStorage.getItem("token");
   if (!token) {
+    sessionStorage.setItem("redirectAfterLogin", window.location.href);
     window.location.href = "../../inloggen/inloggen.html";
     return;
   }
@@ -104,6 +105,23 @@ function vulOndertekenaarsIn(ondertekenaars) {
 
   let huidigeGebruikerHeeftGetekend = false;
 
+  // Voor admin/commissielid: zodra een commissielid getekend heeft is de school-zijde klaar
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  const userRollen = currentUser.rollen || (currentUser.role ? [currentUser.role] : []);
+  const isSchoolzijde = userRollen.includes("admin") ||
+    userRollen.includes("commissielid") ||
+    userRollen.includes("commissie") ||
+    userRollen.includes("stagecommissie");
+  const isBedrijfzijde = userRollen.includes("bedrijf");
+  const commissieRij = ondertekenaars.find(function (s) { return s.rol === "Stagecommissie"; });
+  const bedrijfRij = ondertekenaars.find(function (s) { return s.rol === "Bedrijf"; });
+  if (isSchoolzijde && commissieRij && commissieRij.status === "ondertekend") {
+    huidigeGebruikerHeeftGetekend = true;
+  }
+  if (isBedrijfzijde && bedrijfRij && bedrijfRij.status === "ondertekend") {
+    huidigeGebruikerHeeftGetekend = true;
+  }
+
   ondertekenaars.forEach(function (s) {
     const row = document.createElement("div");
     row.className = "signer-row";
@@ -134,6 +152,9 @@ function vulOndertekenaarsIn(ondertekenaars) {
   if (huidigeGebruikerHeeftGetekend) {
     btn.disabled = true;
     btn.textContent = "Reeds ondertekend";
+  } else {
+    btn.disabled = false;
+    btn.textContent = "Ondertekenen";
   }
 }
 
@@ -186,6 +207,9 @@ function initCanvas(token) {
 }
 
 function openModal() {
+  const btn = document.getElementById("btnOndertekenen");
+  if (btn && btn.disabled) return;
+
   document.getElementById("signError").hidden = true;
   document.getElementById("signModal").hidden = false;
   wisCanvas();
@@ -233,7 +257,7 @@ async function bevestigOndertekening(token) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Ondertekenen mislukt.");
 
-    window.location.href = "../stageovereenkomst-ondertekend/stageovereenkomst-ondertekend.html";
+    window.location.href = "../stageovereenkomst-ondertekend/stageovereenkomst-ondertekend.html?stage_id=" + encodeURIComponent(huidigeStageId);
   } catch (err) {
     console.error("Kon niet ondertekenen:", err);
     errEl.textContent = err.message || "Er ging iets mis.";

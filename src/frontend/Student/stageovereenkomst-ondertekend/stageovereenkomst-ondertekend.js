@@ -9,7 +9,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 async function laadOvereenkomstData(token) {
   try {
-    const res = await fetch(API_BASE + "/stages/overeenkomst-document", {
+    const stageId = new URLSearchParams(window.location.search).get("stage_id");
+    const endpoint = stageId
+      ? API_BASE + "/stages/overeenkomst-document?stage_id=" + encodeURIComponent(stageId)
+      : API_BASE + "/stages/overeenkomst-document";
+
+    const res = await fetch(endpoint, {
       headers: { Authorization: "Bearer " + token }
     });
     if (res.status === 401 || res.status === 403) {
@@ -27,10 +32,13 @@ async function laadOvereenkomstData(token) {
 function vulOvereenkomstIn(d) {
   const tekens = d.ondertekenaars || [];
   const student = tekens.find(t => t.rol === "Student");
-  const mentor  = tekens.find(t => t.rol === "Stagementor");
+  const bedrijf = tekens.find(t => t.rol === "Bedrijf");
+  const commissie = tekens.find(t => t.rol === "Stagecommissie");
   const studentGetekend = student && student.status === "ondertekend";
-  const mentorGetekend  = mentor  && mentor.status  === "ondertekend";
-  const alleGetekend = studentGetekend && mentorGetekend;
+  const bedrijfGetekend = bedrijf && bedrijf.status === "ondertekend";
+  const commissieGetekend = commissie && commissie.status === "ondertekend";
+  const huidigeGebruikerGetekend = tekens.some(t => t.isHuidigeGebruiker && t.status === "ondertekend");
+  const alleGetekend = studentGetekend && bedrijfGetekend && commissieGetekend;
 
   const titleEl = document.querySelector(".confirm-title");
   const statusEl = document.getElementById("statusValue");
@@ -38,23 +46,46 @@ function vulOvereenkomstIn(d) {
   if (alleGetekend) {
     if (titleEl) titleEl.textContent = "Stageovereenkomst volledig ondertekend!";
     statusEl.textContent = "✓ Stage actief";
+  } else if (huidigeGebruikerGetekend) {
+    if (titleEl) titleEl.textContent = "Je handtekening is geregistreerd";
+    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend);
   } else if (studentGetekend) {
     if (titleEl) titleEl.textContent = "Je handtekening is geregistreerd";
-    statusEl.textContent = "🕐 Wacht op handtekening mentor";
-  } else if (mentorGetekend) {
-    if (titleEl) titleEl.textContent = "Mentor heeft getekend";
-    statusEl.textContent = "🕐 Wacht op handtekening student";
+    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend);
+  } else if (bedrijfGetekend) {
+    if (titleEl) titleEl.textContent = "Bedrijf heeft getekend";
+    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend);
+  } else if (commissieGetekend) {
+    if (titleEl) titleEl.textContent = "Stagecommissie heeft getekend";
+    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend);
   } else {
     statusEl.textContent = "🕐 Nog niet ondertekend";
   }
 
-  const ingediendOnder = student && student.datum ? student.datum : (mentor && mentor.datum ? mentor.datum : "—");
+  const huidigeOndertekening = tekens.find(t => t.isHuidigeGebruiker && t.datum);
+  const laatsteOndertekening = tekens.find(t => t.datum);
+  const ingediendOnder = huidigeOndertekening
+    ? huidigeOndertekening.datum
+    : (laatsteOndertekening ? laatsteOndertekening.datum : "—");
   document.getElementById("ingediendOp").textContent = ingediendOnder;
   document.getElementById("bedrijf").textContent = (d.onderneming && d.onderneming.naam) || "—";
 
   const start = d.periode && d.periode.startdatum ? formatDatum(d.periode.startdatum) : "—";
   const eind  = d.periode && d.periode.einddatum  ? formatDatum(d.periode.einddatum)  : "—";
   document.getElementById("periode").textContent = start + " — " + eind;
+}
+
+function ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend) {
+  const ontbrekend = [];
+  if (!studentGetekend) ontbrekend.push("student");
+  if (!bedrijfGetekend) ontbrekend.push("bedrijf");
+  if (!commissieGetekend) ontbrekend.push("stagecommissie");
+
+  if (ontbrekend.length === 0) return "geen handtekeningen";
+  if (ontbrekend.length === 1) return "handtekening " + ontbrekend[0];
+
+  const laatste = ontbrekend.pop();
+  return "handtekening " + ontbrekend.join(", ") + " en " + laatste;
 }
 
 function formatDatum(d) {

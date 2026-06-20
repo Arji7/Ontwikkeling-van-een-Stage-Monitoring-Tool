@@ -9,6 +9,7 @@
     var isDocent    = rollen.indexOf('docent') !== -1;
     var isCommissie = rollen.indexOf('commissielid') !== -1;
     var isBedrijf   = rollen.indexOf('bedrijf') !== -1;
+    var isStudent   = rollen.indexOf('student') !== -1;
     var isCombined  = isDocent && (isCommissie || isAdmin);
 
     var root        = window.FRONTEND_ROOT || '../../';
@@ -49,6 +50,12 @@
 
     } else if (isBedrijf) {
       addLink(nav, root + 'Bedrijf/dashboard/dashboard.html', 'Mijn stagiairs', currentPage === 'bedrijf-dashboard');
+
+    } else if (isStudent) {
+      addLink(nav, root + 'Student/empty-stage/empty-stage.html', 'Dashboard', currentPage === 'student-dashboard');
+      addLink(nav, root + 'Student/mijn-stage/mijn-stage.html', 'Mijn stage', ['student-mijn-stage','student-overeenkomst'].indexOf(currentPage) !== -1);
+      addLink(nav, root + 'Student/logboeken/logboeken.html', 'Logboeken', currentPage === 'student-logboeken');
+      addLink(nav, root + 'Student/evaluaties/evaluaties.html', 'Evaluaties', currentPage === 'student-evaluaties');
     }
 
     // Rolnaam in sidebar footer aanpassen
@@ -59,6 +66,7 @@
       else if (isDocent)    roleEl.textContent = 'Docent';
       else if (isCommissie) roleEl.textContent = 'Stagecommissie';
       else if (isBedrijf)   roleEl.textContent = 'Bedrijf';
+      else if (isStudent)   roleEl.textContent = 'Student';
     }
 
     // Naam + avatar invullen (beide ID-conventies worden ondersteund)

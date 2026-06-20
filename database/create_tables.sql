@@ -183,7 +183,7 @@ CREATE TABLE overeenkomst_handtekening (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   overeenkomst_id INT NOT NULL,
   gebruiker_id    INT NOT NULL,
-  rol             ENUM('student','mentor','docent') NOT NULL,
+  rol             ENUM('student','bedrijf','commissielid') NOT NULL,
   methode         ENUM('itsme','handtekening') NOT NULL,
   ondertekend_op  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   ip_adres        VARCHAR(45),

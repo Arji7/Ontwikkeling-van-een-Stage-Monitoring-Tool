@@ -11,10 +11,11 @@ const CONFIG = {
     docent:       "../Docent/dashboard/dashboard.html",
     admin:        "../Admin/Dashboard/dashboard.html",
     mentor:       "../Mentor/dashboard/dashboard.html",
+    bedrijf:      "../Student/stageovereenkomst-document/stageovereenkomst-document.html",
     commissielid: "../Commisie/aanvragen.overzicht/aanvragen.overzicht.html",
   },
   // Prioriteit bij meerdere rollen (hoogste eerst)
-  ROL_PRIORITEIT: ["admin", "commissielid", "docent", "mentor", "student"],
+  ROL_PRIORITEIT: ["admin", "commissielid", "docent", "bedrijf", "mentor", "student"],
 };
 
 
@@ -52,6 +53,13 @@ document.addEventListener("DOMContentLoaded", function () {
       else localStorage.removeItem("rememberedEmail");
 
       sessionStorage.setItem("currentUser", JSON.stringify(user));
+
+      const redirectAfterLogin = sessionStorage.getItem("redirectAfterLogin");
+      if (redirectAfterLogin && redirectAfterLogin.includes("/stageovereenkomst-document/")) {
+        sessionStorage.removeItem("redirectAfterLogin");
+        window.location.href = redirectAfterLogin;
+        return;
+      }
 
       // Voor studenten: check de stage-status en stuur door naar juiste pagina
       if (user.role === "student") {
