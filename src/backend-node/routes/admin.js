@@ -171,10 +171,18 @@ router.put('/gebruikers/:id', authMiddleware, hasRole('admin'), async (req, res)
     const gebruikerId = req.params.id;
 
     if (voornaam && email) {
-      await db.query(
-        'UPDATE gebruiker SET voornaam = ?, achternaam = ?, email = ?, persoonlijke_email = ?, actief = ? WHERE id = ?',
-        [voornaam, achternaam || '', email, persoonlijke_email || null, actief, gebruikerId]
-      );
+      const heeftPersEmail = await heeftKolom('gebruiker', 'persoonlijke_email');
+      if (heeftPersEmail) {
+        await db.query(
+          'UPDATE gebruiker SET voornaam = ?, achternaam = ?, email = ?, persoonlijke_email = ?, actief = ? WHERE id = ?',
+          [voornaam, achternaam || '', email, persoonlijke_email || null, actief, gebruikerId]
+        );
+      } else {
+        await db.query(
+          'UPDATE gebruiker SET voornaam = ?, achternaam = ?, email = ?, actief = ? WHERE id = ?',
+          [voornaam, achternaam || '', email, actief, gebruikerId]
+        );
+      }
     } else {
       await db.query('UPDATE gebruiker SET actief = ? WHERE id = ?', [actief, gebruikerId]);
     }
