@@ -192,7 +192,7 @@ async function getOndertekenaars(stageId, currentGebruikerId, r) {
 
 // POST /api/stages — stagevoorstel indienen
 router.post('/', authMiddleware, async (req, res) => {
-  const { bedrijf, sector, mentor, mentorEmail, startDatum, eindDatum, omschrijving } = req.body;
+  const { bedrijf, sector, mentor, mentorEmail, startDatum, eindDatum, omschrijving, bedrijfNieuw } = req.body;
 
   if (!bedrijf || !mentor || !mentorEmail || !startDatum || !eindDatum || !omschrijving) {
     return res.status(400).json({ error: 'Verplichte velden ontbreken' });
@@ -204,12 +204,30 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(403).json({ error: 'Geen studentprofiel gevonden.' });
     }
 
-    // Bedrijf moet al bestaan (admin beheert de bedrijvenlijst)
     const [bedrijfRows] = await db.query('SELECT id FROM bedrijf WHERE naam = ?', [bedrijf]);
-    if (bedrijfRows.length === 0) {
-      return res.status(400).json({ error: 'Onbekend bedrijf. Vraag de admin om dit bedrijf eerst toe te voegen.' });
+    let bedrijf_id;
+    if (bedrijfRows.length > 0) {
+      bedrijf_id = bedrijfRows[0].id;
+    } else {
+      if (!bedrijfNieuw || !bedrijfNieuw.adres || !bedrijfNieuw.btw || !bedrijfNieuw.email) {
+        return res.status(400).json({ error: 'Vul de gegevens van het nieuwe bedrijf volledig in (adres, BTW, e-mail).' });
+      }
+      const [ins] = await db.query(
+        `INSERT INTO bedrijf (naam, sector, adres, postcode, stad, btw_nummer, website, email)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          bedrijf,
+          sector || null,
+          bedrijfNieuw.adres,
+          bedrijfNieuw.postcode || null,
+          bedrijfNieuw.stad || null,
+          bedrijfNieuw.btw,
+          bedrijfNieuw.website || null,
+          bedrijfNieuw.email,
+        ]
+      );
+      bedrijf_id = ins.insertId;
     }
-    const bedrijf_id = bedrijfRows[0].id;
 
     // Stage aanmaken (docent_id wordt later toegekend door commissie/admin)
     const [stage] = await db.query(
