@@ -48,7 +48,7 @@
     document.getElementById('statStudenten').textContent = allGebruikers.filter(g => g.rollen.includes('student')).length;
     document.getElementById('statDocenten').textContent  = allGebruikers.filter(g => g.rollen.includes('docent')).length;
     const overig = allGebruikers.filter(g =>
-      g.rollen.includes('stagementor') || g.rollen.includes('commissielid')
+      g.rollen.includes('mentor') || g.rollen.includes('commissielid') || g.rollen.includes('bedrijf')
     ).length;
     document.getElementById('statOverig').textContent = overig;
   }
@@ -132,8 +132,8 @@
   function rolBadgeClass(rol) {
     const map = {
       student: 'badge-student', docent: 'badge-docent',
-      stagementor: 'badge-stagementor', commissielid: 'badge-commissie',
-      admin: 'badge-admin',
+      mentor: 'badge-stagementor', commissielid: 'badge-commissie',
+      bedrijf: 'badge-bedrijf', admin: 'badge-admin',
     };
     return map[rol] || '';
   }
@@ -141,7 +141,7 @@
   function rolLabel(rol) {
     const map = {
       student: 'Student', docent: 'Docent',
-      stagementor: 'Stagementor', commissielid: 'Commissie', admin: 'Admin',
+      mentor: 'Stagementor', commissielid: 'Commissie', bedrijf: 'Bedrijf', admin: 'Admin',
     };
     return map[rol] || rol;
   }
