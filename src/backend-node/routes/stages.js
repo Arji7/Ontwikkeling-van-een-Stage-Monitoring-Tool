@@ -676,7 +676,20 @@ router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'),
     return res.status(400).json({ error: 'Bij goedkeuring moet een docent gekozen worden.' });
   }
 
+  let docentRecordId = null;
+
   try {
+    if (docent_id) {
+      // docent_id kan een gebruiker_id of docent.id zijn — zoek het docent record
+      let [docentRows] = await db.query('SELECT id FROM docent WHERE id = ?', [docent_id]);
+      if (docentRows.length === 0) {
+        [docentRows] = await db.query('SELECT id FROM docent WHERE gebruiker_id = ?', [docent_id]);
+      }
+      if (docentRows.length === 0) {
+        return res.status(400).json({ error: 'Gekozen docent bestaat niet.' });
+      }
+      docentRecordId = docentRows[0].id;
+    }
     const [stageRows] = await db.query('SELECT status FROM stage WHERE id = ?', [stage_id]);
     if (stageRows.length === 0) {
       return res.status(404).json({ error: 'Stage niet gevonden.' });
@@ -723,9 +736,9 @@ router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'),
     const updates = ['status = ?'];
     const updateParams = [beslissing];
 
-    if (beslissing === 'goedgekeurd') {
+    if (beslissing === 'goedgekeurd' && docentRecordId) {
       updates.push('docent_id = ?');
-      updateParams.push(docent_id);
+      updateParams.push(docentRecordId);
     }
     if (bedrijf_id) {
       updates.push('bedrijf_id = ?');
