@@ -59,12 +59,15 @@
           <div class="grid-2">
             <div class="field">
               <label for="bedrijf">Naam bedrijf <span class="req">*</span></label>
-              <input type="text" id="bedrijf" name="bedrijf" placeholder="TechCorp BV" />
+              <select id="bedrijf" name="bedrijf">
+                <option value="">-- Kies een bedrijf --</option>
+              </select>
+              <p class="field-hint">Staat je bedrijf er niet bij? Vraag de admin om dit toe te voegen.</p>
               <p class="field-error" id="bedrijfError" aria-live="polite"></p>
             </div>
             <div class="field">
-              <label for="sector">Sector <span class="req">*</span></label>
-              <input type="text" id="sector" name="sector" placeholder="Software ontwikkeling" />
+              <label for="sector">Sector</label>
+              <input type="text" id="sector" name="sector" readonly placeholder="—" />
               <p class="field-error" id="sectorError" aria-live="polite"></p>
             </div>
             <div class="field">

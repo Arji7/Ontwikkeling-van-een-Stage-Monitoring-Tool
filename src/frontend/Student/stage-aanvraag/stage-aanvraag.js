@@ -8,8 +8,7 @@ const isEditMode = !!stageId;
 
 // Verplichte velden: id => foutmelding
 const requiredFields = {
-  bedrijf:      "Naam bedrijf is verplicht.",
-  sector:       "Sector is verplicht.",
+  bedrijf:      "Kies een bedrijf uit de lijst.",
   mentor:       "Stagementor is verplicht.",
   mentorEmail:  "E-mail mentor is verplicht.",
   startDatum:   "Startdatum is verplicht.",
@@ -27,6 +26,32 @@ document.addEventListener("DOMContentLoaded", function () {
   if (startInput) startInput.addEventListener("change", function () {
     if (eindInput && startInput.value) eindInput.min = startInput.value;
   });
+});
+
+// ── Bedrijven-dropdown vullen + sector auto-fill ──
+let bedrijvenCache = [];
+document.addEventListener("DOMContentLoaded", async function () {
+  const token = sessionStorage.getItem("token");
+  if (!token) return;
+  try {
+    const res = await fetch(API_BASE + "/bedrijven", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) return;
+    bedrijvenCache = await res.json();
+    const sel = document.getElementById("bedrijf");
+    if (!sel) return;
+    bedrijvenCache.forEach(function (b) {
+      const opt = document.createElement("option");
+      opt.value = b.naam;
+      opt.textContent = b.naam;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", function () {
+      const b = bedrijvenCache.find(function (x) { return x.naam === sel.value; });
+      document.getElementById("sector").value = b ? (b.sector || "") : "";
+    });
+  } catch (e) { console.error("Kon bedrijven niet laden:", e); }
 });
 
 // ── EDIT MODE: bestaande gegevens vooraf invullen ──
