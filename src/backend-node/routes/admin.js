@@ -164,13 +164,24 @@ router.put('/gebruikers/:id', authMiddleware, hasRole('admin'), async (req, res)
   }
 });
 
-// DELETE /api/admin/gebruikers/:id — gebruiker deactiveren
+// DELETE /api/admin/gebruikers/:id — gebruiker definitief verwijderen
 router.delete('/gebruikers/:id', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
-    await db.query('UPDATE gebruiker SET actief = FALSE WHERE id = ?', [req.params.id]);
-    res.json({ message: 'Gebruiker gedeactiveerd.' });
+    const gebruikerId = Number(req.params.id);
+
+    if (gebruikerId === req.user.id) {
+      return res.status(400).json({ error: 'Je kan je eigen adminaccount niet verwijderen.' });
+    }
+
+    const [[gebruiker]] = await db.query('SELECT id FROM gebruiker WHERE id = ?', [gebruikerId]);
+    if (!gebruiker) {
+      return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
+    }
+
+    await db.query('DELETE FROM gebruiker WHERE id = ?', [gebruikerId]);
+    res.json({ message: 'Gebruiker verwijderd.' });
   } catch (err) {
-    console.error('Admin gebruiker deactiveren fout:', err);
+    console.error('Admin gebruiker verwijderen fout:', err);
     res.status(500).json({ error: 'Serverfout.' });
   }
 });

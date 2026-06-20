@@ -86,9 +86,7 @@
     const statusBadge = g.actief
       ? '<span class="badge badge-actief">Actief</span>'
       : '<span class="badge badge-inactief">Inactief</span>';
-    const actiefKnop = g.actief
-      ? `<button class="btn-action btn-deactivate" onclick="toggleStatus(${g.id}, false)">Deactiveren</button>`
-      : `<button class="btn-action btn-activate"   onclick="toggleStatus(${g.id}, true)">Activeren</button>`;
+    const verwijderKnop = `<button class="btn-action btn-delete" onclick="verwijderGebruiker(${g.id}, '${escAttr(g.naam)}')">Verwijderen</button>`;
 
     return `
       <tr>
@@ -108,24 +106,32 @@
         <td>
           <div class="actions">
             <a href="gebruiker-bewerken.html?id=${g.id}" class="btn-action btn-edit">Bewerken</a>
-            ${actiefKnop}
+            ${verwijderKnop}
           </div>
         </td>
       </tr>`;
   }
 
-  window.toggleStatus = async function (id, actief) {
+  window.verwijderGebruiker = async function (id, naam) {
+    const zeker = confirm(
+      'Weet je zeker dat je "' + naam + '" definitief wilt verwijderen?\n\n' +
+      'Deze actie verwijdert de gebruiker uit de database.'
+    );
+    if (!zeker) return;
+
     try {
-      await fetch(API_BASE + '/admin/gebruikers/' + id, {
-        method: actief ? 'PUT' : 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actief: actief })
+      const res = await fetch(API_BASE + '/admin/gebruikers/' + id, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
       });
+      const data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || 'Verwijderen mislukt.');
+
       await laadGebruikers();
       vulStats();
       render();
     } catch (e) {
-      alert('Fout bij status wijzigen.');
+      alert(e.message || 'Fout bij verwijderen.');
     }
   };
 
@@ -150,5 +156,9 @@
     return String(str)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function escAttr(str) {
+    return escHtml(str).replace(/'/g, '&#39;');
   }
 })();
