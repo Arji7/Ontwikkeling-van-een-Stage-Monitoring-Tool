@@ -29,7 +29,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Als niet goedgekeurd: redirect naar passende pagina
     if (stage.status === "afgerond") {
-      window.location.href = "../stage-beoordeling/stage-afgerond/stage-afgerond.html";
+      if (!localStorage.getItem("afgerond_gezien_" + stage.id)) {
+        window.location.href = "../stage-beoordeling/stage-afgerond/stage-afgerond.html";
+        return;
+      }
+      window.location.href = "../stage-aanvraag/stage-aanvraag.html";
       return;
     }
     if (stage.status === "aanpassingen_vereist") {

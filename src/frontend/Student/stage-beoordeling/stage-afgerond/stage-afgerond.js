@@ -18,6 +18,8 @@ Promise.all([
     return;
   }
 
+  localStorage.setItem('afgerond_gezien_' + stage.id, '1');
+
   const eindEval = evaluaties.find(function(e) {
     return e.stage_id === stage.id && e.type === 'eind';
   });
