@@ -691,6 +691,7 @@ router.get('/', authMiddleware, hasRole('admin', 'commissielid'), async (req, re
        LEFT JOIN docent    d  ON d.id  = s.docent_id
        LEFT JOIN gebruiker dg ON dg.id = d.gebruiker_id
        LEFT JOIN stageovereenkomst so2 ON so2.stage_id = s.id
+       WHERE s.status <> 'afgekeurd'
        ORDER BY s.aangemaakt_op DESC`
     );
     res.json(rows);

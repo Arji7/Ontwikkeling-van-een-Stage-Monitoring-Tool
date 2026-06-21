@@ -241,7 +241,7 @@ CREATE TABLE `overeenkomst_handtekening` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `overeenkomst_id` int(11) NOT NULL,
   `gebruiker_id` int(11) NOT NULL,
-  `rol` enum('student','bedrijf','commissielid') NOT NULL,
+  `rol` enum('student','bedrijf','commissielid','mentor') NOT NULL,
   `methode` enum('itsme','handtekening') NOT NULL,
   `ondertekend_op` datetime NOT NULL DEFAULT current_timestamp(),
   `ip_adres` varchar(45) DEFAULT NULL,
