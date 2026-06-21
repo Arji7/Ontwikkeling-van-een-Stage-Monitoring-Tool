@@ -848,10 +848,17 @@ router.post('/:id/onderteken', authMiddleware, async (req, res) => {
     if (rollen.includes('bedrijf')) {
       bedrijfId = await getBedrijfIdVoorAccount(req.user.id);
     }
+    let mentorGebruikerMatch = false;
+    if (rollen.includes('mentor') && stage.mentor_id) {
+      const [[m]] = await db.query('SELECT gebruiker_id FROM mentor WHERE id = ?', [stage.mentor_id]);
+      mentorGebruikerMatch = m && Number(m.gebruiker_id) === Number(req.user.id);
+    }
     if (rollen.includes('student') && stage.student_gebruiker_id === req.user.id) {
       rol = 'student';
     } else if (rollen.includes('bedrijf') && bedrijfId && Number(bedrijfId) === Number(stage.bedrijf_id)) {
       rol = 'bedrijf';
+    } else if (rollen.includes('mentor') && mentorGebruikerMatch) {
+      rol = 'mentor';
     } else if (rollen.includes('commissielid') || rollen.includes('admin')) {
       rol = 'commissielid';
     }
@@ -872,7 +879,7 @@ router.post('/:id/onderteken', authMiddleware, async (req, res) => {
       overeenkomstId = overeenkomstRows[0].id;
     }
 
-    const [bestaand] = rol === 'bedrijf'
+    const [bestaand] = (rol === 'bedrijf' || rol === 'mentor')
       ? await db.query(
           "SELECT id FROM overeenkomst_handtekening WHERE overeenkomst_id = ? AND rol IN ('bedrijf', 'mentor')",
           [overeenkomstId]
