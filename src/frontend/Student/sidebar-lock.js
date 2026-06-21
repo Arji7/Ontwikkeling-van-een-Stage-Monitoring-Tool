@@ -10,13 +10,17 @@
   if (!token) return;
 
   try {
-    var res = await fetch(API_BASE + "/logboeken/mijn/overzicht", {
+    var res = await fetch(API_BASE + "/stages/mijn", {
       headers: { "Authorization": "Bearer " + token }
     });
     if (!res.ok) return;
-    var data = await res.json();
+    var stages = await res.json();
 
-    var heeftActieveStage = !!(data && data.stage_id);
+    // Enkel een echt actieve stage ontgrendelt de sidebar.
+    // Afgeronde stages tellen niet — de student kan een nieuwe stage starten.
+    var heeftActieveStage = Array.isArray(stages) && stages.some(function (s) {
+      return s.status === "actief";
+    });
     if (heeftActieveStage) return;
 
     var teLocken = ["Logboeken", "Evaluaties"];
