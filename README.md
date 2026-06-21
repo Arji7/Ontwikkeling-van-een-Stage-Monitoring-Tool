@@ -4,13 +4,22 @@
 
 De opleiding wil het stageproces digitaliseren via één centrale tool voor studenten, docenten, mentoren en de stagecommissie. De applicatie ondersteunt het volledige stagetraject: van het indienen van een stagevoorstel tot de eindevaluatie.
 
+## 🚀 Live applicatie
+
+De applicatie draait op de school-VM:
+
+**http://10.2.160.240:3000/inloggen/inloggen.html**
+
+> Bereikbaar binnen het EhB-netwerk (op school of via school-VPN).
+
 ## Functionaliteiten
 
 ### Student
-- Stagevoorstel indienen en opvolgen
+- Stagevoorstel indienen en opvolgen (incl. nieuw bedrijf toevoegen)
 - Stageovereenkomst digitaal ondertekenen
 - Wekelijks logboek bijhouden (met dagoverzicht, competenties en bestanden)
 - Evaluatiescores en feedback raadplegen
+- Bevestigingsscherm met eindcijfer na afronding
 - Documenten uploaden
 
 ### Docent (stagebegeleider)
@@ -18,22 +27,26 @@ De opleiding wil het stageproces digitaliseren via één centrale tool voor stud
 - Logboeken beoordelen en feedback geven
 - Tussentijdse en eindevaluaties invullen met scores per competentie
 - Eindcijfer berekenen (automatisch op /20)
+- Rubriek per opleiding raadplegen
 
 ### Stagementor (bedrijf)
 - Logboeken bekijken en reageren
 - Mentorscores invullen bij evaluaties
 - Stageovereenkomst ondertekenen
+- Stageovereenkomst-document raadplegen
 
 ### Stagecommissie
 - Stagevoorstellen beoordelen (goedkeuren / afkeuren / aanpassingen vereisen)
 - Docent toewijzen aan stage
 - Overzicht van alle lopende stages en evaluaties
+- Afgewezen stages worden uit overzicht gefilterd
 
 ### Admin
 - Gebruikersbeheer (aanmaken, bewerken, verwijderen) met rolsysteem
 - Stage-, bedrijven- en competentiebeheer
 - Dashboard met statistieken
 - Academiejaar- en opleidingsbeheer
+- Competenties koppelen aan opleidingen
 
 ## Tech Stack
 
@@ -41,9 +54,11 @@ De opleiding wil het stageproces digitaliseren via één centrale tool voor stud
 |------|-------------|
 | Frontend | HTML, CSS, JavaScript (vanilla) |
 | Backend | Node.js, Express 5 |
-| Database | MySQL (via XAMPP) |
+| Database | MySQL 8 / MariaDB (poort 3306) |
 | Authenticatie | JWT (jsonwebtoken) + bcrypt |
 | Bestandsuploads | Multer |
+| Security | Helmet, express-rate-limit, CORS-whitelist |
+| Process manager | PM2 (op de VM) |
 | Versiebeheer | Git + GitHub |
 
 ## Projectstructuur
@@ -52,39 +67,44 @@ De opleiding wil het stageproces digitaliseren via één centrale tool voor stud
 Ontwikkeling-van-een-Stage-Monitoring-Tool/
 ├── README.md
 ├── .gitignore
+├── database/
+│   ├── create_tables.sql           # Volledig schema (30 tabellen)
+│   ├── insert_subcompetenties.sql  # Seed: subcompetenties per competentie
+│   └── update_niveaus.sql          # Seed: rubriek-niveaus 1–5
 ├── src/
 │   ├── backend-node/
-│   │   ├── server.js              # Express app & route-mounting
-│   │   ├── db.js                  # MySQL connection pool
-│   │   ├── .env                   # Omgevingsvariabelen (niet in git)
+│   │   ├── server.js               # Express app, helmet, CORS, rate-limit
+│   │   ├── db.js                   # MySQL connection pool
+│   │   ├── .env                    # Omgevingsvariabelen (niet in git)
 │   │   ├── middleware/
-│   │   │   └── authMiddelware.js  # JWT-verificatie & rolcontrole
+│   │   │   └── authMiddelware.js   # JWT-verificatie & rolcontrole
 │   │   ├── routes/
-│   │   │   ├── auth.js            # Login
-│   │   │   ├── stages.js          # Stagevoorstellen & ondertekening
-│   │   │   ├── logboeken.js       # Weeklogboeken
-│   │   │   ├── evaluaties.js      # Evaluaties & scores
-│   │   │   ├── competenties.js    # Competentieraamwerk
-│   │   │   ├── documenten.js      # Documentuploads
-│   │   │   ├── gebruikers.js      # Docenten & mentoren
-│   │   │   ├── bedrijven.js       # Bedrijvenbeheer
-│   │   │   └── admin.js           # Admin dashboard & CRUD
-│   │   └── uploads/               # Geüploade bestanden
+│   │   │   ├── auth.js             # Login / logout
+│   │   │   ├── stages.js           # Stagevoorstellen, ondertekening, koppelingen
+│   │   │   ├── logboeken.js        # Weeklogboeken
+│   │   │   ├── evaluaties.js       # Evaluaties & scores
+│   │   │   ├── competenties.js     # Competentieraamwerk per opleiding
+│   │   │   ├── documenten.js       # Documentuploads
+│   │   │   ├── gebruikers.js       # Docenten & mentoren
+│   │   │   ├── bedrijven.js        # Bedrijvenbeheer
+│   │   │   └── admin.js            # Admin dashboard & CRUD
+│   │   └── uploads/                # Geüploade bestanden
 │   └── frontend/
-│       ├── inloggen/              # Loginpagina
-│       ├── Student/               # Alle studentenpagina's
-│       ├── Docent/                # Docentpagina's
-│       ├── Mentor/                # Mentorpagina's
-│       ├── Commisie/              # Commissiepagina's
-│       ├── Admin/                 # Adminpagina's
-│       └── Bedrijf/               # Bedrijfspagina's
+│       ├── config.js               # API_BASE wordt dynamisch afgeleid
+│       ├── inloggen/               # Loginpagina
+│       ├── Student/                # Alle studentenpagina's
+│       ├── Docent/                 # Docentpagina's
+│       ├── Mentor/                 # Mentorpagina's
+│       ├── Commisie/               # Commissiepagina's
+│       ├── Admin/                  # Adminpagina's
+│       └── Bedrijf/                # Bedrijfspagina's
 ```
 
-## Installatie
+## Lokale installatie
 
 ### Vereisten
 - [Node.js](https://nodejs.org/) v18+
-- [XAMPP](https://www.apachefriends.org/) met MySQL op poort 3307
+- MySQL 8 of MariaDB (poort 3306)
 
 ### Stappen
 
@@ -100,28 +120,80 @@ Ontwikkeling-van-een-Stage-Monitoring-Tool/
    npm install
    ```
 
-3. **Configureer de database**
-   - Start XAMPP en zet MySQL aan
-   - Importeer het databaseschema via phpMyAdmin (`stage_monitor`)
+3. **Database aanmaken + schema laden**
+   ```bash
+   mysql -u root -p -e "CREATE DATABASE stage_monitor CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+   mysql -u root -p stage_monitor < ../../database/create_tables.sql
+   mysql -u root -p stage_monitor < ../../database/insert_subcompetenties.sql
+   mysql -u root -p stage_monitor < ../../database/update_niveaus.sql
+   ```
 
 4. **Maak een `.env` bestand** in `src/backend-node/`:
    ```env
-   DB_HOST=localhost
+   PORT=3000
+
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
    DB_USER=root
-   DB_PASSWORD=
+   DB_PASSWORD=jouw_mysql_wachtwoord
    DB_NAME=stage_monitor
-   DB_PORT=3307
-   JWT_SECRET=mijn_geheime_sleutel
+
+   JWT_SECRET=lange_random_string_van_minstens_32_tekens
+   JWT_EXPIRES_IN=8h
+
+   CORS_ORIGINS=http://localhost:3000,null
    ```
 
-5. **Start de backend**
+5. **Admin-account aanmaken** (zie `database/create_tables.sql` voor de roltabel-IDs):
+   ```bash
+   # Genereer hash
+   node -e "console.log(require('bcrypt').hashSync('JouwWachtwoord!', 10))"
+   # Insert in DB (vervang HASH_HIER)
+   mysql -u root -p stage_monitor -e "INSERT INTO gebruiker (voornaam, achternaam, email, wachtwoord_hash, actief) VALUES ('Admin', 'Beheerder', 'admin@ehb.be', 'HASH_HIER', 1); INSERT INTO gebruiker_rol (gebruiker_id, rol_id) SELECT g.id, r.id FROM gebruiker g, rol r WHERE g.email='admin@ehb.be' AND r.naam='admin';"
+   ```
+
+6. **Start de backend**
    ```bash
    npm run dev
    ```
    Server draait op `http://localhost:3000`
 
-6. **Open de frontend**
-   Open `src/frontend/inloggen/inloggen.html` in de browser (of via Live Server in VS Code).
+7. **Open de applicatie**
+   - In de browser: `http://localhost:3000/inloggen/inloggen.html`
+
+## Deployment op de VM
+
+De productie-VM draait Windows Server met:
+- MySQL Server 8.0 als Windows service
+- Node.js LTS
+- PM2 als process manager (auto-restart bij crash en reboot)
+
+### Onderhouds-commando's op de VM
+
+```powershell
+# Status van de backend bekijken
+pm2 status
+
+# Live logs zien
+pm2 logs stagemonitor
+
+# Backend herstarten na een wijziging
+pm2 restart stagemonitor
+
+# Code updaten en herstarten
+cd C:\Ontwikkeling-van-een-Stage-Monitoring-Tool
+git pull
+cd src\backend-node
+npm install                # alleen nodig als package.json wijzigde
+pm2 restart stagemonitor
+```
+
+### Firewall
+
+Poort **3000** moet openstaan in de Windows Firewall:
+```powershell
+New-NetFirewallRule -DisplayName "Stage Monitor Backend" -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
+```
 
 ## Hoe de app werkt
 
@@ -133,6 +205,12 @@ Ontwikkeling-van-een-Stage-Monitoring-Tool/
 5. De `authMiddleware` verifieert het token en zet `req.user` (met id, email, rollen)
 6. De `hasRole()` middleware controleert of de gebruiker de juiste rol heeft
 
+### Security
+- **Helmet** zet security-headers (X-Frame-Options, X-Content-Type-Options, …)
+- **CORS** is gewhitelist via `CORS_ORIGINS` env-var
+- **Rate-limiter** op `/api/auth/login`: max 10 mislukte pogingen per IP per 15 minuten
+- **Wachtwoorden** worden gehasht met bcrypt (rounds 10)
+
 ### Stage-flow
 ```
 Student dient voorstel in
@@ -141,11 +219,11 @@ Commissie beoordeelt → Goedgekeurd / Afgekeurd / Aanpassingen vereist
         ↓
 Goedgekeurd → Overeenkomst ondertekenen (student + mentor + commissielid)
         ↓
-Alle handtekeningen → Stage wordt "actief"
+Alle handtekeningen + mentor toegewezen → Stage wordt "actief"
         ↓
 Student houdt logboeken bij + evaluaties worden ingevuld
         ↓
-Eindevaluatie met eindcijfer → Stage "afgerond"
+Eindevaluatie met eindcijfer → Stage "afgerond" + student ziet bevestigingsscherm
 ```
 
 ### Scoreberekening
@@ -159,7 +237,7 @@ eindcijfer = (som_van_scores / (aantal_ingevuld × 5)) × 20
 
 | Branch | Doel |
 |--------|------|
-| `main` | Stabiele productieversie |
+| `main` | Stabiele productieversie (draait op de VM) |
 | `Test/main` | Integratiebranch voor testen |
 | `Test/student-` | Ontwikkeling studentfunctionaliteit & backend |
 | Feature-branches | Korte-termijn branches per functionaliteit (bijv. `feature/bekijken-leerlingen-docent`) |
@@ -175,16 +253,20 @@ Het ERD-schema is beschikbaar via dbdiagram.io:
 
 | Tabel | Beschrijving |
 |-------|-------------|
-| `gebruiker` + `gebruiker_rol` | Gebruikers met meervoudig rolsysteem |
+| `gebruiker` + `gebruiker_rol` + `rol` | Gebruikers met meervoudig rolsysteem |
 | `student` / `docent` / `mentor` | Rolspecifieke gegevens |
+| `opleiding` + `opleiding_competentie` | Opleidingen met gekoppelde competenties |
+| `bedrijf` | Stagebedrijven met contactgegevens |
 | `stage` | Stagevoorstellen met statusflow |
-| `stage_beslissing` | Goedkeur-/afkeurhistoriek met motivatie |
-| `stage_handtekening` | Digitale handtekeningen (canvas PNG) |
-| `logboek` + `logboek_dag` | Weeklogboeken met dagentries |
-| `evaluatie` | Tussentijdse & eindevaluaties |
+| `beslissing` | Goedkeur-/afkeurhistoriek met motivatie |
+| `stage_geschiedenis` | Volledige status-historiek van een stage |
+| `stageovereenkomst` + `overeenkomst_handtekening` | Digitale overeenkomst en handtekeningen |
+| `logboek` + `logboek_dag` + `logboek_bestand` | Weeklogboeken met dagentries en bijlagen |
+| `evaluatie` + `evaluatie_feedback` | Tussentijdse & eindevaluaties |
 | `competentie` → `subcompetentie` → `subcompetentie_niveau` | Competentieraamwerk met rubriekniveaus |
 | `competentiescore` | Scores per subcompetentie per evaluatie |
-| `document` | Geüploade documenten met feedback |
+| `document` + `document_feedback` | Geüploade documenten met feedback |
+| `wachtwoord_reset` | Reset-tokens voor het wachtwoord-vergeten proces |
 
 ## Team
 
