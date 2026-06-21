@@ -92,6 +92,10 @@ async function vulOvereenkomstKaart(token, stageStatus) {
       subEl.textContent = "Ondertekend door alle partijen";
       badgeEl.textContent = "Ondertekend";
       badgeEl.className = "card-badge badge-green";
+      if (stageStatus === "wacht_op_overeenkomst" && studentGetekend && mentorGetekend) {
+        const banner = document.getElementById("mentorWaitBanner");
+        if (banner) banner.style.display = "flex";
+      }
     } else if (studentGetekend && !mentorGetekend) {
       subEl.textContent = "Wacht op ondertekening van mentor";
       badgeEl.textContent = "In afwachting";
