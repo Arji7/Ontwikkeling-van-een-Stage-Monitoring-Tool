@@ -493,7 +493,8 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// PATCH /api/stages/:id/koppelingen — admin koppelt bedrijf en/of mentor aan een stage
+// PATCH /api/stages/:id/koppelingen — admin koppelt bedrijf en/of mentor aan een stage.
+// Bij mentor-toewijzing met al ondertekende overeenkomst → stage gaat automatisch naar 'actief'.
 router.patch('/:id/koppelingen', authMiddleware, hasRole('admin'), async (req, res) => {
   try {
     const stageId = req.params.id;
@@ -567,7 +568,27 @@ router.patch('/:id/koppelingen', authMiddleware, hasRole('admin'), async (req, r
       [req.user.id, stageId]
     );
 
-    res.json({ message: 'Koppeling opgeslagen.' });
+    let geactiveerd = false;
+    if (mentorId) {
+      const [[na]] = await db.query(
+        `SELECT s.status, ov.status AS ov_status
+           FROM stage s
+           LEFT JOIN stageovereenkomst ov ON ov.stage_id = s.id
+          WHERE s.id = ?`,
+        [stageId]
+      );
+      if (na && ['goedgekeurd', 'wacht_op_overeenkomst'].includes(na.status) && na.ov_status === 'ondertekend') {
+        await db.query("UPDATE stage SET status = 'actief' WHERE id = ?", [stageId]);
+        await db.query(
+          `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
+           VALUES (?, ?, 'actief', 'Mentor toegewezen — stage geactiveerd', ?)`,
+          [stageId, na.status, req.user.id]
+        );
+        geactiveerd = true;
+      }
+    }
+
+    res.json({ message: 'Koppeling opgeslagen.', geactiveerd });
   } catch (err) {
     console.error('Stage koppelingen opslaan fout:', err);
     res.status(500).json({ error: 'Serverfout.' });
@@ -795,7 +816,8 @@ router.post('/:id/beslissing', authMiddleware, hasRole('admin', 'commissielid'),
   }
 });
 
-// POST /api/stages/:id/onderteken — student, bedrijf of commissie ondertekent met canvas-PNG
+// POST /api/stages/:id/onderteken — registreert handtekening (student/bedrijf/commissie).
+// Allemaal getekend + mentor toegewezen → stage 'actief'; zonder mentor → 'wacht_op_overeenkomst'.
 router.post('/:id/onderteken', authMiddleware, async (req, res) => {
   const stageId = Number(req.params.id);
   const { handtekening } = req.body;
@@ -806,7 +828,7 @@ router.post('/:id/onderteken', authMiddleware, async (req, res) => {
 
   try {
     const [stageRows] = await db.query(
-      `SELECT s.id, s.student_id, s.bedrijf_id, s.status,
+      `SELECT s.id, s.student_id, s.bedrijf_id, s.mentor_id, s.status,
               st.gebruiker_id AS student_gebruiker_id
        FROM stage s
        LEFT JOIN student st ON st.id = s.student_id
@@ -881,20 +903,38 @@ router.post('/:id/onderteken', authMiddleware, async (req, res) => {
     const bedrijfGetekend = rollenGetekend.includes('bedrijf') || rollenGetekend.includes('mentor');
     const alleGetekend = rollenGetekend.includes('student') && bedrijfGetekend && rollenGetekend.includes('commissielid');
 
+    let nieuweStatus = stage.status;
     if (alleGetekend) {
-      await db.query("UPDATE stage SET status = 'actief' WHERE id = ?", [stageId]);
       await db.query(
         "UPDATE stageovereenkomst SET status = 'ondertekend', ondertekend_op = NOW() WHERE id = ?",
         [overeenkomstId]
       );
-      await db.query(
-        `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
-         VALUES (?, ?, 'actief', 'Overeenkomst door alle partijen ondertekend', ?)`,
-        [stageId, stage.status, req.user.id]
-      );
+      if (stage.mentor_id) {
+        await db.query("UPDATE stage SET status = 'actief' WHERE id = ?", [stageId]);
+        nieuweStatus = 'actief';
+        await db.query(
+          `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
+           VALUES (?, ?, 'actief', 'Overeenkomst door alle partijen ondertekend', ?)`,
+          [stageId, stage.status, req.user.id]
+        );
+      } else {
+        await db.query("UPDATE stage SET status = 'wacht_op_overeenkomst' WHERE id = ?", [stageId]);
+        nieuweStatus = 'wacht_op_overeenkomst';
+        await db.query(
+          `INSERT INTO stage_geschiedenis (stage_id, oude_status, nieuwe_status, opmerking, gewijzigd_door)
+           VALUES (?, ?, 'wacht_op_overeenkomst', 'Overeenkomst ondertekend, wacht op mentor-toewijzing om te activeren', ?)`,
+          [stageId, stage.status, req.user.id]
+        );
+      }
     }
 
-    res.json({ ok: true, rol, alleGetekend, nieuweStatus: alleGetekend ? 'actief' : stage.status });
+    res.json({
+      ok: true,
+      rol,
+      alleGetekend,
+      nieuweStatus,
+      wachtOpMentor: alleGetekend && !stage.mentor_id
+    });
   } catch (err) {
     console.error('Onderteken fout:', err);
     res.status(500).json({ error: 'Serverfout.' });

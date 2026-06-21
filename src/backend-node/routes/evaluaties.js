@@ -44,12 +44,38 @@ router.get('/student/mijn', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/evaluaties/competenties/rubriek — volledige rubriek
+// GET /api/evaluaties/competenties/rubriek — rubriek voor evaluatie-UI.
+// Filtert op opleiding via ?stage_id= (anders eigen opleiding voor student, of volledige lijst).
 router.get('/competenties/rubriek', authMiddleware, async (req, res) => {
   try {
-    const [competenties] = await db.query(
-      'SELECT id, naam, beschrijving, volgorde FROM competentie ORDER BY volgorde ASC'
-    );
+    const stageId = req.query.stage_id ? parseInt(req.query.stage_id, 10) : null;
+    let opleidingId = null;
+    if (stageId) {
+      const [rows] = await db.query(
+        `SELECT st.opleiding_id
+           FROM stage s JOIN student st ON st.id = s.student_id
+          WHERE s.id = ?`,
+        [stageId]
+      );
+      if (rows.length > 0) opleidingId = rows[0].opleiding_id;
+    } else if ((req.user.rollen || []).includes('student')) {
+      const [rows] = await db.query(
+        'SELECT opleiding_id FROM student WHERE gebruiker_id = ?',
+        [req.user.id]
+      );
+      if (rows.length > 0) opleidingId = rows[0].opleiding_id;
+    }
+
+    const [competenties] = opleidingId
+      ? await db.query(
+          `SELECT c.id, c.naam, c.beschrijving, c.volgorde
+             FROM competentie c
+             JOIN opleiding_competentie oc ON oc.competentie_id = c.id
+            WHERE oc.opleiding_id = ?
+            ORDER BY c.volgorde ASC`,
+          [opleidingId]
+        )
+      : await db.query('SELECT id, naam, beschrijving, volgorde FROM competentie ORDER BY volgorde ASC');
 
     for (const comp of competenties) {
       const [subs] = await db.query(
@@ -163,7 +189,8 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/evaluaties — evaluatie aanmaken (docent/admin)
+// POST /api/evaluaties — start tussentijdse of eindevaluatie (docent/admin).
+// Seedt competentiescore-rijen, beperkt tot subcompetenties van de opleiding van de student.
 router.post('/', authMiddleware, hasRole('docent', 'admin'), async (req, res) => {
   const { stage_id, type, week_nummer } = req.body;
 
@@ -175,8 +202,15 @@ router.post('/', authMiddleware, hasRole('docent', 'admin'), async (req, res) =>
   }
 
   try {
-    const [stageRows] = await db.query('SELECT id FROM stage WHERE id = ?', [stage_id]);
+    const [stageRows] = await db.query(
+      `SELECT s.id, st.opleiding_id
+         FROM stage s
+         JOIN student st ON st.id = s.student_id
+        WHERE s.id = ?`,
+      [stage_id]
+    );
     if (stageRows.length === 0) return res.status(404).json({ error: 'Stage niet gevonden.' });
+    const opleidingId = stageRows[0].opleiding_id;
 
     const [result] = await db.query(
       `INSERT INTO evaluatie (stage_id, type, week_nummer, status) VALUES (?, ?, ?, 'open')`,
@@ -184,7 +218,19 @@ router.post('/', authMiddleware, hasRole('docent', 'admin'), async (req, res) =>
     );
     const evaluatieId = result.insertId;
 
-    const [subs] = await db.query('SELECT id FROM subcompetentie ORDER BY volgorde ASC');
+    let subs;
+    if (opleidingId) {
+      [subs] = await db.query(
+        `SELECT sc.id
+           FROM subcompetentie sc
+           JOIN opleiding_competentie oc ON oc.competentie_id = sc.competentie_id
+          WHERE oc.opleiding_id = ?
+          ORDER BY sc.volgorde ASC`,
+        [opleidingId]
+      );
+    } else {
+      [subs] = await db.query('SELECT id FROM subcompetentie ORDER BY volgorde ASC');
+    }
     for (const sub of subs) {
       await db.query(
         'INSERT INTO competentiescore (evaluatie_id, subcompetentie_id) VALUES (?, ?)',
@@ -310,7 +356,8 @@ router.put('/:id/reflectie', authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/evaluaties/:id/indienen — evaluatie indienen (docent)
+// POST /api/evaluaties/:id/indienen — docent dient evaluatie definitief in.
+// Eindevaluatie met eindcijfer → status 'afgerond' + stage gaat naar 'afgerond'.
 router.post('/:id/indienen', authMiddleware, hasRole('docent', 'admin'), async (req, res) => {
   try {
     const [evaluaties] = await db.query('SELECT * FROM evaluatie WHERE id = ?', [req.params.id]);
