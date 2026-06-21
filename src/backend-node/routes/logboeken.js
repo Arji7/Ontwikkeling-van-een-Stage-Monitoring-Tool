@@ -37,7 +37,7 @@ async function getStudentId(gebruikerId) {
 async function getActieveStage(studentId) {
   const [rijen] = await db.query(
     `SELECT id FROM stage
-     WHERE student_id = ? AND status IN ('actief')
+     WHERE student_id = ? AND status IN ('actief', 'afgerond')
      ORDER BY aangemaakt_op DESC LIMIT 1`,
     [studentId]
   );
@@ -142,7 +142,7 @@ router.get('/mijn/overzicht', authMiddleware, async (req, res) => {
       `SELECT s.id AS stage_id, s.startdatum, s.einddatum, s.status, b.naam AS bedrijf_naam
        FROM stage s
        LEFT JOIN bedrijf b ON b.id = s.bedrijf_id
-       WHERE s.student_id = ? AND s.status IN ('actief')
+       WHERE s.student_id = ? AND s.status IN ('actief', 'afgerond')
        ORDER BY s.aangemaakt_op DESC
        LIMIT 1`,
       [studentId]
