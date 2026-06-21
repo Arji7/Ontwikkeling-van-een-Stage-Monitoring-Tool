@@ -1,464 +1,376 @@
--- =============================================
--- STAGE MONITORING TOOL — CREATE TABLES
--- EhB Erasmushogeschool Brussel
--- =============================================
 
-CREATE DATABASE IF NOT EXISTS stage_monitor
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+/*!40101 SET NAMES utf8 */;
+CREATE TABLE `academiejaar` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `naam` varchar(20) NOT NULL,
+  `startdatum` date DEFAULT NULL,
+  `einddatum` date DEFAULT NULL,
+  `actief` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `bedrijf` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `naam` varchar(255) NOT NULL,
+  `sector` varchar(100) DEFAULT NULL,
+  `adres` varchar(255) DEFAULT NULL,
+  `postcode` varchar(20) DEFAULT NULL,
+  `stad` varchar(100) DEFAULT NULL,
+  `land` varchar(100) NOT NULL DEFAULT 'Belgie',
+  `website` varchar(255) DEFAULT NULL,
+  `email` varchar(150) DEFAULT NULL,
+  `btw_nummer` varchar(50) DEFAULT NULL,
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `beslissing` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `stage_id` int(11) NOT NULL,
+  `commissielid_id` int(11) DEFAULT NULL,
+  `beslissing` enum('goedgekeurd','afgekeurd','aanpassingen_vereist') NOT NULL,
+  `opmerking` text DEFAULT NULL,
+  `datum` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `stage_id` (`stage_id`),
+  KEY `commissielid_id` (`commissielid_id`),
+  CONSTRAINT `beslissing_ibfk_1` FOREIGN KEY (`stage_id`) REFERENCES `stage` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `beslissing_ibfk_2` FOREIGN KEY (`commissielid_id`) REFERENCES `gebruiker` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `competentie` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `naam` varchar(255) NOT NULL,
+  `beschrijving` text DEFAULT NULL,
+  `volgorde` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `competentiescore` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `evaluatie_id` int(11) NOT NULL,
+  `subcompetentie_id` int(11) NOT NULL,
+  `score_docent` int(11) DEFAULT NULL CHECK (`score_docent` between 1 and 5),
+  `score_mentor` int(11) DEFAULT NULL CHECK (`score_mentor` between 1 and 5),
+  `feedback_mentor` text DEFAULT NULL,
+  `feedback_docent` text DEFAULT NULL,
+  `student_reflectie` text DEFAULT NULL,
+  `eind_doelscore` int(11) DEFAULT NULL CHECK (`eind_doelscore` between 1 and 5),
+  `trend` enum('stijgend','stabiel','dalend') DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `evaluatie_id` (`evaluatie_id`),
+  KEY `subcompetentie_id` (`subcompetentie_id`),
+  CONSTRAINT `competentiescore_ibfk_1` FOREIGN KEY (`evaluatie_id`) REFERENCES `evaluatie` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `competentiescore_ibfk_2` FOREIGN KEY (`subcompetentie_id`) REFERENCES `subcompetentie` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `docent` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `gebruiker_id` int(11) NOT NULL,
+  `titel` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gebruiker_id` (`gebruiker_id`),
+  CONSTRAINT `docent_ibfk_1` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `document` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `stage_id` int(11) NOT NULL,
+  `type` enum('stagevoorstel','bijlage','evaluatie','andere') NOT NULL,
+  `bestandsnaam` varchar(255) DEFAULT NULL,
+  `bestandspad` varchar(500) DEFAULT NULL,
+  `bestandsgrootte` int(11) DEFAULT NULL,
+  `status` enum('ingediend','goedgekeurd','afgekeurd') NOT NULL DEFAULT 'ingediend',
+  `geupload_door` int(11) DEFAULT NULL,
+  `geupload_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `stage_id` (`stage_id`),
+  KEY `geupload_door` (`geupload_door`),
+  CONSTRAINT `document_ibfk_1` FOREIGN KEY (`stage_id`) REFERENCES `stage` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `document_ibfk_2` FOREIGN KEY (`geupload_door`) REFERENCES `gebruiker` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `document_feedback` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_id` int(11) NOT NULL,
+  `gebruiker_id` int(11) DEFAULT NULL,
+  `feedback` text DEFAULT NULL,
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `document_id` (`document_id`),
+  KEY `gebruiker_id` (`gebruiker_id`),
+  CONSTRAINT `document_feedback_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `document_feedback_ibfk_2` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `evaluatie` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `stage_id` int(11) NOT NULL,
+  `type` enum('tussentijds','eind') NOT NULL,
+  `week_nummer` int(11) DEFAULT NULL,
+  `datum_bespreking` date DEFAULT NULL,
+  `type_bespreking` enum('fysiek','online') DEFAULT NULL,
+  `algemene_appreciatie` text DEFAULT NULL,
+  `globale_feedback` text DEFAULT NULL,
+  `officieel_eindcijfer` decimal(4,1) DEFAULT NULL,
+  `status` enum('open','ingediend','afgerond') NOT NULL DEFAULT 'open',
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `stage_id` (`stage_id`),
+  CONSTRAINT `evaluatie_ibfk_1` FOREIGN KEY (`stage_id`) REFERENCES `stage` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `evaluatie_feedback` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `evaluatie_id` int(11) NOT NULL,
+  `gebruiker_id` int(11) NOT NULL,
+  `rol` enum('student','docent','mentor') NOT NULL,
+  `feedback` text NOT NULL,
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `evaluatie_id` (`evaluatie_id`),
+  KEY `gebruiker_id` (`gebruiker_id`),
+  CONSTRAINT `evaluatie_feedback_ibfk_1` FOREIGN KEY (`evaluatie_id`) REFERENCES `evaluatie` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `evaluatie_feedback_ibfk_2` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `gebruiker` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `voornaam` varchar(100) NOT NULL,
+  `achternaam` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `persoonlijke_email` varchar(255) DEFAULT NULL,
+  `wachtwoord_hash` varchar(255) NOT NULL,
+  `actief` tinyint(1) NOT NULL DEFAULT 1,
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `gebruiker_rol` (
+  `gebruiker_id` int(11) NOT NULL,
+  `rol_id` int(11) NOT NULL,
+  PRIMARY KEY (`gebruiker_id`,`rol_id`),
+  KEY `rol_id` (`rol_id`),
+  CONSTRAINT `gebruiker_rol_ibfk_1` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `gebruiker_rol_ibfk_2` FOREIGN KEY (`rol_id`) REFERENCES `rol` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `logboek` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `stage_id` int(11) NOT NULL,
+  `week_nummer` int(11) NOT NULL,
+  `titel` varchar(255) DEFAULT NULL,
+  `datum_van` date DEFAULT NULL,
+  `datum_tot` date DEFAULT NULL,
+  `uitgevoerde_taken` text DEFAULT NULL,
+  `leerpunten` text DEFAULT NULL,
+  `mentor_feedback` text DEFAULT NULL,
+  `totaal_uren` int(11) DEFAULT NULL,
+  `status` enum('concept','ingediend','wacht_op_mentor','goedgekeurd') NOT NULL DEFAULT 'concept',
+  `ingediend_op` datetime DEFAULT NULL,
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `stage_id` (`stage_id`),
+  CONSTRAINT `logboek_ibfk_1` FOREIGN KEY (`stage_id`) REFERENCES `stage` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `logboek_bestand` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `logboek_id` int(11) NOT NULL,
+  `bestandsnaam` varchar(255) NOT NULL,
+  `origineel_naam` varchar(255) DEFAULT NULL,
+  `mimetype` varchar(100) DEFAULT NULL,
+  `bestandsgrootte` int(11) DEFAULT NULL,
+  `geupload_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `logboek_id` (`logboek_id`),
+  CONSTRAINT `logboek_bestand_ibfk_1` FOREIGN KEY (`logboek_id`) REFERENCES `logboek` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `logboek_competentie` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `logboek_id` int(11) NOT NULL,
+  `competentie_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `logboek_id` (`logboek_id`),
+  KEY `competentie_id` (`competentie_id`),
+  CONSTRAINT `logboek_competentie_ibfk_1` FOREIGN KEY (`logboek_id`) REFERENCES `logboek` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `logboek_competentie_ibfk_2` FOREIGN KEY (`competentie_id`) REFERENCES `competentie` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `logboek_dag` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `logboek_id` int(11) NOT NULL,
+  `datum` date NOT NULL,
+  `uren_gewerkt` decimal(4,1) DEFAULT NULL,
+  `uitgevoerde_taken` text DEFAULT NULL,
+  `is_afwezig` tinyint(1) NOT NULL DEFAULT 0,
+  `afwezig_reden` enum('ziek','verlof') DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `logboek_id` (`logboek_id`),
+  CONSTRAINT `logboek_dag_ibfk_1` FOREIGN KEY (`logboek_id`) REFERENCES `logboek` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `logboek_reactie` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `logboek_id` int(11) NOT NULL,
+  `gebruiker_id` int(11) NOT NULL,
+  `reactie` text NOT NULL,
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `logboek_id` (`logboek_id`),
+  KEY `gebruiker_id` (`gebruiker_id`),
+  CONSTRAINT `logboek_reactie_ibfk_1` FOREIGN KEY (`logboek_id`) REFERENCES `logboek` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `logboek_reactie_ibfk_2` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `mentor` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `gebruiker_id` int(11) NOT NULL,
+  `bedrijf_id` int(11) DEFAULT NULL,
+  `functie` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gebruiker_id` (`gebruiker_id`),
+  KEY `bedrijf_id` (`bedrijf_id`),
+  CONSTRAINT `mentor_ibfk_1` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `mentor_ibfk_2` FOREIGN KEY (`bedrijf_id`) REFERENCES `bedrijf` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `opleiding` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `naam` varchar(150) NOT NULL,
+  `afkorting` varchar(20) DEFAULT NULL,
+  `actief` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `opleiding_competentie` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `opleiding_id` int(11) NOT NULL,
+  `competentie_id` int(11) NOT NULL,
+  `verplicht` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `opleiding_id` (`opleiding_id`),
+  KEY `competentie_id` (`competentie_id`),
+  CONSTRAINT `opleiding_competentie_ibfk_1` FOREIGN KEY (`opleiding_id`) REFERENCES `opleiding` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `opleiding_competentie_ibfk_2` FOREIGN KEY (`competentie_id`) REFERENCES `competentie` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `overeenkomst_handtekening` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `overeenkomst_id` int(11) NOT NULL,
+  `gebruiker_id` int(11) NOT NULL,
+  `rol` enum('student','bedrijf','commissielid') NOT NULL,
+  `methode` enum('itsme','handtekening') NOT NULL,
+  `ondertekend_op` datetime NOT NULL DEFAULT current_timestamp(),
+  `ip_adres` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `overeenkomst_id` (`overeenkomst_id`),
+  KEY `gebruiker_id` (`gebruiker_id`),
+  CONSTRAINT `overeenkomst_handtekening_ibfk_1` FOREIGN KEY (`overeenkomst_id`) REFERENCES `stageovereenkomst` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `overeenkomst_handtekening_ibfk_2` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `refresh_token` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `gebruiker_id` int(11) NOT NULL,
+  `token` varchar(500) NOT NULL,
+  `vervalt_op` datetime NOT NULL,
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `gebruiker_id` (`gebruiker_id`),
+  CONSTRAINT `refresh_token_ibfk_1` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `rol` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `naam` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `naam` (`naam`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `stage` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `student_id` int(11) NOT NULL,
+  `bedrijf_id` int(11) DEFAULT NULL,
+  `mentor_id` int(11) DEFAULT NULL,
+  `docent_id` int(11) DEFAULT NULL,
+  `academiejaar_id` int(11) DEFAULT NULL,
+  `titel` varchar(255) DEFAULT NULL,
+  `omschrijving` text DEFAULT NULL,
+  `startdatum` date DEFAULT NULL,
+  `einddatum` date DEFAULT NULL,
+  `totaal_weken` int(11) NOT NULL DEFAULT 14,
+  `status` enum('concept','ingediend','in_beoordeling','goedgekeurd','aanpassingen_vereist','wacht_op_overeenkomst','actief','afgerond','afgekeurd') NOT NULL DEFAULT 'concept',
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  `bijgewerkt_op` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `contact_naam` varchar(200) DEFAULT NULL,
+  `contact_email` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `student_id` (`student_id`),
+  KEY `bedrijf_id` (`bedrijf_id`),
+  KEY `mentor_id` (`mentor_id`),
+  KEY `docent_id` (`docent_id`),
+  KEY `academiejaar_id` (`academiejaar_id`),
+  CONSTRAINT `stage_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `stage_ibfk_2` FOREIGN KEY (`bedrijf_id`) REFERENCES `bedrijf` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `stage_ibfk_3` FOREIGN KEY (`mentor_id`) REFERENCES `mentor` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `stage_ibfk_4` FOREIGN KEY (`docent_id`) REFERENCES `docent` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `stage_ibfk_5` FOREIGN KEY (`academiejaar_id`) REFERENCES `academiejaar` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `stage_geschiedenis` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `stage_id` int(11) NOT NULL,
+  `oude_status` varchar(50) DEFAULT NULL,
+  `nieuwe_status` varchar(50) DEFAULT NULL,
+  `opmerking` text DEFAULT NULL,
+  `gewijzigd_door` int(11) DEFAULT NULL,
+  `gewijzigd_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `stage_id` (`stage_id`),
+  KEY `gewijzigd_door` (`gewijzigd_door`),
+  CONSTRAINT `stage_geschiedenis_ibfk_1` FOREIGN KEY (`stage_id`) REFERENCES `stage` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `stage_geschiedenis_ibfk_2` FOREIGN KEY (`gewijzigd_door`) REFERENCES `gebruiker` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `stageovereenkomst` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `stage_id` int(11) NOT NULL,
+  `status` enum('niet_opgeladen','wacht_op_ondertekening','ondertekend','goedgekeurd') NOT NULL DEFAULT 'niet_opgeladen',
+  `ondertekening_methode` enum('itsme','handtekening') DEFAULT NULL,
+  `bestandsnaam` varchar(255) DEFAULT NULL,
+  `bestandspad` varchar(500) DEFAULT NULL,
+  `bestandsgrootte` int(11) DEFAULT NULL,
+  `ondertekend_op` datetime DEFAULT NULL,
+  `geupload_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `stage_id` (`stage_id`),
+  CONSTRAINT `stageovereenkomst_ibfk_1` FOREIGN KEY (`stage_id`) REFERENCES `stage` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `student` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `gebruiker_id` int(11) NOT NULL,
+  `studentnummer` varchar(20) DEFAULT NULL,
+  `opleiding_id` int(11) DEFAULT NULL,
+  `academiejaar_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gebruiker_id` (`gebruiker_id`),
+  UNIQUE KEY `studentnummer` (`studentnummer`),
+  KEY `opleiding_id` (`opleiding_id`),
+  KEY `academiejaar_id` (`academiejaar_id`),
+  CONSTRAINT `student_ibfk_1` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `student_ibfk_2` FOREIGN KEY (`opleiding_id`) REFERENCES `opleiding` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `student_ibfk_3` FOREIGN KEY (`academiejaar_id`) REFERENCES `academiejaar` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `subcompetentie` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `competentie_id` int(11) NOT NULL,
+  `code` varchar(20) DEFAULT NULL,
+  `naam` varchar(255) NOT NULL,
+  `beschrijving` text DEFAULT NULL,
+  `volgorde` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `competentie_id` (`competentie_id`),
+  CONSTRAINT `subcompetentie_ibfk_1` FOREIGN KEY (`competentie_id`) REFERENCES `competentie` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `subcompetentie_niveau` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `subcompetentie_id` int(11) NOT NULL,
+  `niveau` int(11) NOT NULL COMMENT '1=Onvoldoende 2=Zwak 3=Voldoende 4=Goed 5=Uitmuntend',
+  `label` varchar(50) DEFAULT NULL COMMENT 'bv. Onvoldoende',
+  `sublabel` varchar(100) DEFAULT NULL COMMENT 'bv. Onder verwachting',
+  `beschrijving` text DEFAULT NULL COMMENT 'bullet criteria tekst',
+  PRIMARY KEY (`id`),
+  KEY `subcompetentie_id` (`subcompetentie_id`),
+  CONSTRAINT `subcompetentie_niveau_ibfk_1` FOREIGN KEY (`subcompetentie_id`) REFERENCES `subcompetentie` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `wachtwoord_reset` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `gebruiker_id` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `vervalt_op` datetime NOT NULL,
+  `gebruikt` tinyint(1) NOT NULL DEFAULT 0,
+  `aangemaakt_op` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `gebruiker_id` (`gebruiker_id`),
+  CONSTRAINT `wachtwoord_reset_ibfk_1` FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-USE stage_monitor;
 
--- =============================================
--- GEBRUIKERS
--- =============================================
-
-CREATE TABLE gebruiker (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  voornaam        VARCHAR(100) NOT NULL,
-  achternaam      VARCHAR(100) NOT NULL,
-  email           VARCHAR(255) NOT NULL UNIQUE,
-  persoonlijke_email VARCHAR(255),
-  wachtwoord_hash VARCHAR(255) NOT NULL,
-  actief          BOOLEAN      NOT NULL DEFAULT TRUE,
-  aangemaakt_op   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE rol (
-  id   INT AUTO_INCREMENT PRIMARY KEY,
-  naam VARCHAR(50) NOT NULL UNIQUE
-);
-
-INSERT INTO rol (naam) VALUES
-  ('student'),
-  ('docent'),
-  ('mentor'),
-  ('stagemonitor'),
-  ('commissielid'),
-  ('admin'),
-  ('bedrijf');
-
-CREATE TABLE gebruiker_rol (
-  gebruiker_id INT NOT NULL,
-  rol_id       INT NOT NULL,
-  PRIMARY KEY (gebruiker_id, rol_id),
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE,
-  FOREIGN KEY (rol_id)       REFERENCES rol(id)       ON DELETE CASCADE
-);
-
--- =============================================
--- OPLEIDING & ACADEMIEJAAR
--- =============================================
-
-CREATE TABLE opleiding (
-  id        INT AUTO_INCREMENT PRIMARY KEY,
-  naam      VARCHAR(150) NOT NULL,
-  afkorting VARCHAR(20),
-  actief    BOOLEAN NOT NULL DEFAULT TRUE
-);
-
-CREATE TABLE academiejaar (
-  id         INT AUTO_INCREMENT PRIMARY KEY,
-  naam       VARCHAR(20) NOT NULL,
-  startdatum DATE,
-  einddatum  DATE,
-  actief     BOOLEAN NOT NULL DEFAULT TRUE
-);
-
--- =============================================
--- PROFIELEN
--- =============================================
-
-CREATE TABLE student (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  gebruiker_id    INT NOT NULL UNIQUE,
-  studentnummer   VARCHAR(20) UNIQUE,
-  opleiding_id    INT,
-  FOREIGN KEY (gebruiker_id)    REFERENCES gebruiker(id)    ON DELETE CASCADE,
-  FOREIGN KEY (opleiding_id)    REFERENCES opleiding(id)    ON DELETE SET NULL
-);
-
-CREATE TABLE docent (
-  id           INT AUTO_INCREMENT PRIMARY KEY,
-  gebruiker_id INT NOT NULL UNIQUE,
-  titel        VARCHAR(50),
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
-);
-
-CREATE TABLE bedrijf (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  naam          VARCHAR(255) NOT NULL,
-  sector        VARCHAR(100),
-  adres         VARCHAR(255),
-  postcode      VARCHAR(20),
-  stad          VARCHAR(100),
-  land          VARCHAR(100) NOT NULL DEFAULT 'Belgie',
-  email         VARCHAR(255),
-  website       VARCHAR(255),
-  btw_nummer    VARCHAR(50),
-  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE mentor (
-  id           INT AUTO_INCREMENT PRIMARY KEY,
-  gebruiker_id INT NOT NULL UNIQUE,
-  bedrijf_id   INT,
-  functie      VARCHAR(100),
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE,
-  FOREIGN KEY (bedrijf_id)   REFERENCES bedrijf(id)   ON DELETE SET NULL
-);
-
-CREATE TABLE bedrijf_account (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  gebruiker_id  INT NOT NULL UNIQUE,
-  bedrijf_id    INT,
-  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE,
-  FOREIGN KEY (bedrijf_id)   REFERENCES bedrijf(id)   ON DELETE SET NULL
-);
-
--- =============================================
--- STAGE
--- =============================================
-
-CREATE TABLE stage (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  student_id      INT NOT NULL,
-  bedrijf_id      INT,
-  mentor_id       INT,
-  docent_id       INT,
-  academiejaar_id INT,
-  titel           VARCHAR(255),
-  omschrijving    TEXT,
-  startdatum      DATE,
-  einddatum       DATE,
-  totaal_weken    INT     NOT NULL DEFAULT 14,
-  uren_per_week   INT     NOT NULL DEFAULT 38,
-  contact_naam    VARCHAR(200),
-  contact_email   VARCHAR(150),
-  contact_functie VARCHAR(100),
-  contact_telefoon VARCHAR(50),
-  status          ENUM(
-                    'concept',
-                    'ingediend',
-                    'in_beoordeling',
-                    'goedgekeurd',
-                    'aanpassingen_vereist',
-                    'wacht_op_overeenkomst',
-                    'actief',
-                    'afgerond',
-                    'afgekeurd'
-                  ) NOT NULL DEFAULT 'concept',
-  aangemaakt_op   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  bijgewerkt_op   DATETIME ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (student_id)      REFERENCES student(id)      ON DELETE CASCADE,
-  FOREIGN KEY (bedrijf_id)      REFERENCES bedrijf(id)      ON DELETE SET NULL,
-  FOREIGN KEY (mentor_id)       REFERENCES mentor(id)       ON DELETE SET NULL,
-  FOREIGN KEY (docent_id)       REFERENCES docent(id)       ON DELETE SET NULL,
-  FOREIGN KEY (academiejaar_id) REFERENCES academiejaar(id) ON DELETE SET NULL
-);
-
-CREATE TABLE stage_geschiedenis (
-  id             INT AUTO_INCREMENT PRIMARY KEY,
-  stage_id       INT NOT NULL,
-  oude_status    VARCHAR(50),
-  nieuwe_status  VARCHAR(50),
-  opmerking      TEXT,
-  gewijzigd_door INT,
-  gewijzigd_op   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (stage_id)       REFERENCES stage(id)     ON DELETE CASCADE,
-  FOREIGN KEY (gewijzigd_door) REFERENCES gebruiker(id) ON DELETE SET NULL
-);
-
--- =============================================
--- STAGEOVEREENKOMST
--- =============================================
-
-CREATE TABLE stageovereenkomst (
-  id                    INT AUTO_INCREMENT PRIMARY KEY,
-  stage_id              INT NOT NULL UNIQUE,
-  status                ENUM('niet_opgeladen','wacht_op_ondertekening','ondertekend','goedgekeurd') NOT NULL DEFAULT 'niet_opgeladen',
-  ondertekening_methode ENUM('itsme','handtekening'),
-  bestandsnaam          VARCHAR(255),
-  bestandspad           VARCHAR(500),
-  bestandsgrootte       INT,
-  ondertekend_op        DATETIME,
-  goedgekeurd_op        DATETIME,
-  geupload_op           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (stage_id) REFERENCES stage(id) ON DELETE CASCADE
-);
-
-CREATE TABLE overeenkomst_handtekening (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  overeenkomst_id INT NOT NULL,
-  gebruiker_id    INT NOT NULL,
-  rol             ENUM('student','bedrijf','commissielid') NOT NULL,
-  methode         ENUM('itsme','handtekening') NOT NULL,
-  ondertekend_op  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  ip_adres        VARCHAR(45),
-  FOREIGN KEY (overeenkomst_id) REFERENCES stageovereenkomst(id) ON DELETE CASCADE,
-  FOREIGN KEY (gebruiker_id)    REFERENCES gebruiker(id)         ON DELETE CASCADE
-);
-
--- =============================================
--- DOCUMENTEN
--- =============================================
-
-CREATE TABLE document (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  stage_id        INT NOT NULL,
-  type            ENUM('stagevoorstel','bijlage','evaluatie','andere') NOT NULL,
-  bestandsnaam    VARCHAR(255),
-  bestandspad     VARCHAR(500),
-  bestandsgrootte INT,
-  status          ENUM('ingediend','goedgekeurd','afgekeurd') NOT NULL DEFAULT 'ingediend',
-  geupload_door   INT,
-  geupload_op     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (stage_id)      REFERENCES stage(id)     ON DELETE CASCADE,
-  FOREIGN KEY (geupload_door) REFERENCES gebruiker(id) ON DELETE SET NULL
-);
-
-CREATE TABLE document_feedback (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  document_id   INT NOT NULL,
-  gebruiker_id  INT,
-  feedback      TEXT,
-  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (document_id)  REFERENCES document(id)  ON DELETE CASCADE,
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE SET NULL
-);
-
--- =============================================
--- COMPETENTIES
--- =============================================
-
-CREATE TABLE competentie (
-  id           INT AUTO_INCREMENT PRIMARY KEY,
-  naam         VARCHAR(255) NOT NULL,
-  beschrijving TEXT,
-  volgorde     INT
-);
-
-CREATE TABLE subcompetentie (
-  id             INT AUTO_INCREMENT PRIMARY KEY,
-  competentie_id INT NOT NULL,
-  code           VARCHAR(20),
-  naam           VARCHAR(255) NOT NULL,
-  beschrijving   TEXT,
-  volgorde       INT,
-  FOREIGN KEY (competentie_id) REFERENCES competentie(id) ON DELETE CASCADE
-);
-
-CREATE TABLE subcompetentie_niveau (
-  id                INT AUTO_INCREMENT PRIMARY KEY,
-  subcompetentie_id INT NOT NULL,
-  niveau            INT NOT NULL COMMENT '1=Onvoldoende 2=Zwak 3=Voldoende 4=Goed 5=Uitmuntend',
-  label             VARCHAR(50)  COMMENT 'bv. Onvoldoende',
-  sublabel          VARCHAR(100) COMMENT 'bv. Onder verwachting',
-  beschrijving      TEXT         COMMENT 'bullet criteria tekst',
-  FOREIGN KEY (subcompetentie_id) REFERENCES subcompetentie(id) ON DELETE CASCADE
-);
-
-CREATE TABLE opleiding_competentie (
-  id             INT AUTO_INCREMENT PRIMARY KEY,
-  opleiding_id   INT NOT NULL,
-  competentie_id INT NOT NULL,
-  verplicht      BOOLEAN NOT NULL DEFAULT TRUE,
-  FOREIGN KEY (opleiding_id)   REFERENCES opleiding(id)   ON DELETE CASCADE,
-  FOREIGN KEY (competentie_id) REFERENCES competentie(id) ON DELETE CASCADE
-);
-
-INSERT INTO competentie (naam, volgorde) VALUES
-  ('Beheersing planningsproces',       1),
-  ('Ontwerpen IT-oplossingen',         2),
-  ('Implementatie digitale producten', 3),
-  ('Integratie technologie',           4),
-  ('Onderzoekende houding',            5),
-  ('Communicatie',                     6),
-  ('Probleemoplossend vermogen',       7),
-  ('Persoonlijke ontwikkeling',        8),
-  ('Professionele attitude',           9),
-  ('Ondernemend handelen',            10),
-  ('Ethisch handelen',                11);
-
--- =============================================
--- LOGBOEK
--- =============================================
-
-CREATE TABLE logboek (
-  id                INT AUTO_INCREMENT PRIMARY KEY,
-  stage_id          INT NOT NULL,
-  week_nummer       INT NOT NULL,
-  titel             VARCHAR(255),
-  datum_van         DATE,
-  datum_tot         DATE,
-  uitgevoerde_taken TEXT,
-  leerpunten        TEXT,
-  mentor_feedback   TEXT,
-  totaal_uren       INT,
-  status            ENUM('concept','ingediend','wacht_op_mentor','goedgekeurd') NOT NULL DEFAULT 'concept',
-  ingediend_op      DATETIME,
-  aangemaakt_op     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (stage_id) REFERENCES stage(id) ON DELETE CASCADE
-);
-
-CREATE TABLE logboek_dag (
-  id                INT AUTO_INCREMENT PRIMARY KEY,
-  logboek_id        INT NOT NULL,
-  datum             DATE NOT NULL,
-  uren_gewerkt      DECIMAL(4,1),
-  uitgevoerde_taken TEXT,
-  is_afwezig        BOOLEAN NOT NULL DEFAULT FALSE,
-  afwezig_reden     ENUM('ziek','verlof'),
-  FOREIGN KEY (logboek_id) REFERENCES logboek(id) ON DELETE CASCADE
-);
-
-CREATE TABLE logboek_competentie (
-  id             INT AUTO_INCREMENT PRIMARY KEY,
-  logboek_id     INT NOT NULL,
-  competentie_id INT NOT NULL,
-  FOREIGN KEY (logboek_id)     REFERENCES logboek(id)     ON DELETE CASCADE,
-  FOREIGN KEY (competentie_id) REFERENCES competentie(id) ON DELETE CASCADE
-);
-
-CREATE TABLE logboek_reactie (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  logboek_id    INT NOT NULL,
-  gebruiker_id  INT NOT NULL,
-  reactie       TEXT NOT NULL,
-  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (logboek_id)   REFERENCES logboek(id)   ON DELETE CASCADE,
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
-);
-
-CREATE TABLE logboek_bestand (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  logboek_id      INT NOT NULL,
-  bestandsnaam    VARCHAR(255) NOT NULL,
-  origineel_naam  VARCHAR(255),
-  mimetype        VARCHAR(100),
-  bestandsgrootte INT,
-  geupload_op     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (logboek_id) REFERENCES logboek(id) ON DELETE CASCADE
-);
-
--- =============================================
--- EVALUATIES
--- =============================================
-
-CREATE TABLE evaluatie (
-  id                   INT AUTO_INCREMENT PRIMARY KEY,
-  stage_id             INT NOT NULL,
-  type                 ENUM('tussentijds','eind') NOT NULL,
-  week_nummer          INT,
-  datum_bespreking     DATE,
-  type_bespreking      ENUM('fysiek','online'),
-  sterke_punten        TEXT,
-  verbeterpunten       TEXT,
-  algemene_appreciatie TEXT,
-  globale_feedback     TEXT,
-  officieel_eindcijfer DECIMAL(4,1),
-  status               ENUM('open','ingediend','afgerond') NOT NULL DEFAULT 'open',
-  aangemaakt_op        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (stage_id) REFERENCES stage(id) ON DELETE CASCADE
-);
-
-CREATE TABLE competentiescore (
-  id                INT AUTO_INCREMENT PRIMARY KEY,
-  evaluatie_id      INT NOT NULL,
-  subcompetentie_id INT NOT NULL,
-  score_docent      INT CHECK (score_docent BETWEEN 1 AND 5),
-  score_mentor      INT CHECK (score_mentor BETWEEN 1 AND 5),
-  feedback_docent   TEXT,
-  feedback_mentor   TEXT,
-  student_reflectie TEXT,
-  eind_doelscore    INT CHECK (eind_doelscore BETWEEN 1 AND 5),
-  trend             ENUM('stijgend','stabiel','dalend'),
-  FOREIGN KEY (evaluatie_id)      REFERENCES evaluatie(id)      ON DELETE CASCADE,
-  FOREIGN KEY (subcompetentie_id) REFERENCES subcompetentie(id) ON DELETE CASCADE
-);
-
-CREATE TABLE evaluatie_feedback (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  evaluatie_id  INT NOT NULL,
-  gebruiker_id  INT NOT NULL,
-  rol           ENUM('student','docent','mentor') NOT NULL,
-  feedback      TEXT NOT NULL,
-  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (evaluatie_id) REFERENCES evaluatie(id) ON DELETE CASCADE,
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
-);
-
--- =============================================
--- COMMISSIE BESLISSINGEN
--- =============================================
-
-CREATE TABLE beslissing (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  stage_id        INT NOT NULL,
-  commissielid_id INT,
-  beslissing      ENUM('goedgekeurd','afgekeurd','aanpassingen_vereist') NOT NULL,
-  opmerking       TEXT,
-  datum           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (stage_id)        REFERENCES stage(id)     ON DELETE CASCADE,
-  FOREIGN KEY (commissielid_id) REFERENCES gebruiker(id) ON DELETE SET NULL
-);
-
--- =============================================
--- GESCHIL
--- =============================================
-
-CREATE TABLE geschil (
-  id             INT AUTO_INCREMENT PRIMARY KEY,
-  stage_id       INT NOT NULL,
-  ingediend_door INT NOT NULL,
-  onderwerp      VARCHAR(255) NOT NULL,
-  beschrijving   TEXT NOT NULL,
-  status         ENUM('open','in_behandeling','opgelost','afgesloten') NOT NULL DEFAULT 'open',
-  oplossing      TEXT,
-  behandeld_door INT,
-  aangemaakt_op  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  opgelost_op    DATETIME,
-  FOREIGN KEY (stage_id)       REFERENCES stage(id)     ON DELETE CASCADE,
-  FOREIGN KEY (ingediend_door) REFERENCES gebruiker(id) ON DELETE CASCADE,
-  FOREIGN KEY (behandeld_door) REFERENCES gebruiker(id) ON DELETE SET NULL
-);
-
--- =============================================
--- MELDINGEN
--- =============================================
-
-CREATE TABLE melding (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  gebruiker_id  INT NOT NULL,
-  titel         VARCHAR(255),
-  bericht       TEXT,
-  type          VARCHAR(50),
-  link          VARCHAR(255),
-  gelezen       BOOLEAN  NOT NULL DEFAULT FALSE,
-  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
-);
-
--- =============================================
--- AUTHENTICATIE
--- =============================================
-
-CREATE TABLE wachtwoord_reset (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  gebruiker_id  INT NOT NULL,
-  token         VARCHAR(255) NOT NULL,
-  vervalt_op    DATETIME NOT NULL,
-  gebruikt      BOOLEAN  NOT NULL DEFAULT FALSE,
-  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
-);
-
-CREATE TABLE refresh_token (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  gebruiker_id  INT NOT NULL,
-  token         VARCHAR(500) NOT NULL,
-  vervalt_op    DATETIME NOT NULL,
-  aangemaakt_op DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (gebruiker_id) REFERENCES gebruiker(id) ON DELETE CASCADE
-);
