@@ -1,8 +1,8 @@
 // ============================================================
 // config.js
-// Centrale configuratie voor de frontend.
-// Bij wijziging van de backend URL hoeft enkel deze regel aangepast.
+// API base wordt automatisch afgeleid uit de huidige URL,
+// zodat de app werkt op localhost, op de VM, en in productie.
 // ============================================================
 
-const API_BASE = "http://localhost:3000/api";
-const UPLOADS_BASE = "http://localhost:3000/uploads";
+const API_BASE = window.location.origin + "/api";
+const UPLOADS_BASE = window.location.origin + "/uploads";
