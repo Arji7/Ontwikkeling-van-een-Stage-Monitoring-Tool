@@ -30,13 +30,15 @@ app.use(cors({
   credentials: true,
 }));
 
-// Rate limiter op login — max 10 pogingen per IP per 15 minuten
+// Rate limiter op login — max 10 mislukte pogingen per IP per 15 minuten.
+// skipSuccessfulRequests zorgt dat geslaagde logins niet meetellen.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
+  skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Te veel inlogpogingen. Probeer over 15 minuten opnieuw.' },
+  message: { error: 'Te veel mislukte inlogpogingen. Probeer over 15 minuten opnieuw.' },
 });
 app.use('/api/auth/login', loginLimiter);
 
