@@ -31,6 +31,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     container.innerHTML = renderEvalCard(null, "tussentijds") +
                           renderEvalCard(null, "eind");
   }
+
+  try {
+    const rubRes = await fetch(API_BASE_URL + "/evaluaties/competenties/rubriek", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (rubRes.ok) {
+      const rubriek = await rubRes.json();
+      const aantal = Array.isArray(rubriek) ? rubriek.length : 0;
+      const badge = document.getElementById("rubriekCompCount");
+      if (badge) badge.textContent = aantal + (aantal === 1 ? " competentie" : " competenties");
+    }
+  } catch (e) {}
 });
 
 function renderEvalCard(ev, type) {

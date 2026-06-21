@@ -96,7 +96,9 @@
             '<div class="stage-info-col"><label>Stagementor</label><div class="stage-info-val">' + esc(s.contact_naam||'—') + '</div>' +
               '<div class="stage-info-sub">' + (s.contact_email ? '<a href="mailto:'+esc(s.contact_email)+'" style="color:#2563eb;font-size:12px">'+esc(s.contact_email)+'</a>' : '—') + '</div></div>' +
             '<div class="stage-info-col"><label>Opdracht</label><div class="stage-info-val">' + esc(s.omschrijving||'—') + '</div></div>' +
-            '<div class="stage-info-col"><label>Documenten</label><a class="doc-link" href="#">📎 Stagevoorstel</a><a class="doc-link" href="#">📎 Stageovereenkomst</a></div>' +
+            '<div class="stage-info-col"><label>Documenten</label>' +
+              '<a class="doc-link" href="../../Student/stageovereenkomst-document/stageovereenkomst-document.html?stage_id='+s.id+'">📎 Stageovereenkomst</a>' +
+            '</div>' +
           '</div>' +
           '<div class="eval-grid">' +
             '<div class="eval-box"><div class="eval-score">—</div><div class="eval-label">Mentor — tussentijds</div><div class="eval-datum">Nog niet ingevuld</div></div>' +
@@ -107,13 +109,11 @@
       '</div>' +
       '<div class="sectie-card">' +
         '<h3>Documenten</h3><div class="sectie-sub">Officiële documenten met de afspraken</div>' +
-        '<div class="doc-item"><div class="doc-icoon">📄</div>' +
-          '<div class="doc-info"><div class="doc-naam">Stagevoorstel.pdf</div><div class="doc-meta">Ingediend op ' + fmtKort(s.aangemaakt_op) + '</div></div>' +
-          '<span class="badge badge-goedgekeurd">Goedgekeurd</span></div>' +
-        '<div class="doc-item"><div class="doc-icoon">📄</div>' +
-          '<div class="doc-info"><div class="doc-naam">Stageovereenkomst.pdf</div><div class="doc-meta">Stageovereenkomst</div></div>' +
+        '<a class="doc-item doc-item-link" href="../../Student/stageovereenkomst-document/stageovereenkomst-document.html?stage_id='+s.id+'">' +
+          '<div class="doc-icoon">📄</div>' +
+          '<div class="doc-info"><div class="doc-naam">Stageovereenkomst</div><div class="doc-meta">Klik om het document te openen</div></div>' +
           (isOndertekend ? '<span class="badge badge-actief">Ondertekend</span>' : '<span class="badge badge-ondertekening">Wacht op ondertekening</span>') +
-        '</div>' +
+        '</a>' +
       '</div>' +
       '<div class="sectie-card">' +
         '<h3>Contacten</h3><div class="sectie-sub">Personen betrokken bij deze stage</div>' +

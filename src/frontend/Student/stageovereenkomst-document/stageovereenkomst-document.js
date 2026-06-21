@@ -112,7 +112,7 @@ function vulOndertekenaarsIn(ondertekenaars) {
     userRollen.includes("commissielid") ||
     userRollen.includes("commissie") ||
     userRollen.includes("stagecommissie");
-  const isBedrijfzijde = userRollen.includes("bedrijf");
+  const isBedrijfzijde = userRollen.includes("bedrijf") || userRollen.includes("mentor");
   const commissieRij = ondertekenaars.find(function (s) { return s.rol === "Stagecommissie"; });
   const bedrijfRij = ondertekenaars.find(function (s) { return s.rol === "Bedrijf"; });
   if (isSchoolzijde && commissieRij && commissieRij.status === "ondertekend") {

@@ -51,6 +51,10 @@
     } else if (isBedrijf) {
       addLink(nav, root + 'Bedrijf/dashboard/dashboard.html', 'Mijn stagiairs', currentPage === 'bedrijf-dashboard');
 
+    } else if (rollen.indexOf('mentor') !== -1) {
+      addLink(nav, root + 'Mentor/dashboard/dashboard.html', 'Dashboard', currentPage === 'mentor-dashboard');
+      addLink(nav, root + 'Mentor/mijn-stagiaires/mijn-stagiaires.html', 'Mijn stagiairs', ['mentor-stagiaires','mentor-stagiair-detail'].indexOf(currentPage) !== -1);
+
     } else if (isStudent) {
       addLink(nav, root + 'Student/empty-stage/empty-stage.html', 'Dashboard', currentPage === 'student-dashboard');
       addLink(nav, root + 'Student/mijn-stage/mijn-stage.html', 'Mijn stage', ['student-mijn-stage','student-overeenkomst'].indexOf(currentPage) !== -1);
@@ -66,6 +70,7 @@
       else if (isDocent)    roleEl.textContent = 'Docent';
       else if (isCommissie) roleEl.textContent = 'Stagecommissie';
       else if (isBedrijf)   roleEl.textContent = 'Bedrijf';
+      else if (rollen.indexOf('mentor') !== -1) roleEl.textContent = 'Stagementor';
       else if (isStudent)   roleEl.textContent = 'Student';
     }
 
