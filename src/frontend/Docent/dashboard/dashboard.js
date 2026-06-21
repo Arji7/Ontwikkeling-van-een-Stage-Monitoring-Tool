@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = window.location.origin + "/api";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const token = sessionStorage.getItem("token");
