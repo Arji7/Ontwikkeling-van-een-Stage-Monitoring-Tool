@@ -4,8 +4,30 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.href = "../../inloggen/inloggen.html";
     return;
   }
+  stelTerugKnopIn();
   laadOvereenkomstData(token);
 });
+
+function stelTerugKnopIn() {
+  const user = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  const rollen = user.rollen || (user.role ? [user.role] : []);
+  const btn = document.getElementById("btnTerugDashboard");
+  if (!btn) return;
+
+  if (rollen.includes("bedrijf")) {
+    btn.href = "../../Bedrijf/dashboard/dashboard.html";
+    btn.textContent = "Terug naar mijn stagiairs";
+  } else if (rollen.includes("admin")) {
+    btn.href = "../../Admin/Dashboard/dashboard.html";
+    btn.textContent = "Terug naar dashboard";
+  } else if (rollen.includes("commissielid")) {
+    btn.href = "../../Commisie/aanvragen.overzicht/aanvragen.overzicht.html";
+    btn.textContent = "Terug naar aanvragen";
+  } else {
+    btn.href = "../empty-stage/empty-stage.html";
+    btn.textContent = "Terug naar dashboard";
+  }
+}
 
 async function laadOvereenkomstData(token) {
   try {
@@ -32,13 +54,13 @@ async function laadOvereenkomstData(token) {
 function vulOvereenkomstIn(d) {
   const tekens = d.ondertekenaars || [];
   const student = tekens.find(t => t.rol === "Student");
-  const mentor  = tekens.find(t => t.rol === "Stagementor");
+  const bedrijf = tekens.find(t => t.rol === "Bedrijf" || t.rol === "Stagementor");
   const commissie = tekens.find(t => t.rol === "Stagecommissie");
   const studentGetekend = student && student.status === "ondertekend";
-  const mentorGetekend  = mentor  && mentor.status  === "ondertekend";
+  const bedrijfGetekend = bedrijf && bedrijf.status === "ondertekend";
   const commissieGetekend = commissie && commissie.status === "ondertekend";
   const huidigeGebruikerGetekend = tekens.some(t => t.isHuidigeGebruiker && t.status === "ondertekend");
-  const alleGetekend = studentGetekend && mentorGetekend && commissieGetekend;
+  const alleGetekend = studentGetekend && bedrijfGetekend && commissieGetekend;
 
   const titleEl = document.querySelector(".confirm-title");
   const statusEl = document.getElementById("statusValue");
@@ -48,16 +70,16 @@ function vulOvereenkomstIn(d) {
     statusEl.textContent = "✓ Stage actief";
   } else if (huidigeGebruikerGetekend) {
     if (titleEl) titleEl.textContent = "Je handtekening is geregistreerd";
-    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, mentorGetekend, commissieGetekend);
+    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend);
   } else if (studentGetekend) {
     if (titleEl) titleEl.textContent = "Je handtekening is geregistreerd";
-    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, mentorGetekend, commissieGetekend);
-  } else if (mentorGetekend) {
-    if (titleEl) titleEl.textContent = "Mentor heeft getekend";
-    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, mentorGetekend, commissieGetekend);
+    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend);
+  } else if (bedrijfGetekend) {
+    if (titleEl) titleEl.textContent = "Mentor / Bedrijf heeft getekend";
+    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend);
   } else if (commissieGetekend) {
     if (titleEl) titleEl.textContent = "Stagecommissie heeft getekend";
-    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, mentorGetekend, commissieGetekend);
+    statusEl.textContent = "🕐 Wacht op " + ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend);
   } else {
     statusEl.textContent = "🕐 Nog niet ondertekend";
   }
@@ -73,6 +95,19 @@ function vulOvereenkomstIn(d) {
   const start = d.periode && d.periode.startdatum ? formatDatum(d.periode.startdatum) : "—";
   const eind  = d.periode && d.periode.einddatum  ? formatDatum(d.periode.einddatum)  : "—";
   document.getElementById("periode").textContent = start + " — " + eind;
+}
+
+function ontbrekendeHandtekeningen(studentGetekend, bedrijfGetekend, commissieGetekend) {
+  const ontbrekend = [];
+  if (!studentGetekend) ontbrekend.push("student");
+  if (!bedrijfGetekend) ontbrekend.push("bedrijf");
+  if (!commissieGetekend) ontbrekend.push("stagecommissie");
+
+  if (ontbrekend.length === 0) return "geen handtekeningen";
+  if (ontbrekend.length === 1) return "handtekening " + ontbrekend[0];
+
+  const laatste = ontbrekend.pop();
+  return "handtekening " + ontbrekend.join(", ") + " en " + laatste;
 }
 
 function formatDatum(d) {

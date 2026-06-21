@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gebruiker toevoegen – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="gebruikers.css" />
+  <link rel="stylesheet" href="gebruiker-toevoegen.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ZIJBALK -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles">Actieve rollen: —</span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <!-- HOOFDINHOUD -->
+  <main class="main-content">
+    <nav class="breadcrumb">
+      <a href="gebruikers.html">Gebruikers</a>
+      <span>/</span>
+      <span>Nieuwe gebruiker</span>
+    </nav>
+
+    <div class="form-layout">
+      <!-- FORMULIER -->
+      <div class="form-main">
+        <h1>Gebruiker toevoegen</h1>
+        <p class="page-sub">Vul de gegevens in om een nieuw account aan te maken</p>
+
+        <div id="feedbackMsg" class="feedback-msg"></div>
+
+        <form id="toevoegenForm">
+
+          <!-- STAP 1: ROL KIEZEN -->
+          <section class="form-section">
+            <h2>Stap 1 — Rol toewijzen <span class="req">*</span></h2>
+            <p class="section-sub">Selecteer de rol die deze gebruiker krijgt in het platform</p>
+            <div class="rol-grid">
+              <label class="rol-option">
+                <input type="radio" name="rol" value="student" />
+                <span class="rol-label">Student</span>
+              </label>
+              <label class="rol-option">
+                <input type="radio" name="rol" value="docent" />
+                <span class="rol-label">Docent</span>
+              </label>
+              <label class="rol-option rol-sub" id="commissieCheckWrap" style="display:none">
+                <input type="checkbox" id="ookCommissie" />
+                <span class="rol-label">↳ Ook stagecommissielid</span>
+              </label>
+              <label class="rol-option">
+                <input type="radio" name="rol" value="mentor" />
+                <span class="rol-label">Stagementor</span>
+              </label>
+              <label class="rol-option">
+                <input type="radio" name="rol" value="commissielid" />
+                <span class="rol-label">Stagecommissie</span>
+              </label>
+              <label class="rol-option">
+                <input type="radio" name="rol" value="bedrijf" />
+                <span class="rol-label">Bedrijf</span>
+              </label>
+            </div>
+          </section>
+
+          <!-- STAP 2: ACCOUNTGEGEVENS (verschijnt na rolkeuze) -->
+          <div id="stapGegevens" style="display:none">
+
+            <section class="form-section" id="accountSectie">
+              <h2>Stap 2 — Accountgegevens</h2>
+              <p class="section-sub">Naam, e-mail en wachtwoord van de gebruiker</p>
+              <div class="field-row">
+                <div class="field">
+                  <label>Voornaam <span class="req">*</span></label>
+                  <input type="text" id="voornaam" placeholder="bijv. Sara" required />
+                </div>
+                <div class="field">
+                  <label>Achternaam <span class="req">*</span></label>
+                  <input type="text" id="achternaam" placeholder="bijv. Janssens" required />
+                </div>
+              </div>
+              <div class="field">
+                <label>Account e-mailadres <span class="req">*</span></label>
+                <input type="email" id="email" placeholder="sara.janssens@ehb.be" required />
+                <span class="field-hint">Dit wordt het inlogadres van de gebruiker</span>
+              </div>
+              <div class="field">
+                <label>Persoonlijk e-mailadres <span class="req">*</span></label>
+                <input type="email" id="persoonlijkeEmail" placeholder="sara.prive@example.com" required />
+                <span class="field-hint">Hier sturen we de accountgegevens naartoe</span>
+              </div>
+              <div class="field">
+                <label>Tijdelijk wachtwoord <span class="req">*</span></label>
+                <input type="password" id="wachtwoord" placeholder="Min. 8 tekens" required minlength="8" />
+                <span class="field-hint">De gebruiker kan dit later zelf wijzigen</span>
+              </div>
+            </section>
+
+            <!-- STUDENT VELDEN -->
+            <section class="form-section" id="studentVelden" style="display:none">
+              <h2>Studentgegevens</h2>
+              <p class="section-sub">Extra informatie voor het studentprofiel</p>
+              <div class="field-row">
+                <div class="field">
+                  <label>Studentnummer</label>
+                  <input type="text" id="studentNummer" placeholder="Wordt automatisch gegenereerd als leeg" />
+                  <span class="field-hint">Laat leeg voor automatische generatie</span>
+                </div>
+                <div class="field">
+                  <label>Opleiding</label>
+                  <select id="studentOpleiding">
+                    <option value="">— Selecteer opleiding —</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Academiejaar <span class="req">*</span></label>
+                <input type="text" id="studentAcademiejaar" placeholder="bijv. 2025-2026" />
+              </div>
+            </section>
+
+            <!-- DOCENT VELDEN -->
+            <section class="form-section" id="docentVelden" style="display:none">
+              <h2>Docentgegevens</h2>
+              <p class="section-sub">Extra informatie voor het docentprofiel</p>
+              <div class="field">
+                <label>Titel</label>
+                <input type="text" id="docentTitel" placeholder="bijv. Prof., Dr., Ir." />
+              </div>
+            </section>
+
+            <!-- MENTOR VELDEN -->
+            <section class="form-section" id="mentorVelden" style="display:none">
+              <h2>Mentorgegevens</h2>
+              <p class="section-sub">Koppel deze mentor aan een bedrijf</p>
+              <div class="field">
+                <label>Functie</label>
+                <input type="text" id="mentorFunctie" placeholder="bijv. Lead Developer" />
+              </div>
+              <div class="field">
+                <label>Bedrijf</label>
+                <select id="mentorBedrijf">
+                  <option value="">— Geen bedrijf gekoppeld —</option>
+                </select>
+              </div>
+            </section>
+
+            <!-- BEDRIJF VELDEN -->
+            <section class="form-section" id="bedrijfVelden" style="display:none">
+              <h2>Bedrijfsgegevens</h2>
+              <p class="section-sub">Koppel dit account aan een bestaand bedrijf of maak een nieuw bedrijf aan</p>
+                <div class="field">
+                  <label>Bestaand bedrijf koppelen</label>
+                  <select id="bedrijfSelect">
+                    <option value="">— Nieuw bedrijf aanmaken —</option>
+                  </select>
+                  <span class="field-hint">Kies een bestaand bedrijf als het al in de databank staat</span>
+                </div>
+
+              <div id="nieuwBedrijfVelden">
+                <div class="field">
+                  <label>Bedrijfsnaam <span class="req">*</span></label>
+                  <input type="text" id="bedrijfNaam" placeholder="bijv. TechCorp BV" />
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label>Sector</label>
+                    <input type="text" id="bedrijfSector" placeholder="bijv. IT & Software" />
+                  </div>
+                  <div class="field">
+                    <label>Website</label>
+                    <input type="text" id="bedrijfWebsite" placeholder="bijv. www.techcorp.be" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Adres</label>
+                  <input type="text" id="bedrijfAdres" placeholder="bijv. Wetstraat 12" />
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label>Postcode</label>
+                    <input type="text" id="bedrijfPostcode" placeholder="bijv. 1000" />
+                  </div>
+                  <div class="field">
+                    <label>Stad</label>
+                    <input type="text" id="bedrijfStad" placeholder="bijv. Brussel" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>BTW-nummer</label>
+                  <input type="text" id="bedrijfBtw" placeholder="bijv. BE0123.456.789" />
+                </div>
+              </div>
+
+              <h2 style="margin-top:24px">Inloggegevens bedrijf</h2>
+              <p class="section-sub">E-mail en wachtwoord waarmee het bedrijf kan inloggen</p>
+              <div class="field">
+                <label>Account e-mailadres <span class="req">*</span></label>
+                <input type="email" id="bedrijfEmail" placeholder="info@techcorp.be" />
+                <span class="field-hint">Dit wordt het inlogadres van het bedrijf</span>
+              </div>
+              <div class="field">
+                <label>Persoonlijk/contact e-mailadres <span class="req">*</span></label>
+                <input type="email" id="bedrijfPersoonlijkeEmail" placeholder="contactpersoon@techcorp.be" />
+                <span class="field-hint">Hier sturen we de accountgegevens naartoe</span>
+              </div>
+              <div class="field">
+                <label>Tijdelijk wachtwoord <span class="req">*</span></label>
+                <input type="password" id="bedrijfWachtwoord" placeholder="Min. 8 tekens" minlength="8" />
+                <span class="field-hint">Het bedrijf kan dit later zelf wijzigen</span>
+              </div>
+            </section>
+
+          </div>
+
+          <div class="form-actions">
+            <a href="gebruikers.html" class="btn-back">Terug</a>
+            <button type="submit" class="btn-submit" id="submitBtn">Gebruiker aanmaken</button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ZIJPANEEL -->
+      <aside class="form-aside">
+        <div class="aside-card">
+          <h3>Overzicht nieuw account</h3>
+          <div class="aside-row"><span>Naam</span>    <span id="prevNaam">—</span></div>
+          <div class="aside-row"><span>E-mail</span>  <span id="prevEmail">—</span></div>
+          <div class="aside-row"><span>Rol</span>     <span id="prevRol" class="badge">—</span></div>
+          <div class="aside-row"><span>Status</span>  <span class="badge badge-actief">Actief na bevestiging</span></div>
+        </div>
+
+        <div class="aside-card">
+          <h3>Checklist</h3>
+          <ul class="checklist" id="checklist">
+            <li id="chk-rol">    Rol geselecteerd</li>
+            <li id="chk-naam">   Naam ingevuld</li>
+            <li id="chk-email">  E-mailadres ingevuld</li>
+            <li id="chk-ww">     Wachtwoord ingevuld</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'gebruikers'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../sidebar-builder.js"></script>
+<script src="gebruiker-toevoegen.js"></script>
+</body>
+</html>

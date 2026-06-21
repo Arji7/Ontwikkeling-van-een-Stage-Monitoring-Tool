@@ -295,6 +295,22 @@ async function selectEvalType(type) {
   renderEvalScores();
 }
 
+function updateLiveScores() {
+  verzamelInputsNaarMemory();
+  let total = 0, count = 0;
+  evalCompetentiesData.forEach(comp => {
+    (comp.scores || []).forEach(sc => {
+      if (sc.score_docent) { total += sc.score_docent; count++; }
+    });
+  });
+  const avg = count > 0 ? ((total / (count * 5)) * 20).toFixed(1) : "—";
+  document.getElementById("evalDocentScore").textContent = avg + "/20";
+  document.getElementById("evalDocentSub").textContent = count > 0 ? count + " ingevuld" : "berekend uit competenties";
+  if (!currentEval.officieel_eindcijfer) {
+    document.getElementById("evalEindcijferInput").value = avg !== "—" ? avg : "";
+  }
+}
+
 function renderEvalScores() {
   if (!currentEval) return;
   const comps = evalCompetentiesData.length > 0 ? evalCompetentiesData : [];
@@ -434,8 +450,8 @@ function selectComp(compId) {
 
   // Auto-save on change
   if (!isReadonly) {
-    detail.querySelectorAll(".eval-feedback-input").forEach(el => {
-      el.addEventListener("change", () => saveScores());
+    detail.querySelectorAll(".eval-score-input, .eval-feedback-input").forEach(el => {
+      el.addEventListener("change", () => { updateLiveScores(); saveScores(); });
     });
   }
 }

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aanvraag detail – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="aanvraag-detail.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitoring</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-role-label">
+          Actieve rollen:<br />
+          <strong id="sidebarRoles">—</strong>
+        </div>
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role" id="sidebarUserRole">Administratie</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+          🔓 Uitloggen
+        </a>
+      </div>
+    </aside>
+
+    <main class="content detail-content">
+      <!-- LINKERKOLOM -->
+      <div class="detail-main">
+        <div class="student-header">
+          <div class="student-avatar-box" id="studentAvatar">??</div>
+          <div>
+            <h1 class="student-name" id="studentNaam">Laden…</h1>
+            <div class="student-meta">
+              <span id="studentBedrijf">—</span>
+              <span class="meta-sep">|</span>
+              <span id="studentOpleiding">—</span>
+              <span class="meta-sep">|</span>
+              <span id="studentIngediend">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="card-header">
+            <span class="card-icon">🏢</span>
+            <span class="card-title">Bedrijfsgegevens</span>
+            <span class="card-tag">Ingevoerd door student</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-field"><label>Naam bedrijf</label><span id="bedrijfNaam">—</span></div>
+            <div class="card-field"><label>Sector</label><span class="tag-chip" id="bedrijfSector">—</span></div>
+            <div class="card-field"><label>Stagementor</label><span id="bedrijfMentor">—</span></div>
+            <div class="card-field"><label>E-mail mentor</label><a class="link-blue" id="bedrijfEmail" href="#">—</a></div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="card-header">
+            <span class="card-icon">📋</span>
+            <span class="card-title">Stagegegevens</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-field"><label>Begeleidende docent (EhB)</label><span id="stageDocent">—</span></div>
+            <div class="card-field"><label>Academiejaar</label><span id="stageJaar">—</span></div>
+          </div>
+          <div class="date-row">
+            <div class="date-block">
+              <label>Startdatum</label>
+              <span class="date-value" id="stageStart">—</span>
+            </div>
+            <div class="date-arrow">→</div>
+            <div class="date-block">
+              <label>Einddatum</label>
+              <span class="date-value" id="stageEind">—</span>
+              <span class="date-chip" id="stageWeken">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="card-header">
+            <span class="card-icon">🎓</span>
+            <span class="card-title">Studentgegevens</span>
+            <span class="card-tag">Ingevoerd door student</span>
+          </div>
+          <div class="card-grid">
+            <div class="card-field"><label>Naam student</label><span id="detailNaam">—</span></div>
+            <div class="card-field"><label>Opleiding</label><span id="detailOpleiding">—</span></div>
+            <div class="card-field"><label>Studentnummer</label><span id="detailStudentnummer">—</span></div>
+            <div class="card-field"><label>E-mail</label><a class="link-blue" id="detailEmail" href="#">—</a></div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="card-header">
+            <span class="card-icon">📝</span>
+            <span class="card-title">Beschrijving opdracht</span>
+          </div>
+          <p class="opdracht-tekst" id="opdrachtTekst">—</p>
+        </div>
+
+        <div class="detail-bottom-actions">
+          <a class="btn btn-danger" href="../aanvragen/aanvragen.html">Terug</a>
+          <button class="btn btn-primary" id="btnBeslissing">Beslissing versturen →</button>
+        </div>
+      </div>
+
+      <!-- RECHTERKOLOM -->
+      <aside class="detail-side">
+        <div class="side-card side-student-card">
+          <div class="side-student-row">
+            <div class="student-avatar-box sm" id="sideAvatar">??</div>
+            <div>
+              <div class="side-student-name" id="sideNaam">—</div>
+              <span id="sideStatus"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-card-title">Beslissing nemen</div>
+          <div class="docent-wrap">
+            <label for="docentSelect" class="docent-label">
+              Begeleidende docent toekennen <span class="opt">(optioneel)</span>
+            </label>
+            <select id="docentSelect">
+              <option value="">-- Geen docent toekennen --</option>
+            </select>
+          </div>
+
+          <div class="koppeling-wrap">
+            <label for="bedrijfSelect" class="docent-label">
+              Bedrijf koppelen <span class="opt">(uit database)</span>
+            </label>
+            <select id="bedrijfSelect">
+              <option value="">-- Huidig bedrijf behouden --</option>
+            </select>
+          </div>
+
+          <div class="koppeling-wrap">
+            <label for="mentorSelect" class="docent-label">
+              Stagementor koppelen <span class="opt">(uit database)</span>
+            </label>
+            <select id="mentorSelect">
+              <option value="">-- Geen mentoraccount koppelen --</option>
+            </select>
+          </div>
+
+          <div class="beslissing-option beslissing-ok" data-value="goedkeuren">
+            <span class="beslissing-icon">✅</span>
+            <span class="beslissing-text">
+              <strong>Goedkeuren</strong>
+              <small>Voorstel voldoet aan alle vereisten</small>
+            </span>
+          </div>
+          <div class="beslissing-option beslissing-warn" data-value="wijzigingen">
+            <span class="beslissing-icon">✏️</span>
+            <span class="beslissing-text">
+              <strong>Wijzigingen aanvragen</strong>
+              <small>Student moet aanpassingen doorvoeren</small>
+            </span>
+          </div>
+          <div class="beslissing-option beslissing-danger" data-value="afwijzen">
+            <span class="beslissing-icon">✖</span>
+            <span class="beslissing-text">
+              <strong>Afwijzen</strong>
+              <small>Voorstel voldoet niet aan de criteria</small>
+            </span>
+          </div>
+
+          <div class="feedback-wrap">
+            <label class="feedback-label">
+              Opmerking / feedback <span class="opt">(verplicht bij Wijzigingen)</span>
+            </label>
+            <textarea id="feedbackText" placeholder="Typ hier je opmerking voor de student…" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-card-title">Geschiedenis</div>
+          <ul class="history-list">
+            <li class="history-item">
+              <span class="history-dot dot-blue"></span>
+              <div><strong>Voorstel ingediend</strong><small id="histIngediend">—</small></div>
+            </li>
+            <li class="history-item">
+              <span class="history-dot dot-orange"></span>
+              <div><strong>In behandeling</strong><small id="histBehandeling">—</small></div>
+            </li>
+            <li class="history-item">
+              <span class="history-dot dot-gray"></span>
+              <div><strong>Wacht op beoordeling</strong><small>Stagecommissie/Admin</small></div>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script>window.SIDEBAR_PAGE = 'aanvragen'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../sidebar-builder.js"></script>
+  <script src="aanvraag-detail.js"></script>
+</body>
+</html>

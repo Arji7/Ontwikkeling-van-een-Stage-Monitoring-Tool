@@ -46,8 +46,12 @@
     var naam    = esc((s.student_voornaam||'') + ' ' + (s.student_achternaam||''));
     var init    = naam.trim().split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
     var k       = kleur(naam);
-    var huidig  = s.huidige_week || 0;
-    var totaal  = s.totaal_weken || 14;
+    var totaal  = s.startdatum && s.einddatum
+      ? Math.max(1, Math.round((new Date(s.einddatum) - new Date(s.startdatum)) / (7*24*60*60*1000)))
+      : (s.totaal_weken || 14);
+    var huidig  = s.startdatum
+      ? Math.max(0, Math.min(totaal, Math.round((new Date() - new Date(s.startdatum)) / (7*24*60*60*1000))))
+      : (s.huidige_week || 0);
     var pct     = Math.min(100, Math.round((huidig/totaal)*100));
     var isAfgerond   = s.status === 'afgerond';
     var isOndertekend = s.overeenkomst_status === 'ondertekend' || s.overeenkomst_status === 'goedgekeurd';
@@ -92,7 +96,9 @@
             '<div class="stage-info-col"><label>Stagementor</label><div class="stage-info-val">' + esc(s.contact_naam||'—') + '</div>' +
               '<div class="stage-info-sub">' + (s.contact_email ? '<a href="mailto:'+esc(s.contact_email)+'" style="color:#2563eb;font-size:12px">'+esc(s.contact_email)+'</a>' : '—') + '</div></div>' +
             '<div class="stage-info-col"><label>Opdracht</label><div class="stage-info-val">' + esc(s.omschrijving||'—') + '</div></div>' +
-            '<div class="stage-info-col"><label>Documenten</label><a class="doc-link" href="#">📎 Stagevoorstel</a><a class="doc-link" href="#">📎 Stageovereenkomst</a></div>' +
+            '<div class="stage-info-col"><label>Documenten</label>' +
+              '<a class="doc-link" href="../../Student/stageovereenkomst-document/stageovereenkomst-document.html?stage_id='+s.id+'">📎 Stageovereenkomst</a>' +
+            '</div>' +
           '</div>' +
           '<div class="eval-grid">' +
             '<div class="eval-box"><div class="eval-score">—</div><div class="eval-label">Mentor — tussentijds</div><div class="eval-datum">Nog niet ingevuld</div></div>' +
@@ -103,13 +109,11 @@
       '</div>' +
       '<div class="sectie-card">' +
         '<h3>Documenten</h3><div class="sectie-sub">Officiële documenten met de afspraken</div>' +
-        '<div class="doc-item"><div class="doc-icoon">📄</div>' +
-          '<div class="doc-info"><div class="doc-naam">Stagevoorstel.pdf</div><div class="doc-meta">Ingediend op ' + fmtKort(s.aangemaakt_op) + '</div></div>' +
-          '<span class="badge badge-goedgekeurd">Goedgekeurd</span></div>' +
-        '<div class="doc-item"><div class="doc-icoon">📄</div>' +
-          '<div class="doc-info"><div class="doc-naam">Stageovereenkomst.pdf</div><div class="doc-meta">Stageovereenkomst</div></div>' +
+        '<a class="doc-item doc-item-link" href="../../Student/stageovereenkomst-document/stageovereenkomst-document.html?stage_id='+s.id+'">' +
+          '<div class="doc-icoon">📄</div>' +
+          '<div class="doc-info"><div class="doc-naam">Stageovereenkomst</div><div class="doc-meta">Klik om het document te openen</div></div>' +
           (isOndertekend ? '<span class="badge badge-actief">Ondertekend</span>' : '<span class="badge badge-ondertekening">Wacht op ondertekening</span>') +
-        '</div>' +
+        '</a>' +
       '</div>' +
       '<div class="sectie-card">' +
         '<h3>Contacten</h3><div class="sectie-sub">Personen betrokken bij deze stage</div>' +
@@ -581,7 +585,9 @@
         }
       } catch (e) { stage.huidige_week = 0; }
 
-      stage.totaal_weken = stage.totaal_weken || 14;
+      stage.totaal_weken = stage.startdatum && stage.einddatum
+        ? Math.max(1, Math.round((new Date(stage.einddatum) - new Date(stage.startdatum)) / (7*24*60*60*1000)))
+        : (stage.totaal_weken || 14);
       window._stageTotaalWeken  = stage.totaal_weken;
       window._stageHuidigeWeek  = stage.huidige_week || 0;
       renderStage(stage);

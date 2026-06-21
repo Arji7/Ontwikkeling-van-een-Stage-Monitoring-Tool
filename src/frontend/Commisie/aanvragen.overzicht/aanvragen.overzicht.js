@@ -13,7 +13,7 @@
   }
 
   function badge(status, commissieGetekend) {
-    if (status === 'ingediend')            return '<span class="badge badge-ingediend">In afwachting</span>';
+    if (status === 'ingediend')            return '<span class="badge badge-ingediend">Wachten op goedkeuring</span>';
     if (status === 'goedgekeurd') {
       var extra = !commissieGetekend
         ? ' <span class="badge badge-tekenen" title="Commissie moet nog ondertekenen">Te tekenen</span>'
@@ -21,7 +21,7 @@
       return '<span class="badge badge-goedgekeurd">Goedgekeurd</span>' + extra;
     }
     if (status === 'afgekeurd')            return '<span class="badge badge-afgekeurd">Afgewezen</span>';
-    if (status === 'aanpassingen_vereist') return '<span class="badge badge-aanpassingen">Aanpassingen vereist</span>';
+    if (status === 'aanpassingen_vereist') return '<span class="badge badge-aanpassingen">Wachten op aanpassing</span>';
     return '<span class="badge">' + esc(status) + '</span>';
   }
 
@@ -33,25 +33,27 @@
     });
 
     var gefilterd = relevant.filter(function (s) {
-      var naam = ((s.student_voornaam || '') + ' ' + (s.student_achternaam || '')).toLowerCase();
+      var naam    = ((s.student_voornaam || '') + ' ' + (s.student_achternaam || '')).toLowerCase();
       var bedrijf = (s.bedrijf_naam || '').toLowerCase();
-      var email = (s.student_email || '').toLowerCase();
-      var matchZ = !zoek || naam.includes(zoek) || bedrijf.includes(zoek) || email.includes(zoek);
-      var matchF = huidigFilter === 'alle' || s.status === huidigFilter;
+      var email   = (s.student_email || '').toLowerCase();
+      var matchZ  = !zoek || naam.includes(zoek) || bedrijf.includes(zoek) || email.includes(zoek);
+      var matchF  = huidigFilter === 'alle' || s.status === huidigFilter;
       return matchZ && matchF;
     });
 
-    var c = { ingediend: 0, goedgekeurd: 0, aanpassingen_vereist: 0 };
+    var c = { ingediend: 0, goedgekeurd: 0, afgekeurd: 0, aanpassingen_vereist: 0 };
     relevant.forEach(function (s) { if (c[s.status] !== undefined) c[s.status]++; });
 
     var elAlle = document.getElementById('cnt-alle');
     var elIng  = document.getElementById('cnt-ingediend');
     var elAanp = document.getElementById('cnt-aanpassing');
     var elGk   = document.getElementById('cnt-goedgekeurd');
+    var elAf   = document.getElementById('cnt-afgekeurd');
     if (elAlle) elAlle.textContent = '(' + relevant.length + ')';
     if (elIng)  elIng.textContent  = '(' + c.ingediend + ')';
     if (elAanp) elAanp.textContent = '(' + c.aanpassingen_vereist + ')';
     if (elGk)   elGk.textContent   = '(' + c.goedgekeurd + ')';
+    if (elAf)   elAf.textContent   = '(' + c.afgekeurd + ')';
 
     if (gefilterd.length === 0) {
       document.getElementById('tableContainer').innerHTML =
@@ -62,18 +64,20 @@
     }
 
     var html = '<table class="data-table"><thead><tr>' +
-      '<th>Student</th><th>Bedrijf</th><th>Stageperiode</th><th>Status</th><th>Ingediend op</th>' +
+      '<th>Student</th><th>Bedrijf</th><th>Mentor</th><th>Stageperiode</th><th>Status</th><th>Ingediend op</th>' +
       '</tr></thead><tbody>';
 
     gefilterd.forEach(function (s) {
-      var naam = esc((s.student_voornaam || '') + ' ' + (s.student_achternaam || ''));
-      var periode = fmtDatum(s.startdatum) + ' – ' + fmtDatum(s.einddatum);
+      var naam      = esc((s.student_voornaam || '') + ' ' + (s.student_achternaam || ''));
+      var mentor    = (s.mentor_naam || s.contact_naam) ? esc(s.mentor_naam || s.contact_naam) : '--';
+      var periode   = fmtDatum(s.startdatum) + ' – ' + fmtDatum(s.einddatum);
       var ingediend = fmtDatum(s.aangemaakt_op);
 
       html +=
         '<tr class="row-clickable" data-id="' + s.id + '">' +
           '<td><span class="student-naam">' + naam + '</span></td>' +
           '<td>' + esc(s.bedrijf_naam || '--') + '</td>' +
+          '<td>' + mentor + '</td>' +
           '<td>' + periode + '</td>' +
           '<td>' + badge(s.status, !!s.commissie_getekend) + '</td>' +
           '<td>' + ingediend + '</td>' +

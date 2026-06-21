@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stage afgerond - StageMonitor</title>
+  <link rel="stylesheet" href="stage-afgerond.css" />
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitor</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav">
+        <a href="../../empty-stage/empty-stage.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item active">Mijn stage</a>
+        <a href="../../logboeken/logboeken.html" class="nav-item">Logboeken</a>
+        <a href="../../evaluaties/evaluaties.html" class="nav-item">Evaluaties</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+        <a href="../../../inloggen/inloggen.html" class="sidebar-logout" onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">🔓 Uitloggen</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <h1 class="page-title">Proficiat, <span id="studentNaam">...</span>!</h1>
+        <p class="page-subtitle">Je stage is officieel afgerond</p>
+      </header>
+
+      <div class="big-icon-wrap">
+        <div class="big-icon big-icon--success">🎓</div>
+      </div>
+
+      <h2 class="result-title">Je stage is succesvol afgerond! 🎉</h2>
+      <p class="result-text">
+        Je docent heeft je eindbeoordeling ingediend voor je stage bij
+        <strong id="bedrijfNaam">...</strong>. Hieronder vind je je eindresultaat.
+      </p>
+
+      <div class="eindcijfer-box">
+        <div class="eindcijfer-label">Officieel eindcijfer</div>
+        <div class="eindcijfer-waarde" id="eindcijfer">—</div>
+        <div class="eindcijfer-subtekst">op 20</div>
+      </div>
+
+      <div class="info-table">
+        <div class="info-row">
+          <span class="info-label">Bedrijf</span>
+          <span class="info-value" id="tabelBedrijf">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Periode</span>
+          <span class="info-value" id="tabelPeriode">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Aantal logboeken</span>
+          <span class="info-value" id="tabelLogboeken">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Afgerond op</span>
+          <span class="info-value" id="tabelAfgerondOp">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-value status-success">✓ Afgerond</span>
+        </div>
+      </div>
+
+      <div class="remark-box" id="remarkWrap" style="display:none;">
+        <div class="remark-header">
+          <span class="remark-icon">💬</span>
+          <span class="remark-title">Globale feedback</span>
+        </div>
+        <p class="remark-text" id="remarkTekst"></p>
+      </div>
+
+      <div class="actions">
+        <a href="../../empty-stage/empty-stage.html" class="btn btn-outline">Naar dashboard</a>
+        <a href="../../logboeken/logboeken.html" class="btn btn-primary">📝 Bekijk logboeken</a>
+        <a href="../../evaluaties/evaluaties.html" class="btn btn-success">⭐ Bekijk evaluaties</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../../../config.js"></script>
+  <script src="stage-afgerond.js"></script>
+  <script src="../../sidebar-lock.js"></script>
+  <script>
+    (function () {
+      var u = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+      var name = u.name || "Student";
+      var nEl = document.getElementById("sidebarUserName");
+      var aEl = document.getElementById("sidebarUserAvatar");
+      if (nEl) nEl.textContent = name;
+      if (aEl) aEl.textContent = name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bedrijf dashboard | StageMonitor</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role">Bedrijf</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1>Mijn stagiairs</h1>
+        <p>Overzicht van stages die gekoppeld zijn aan dit bedrijf</p>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div id="loadingState" class="empty-state">Stages laden...</div>
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <h2>Nog geen stages gekoppeld</h2>
+        <p>Er zijn momenteel geen goedgekeurde of actieve stages gekoppeld aan dit bedrijfaccount.</p>
+      </div>
+
+      <div id="stagesList" class="stage-list"></div>
+    </div>
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'bedrijf-dashboard'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../../sidebar-builder.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

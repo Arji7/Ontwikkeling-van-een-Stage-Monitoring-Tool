@@ -28,6 +28,20 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f4f6fa; }
 .page-title { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
 .page-subtitle { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
 
+.mentor-wait-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.mentor-wait-banner strong { display: block; font-size: 14px; color: #92400e; margin-bottom: 4px; }
+.mentor-wait-banner p { font-size: 13px; color: #92400e; line-height: 1.5; margin: 0; }
+.mentor-wait-icon { font-size: 22px; flex-shrink: 0; }
+
 /* Info tabel */
 .info-table {
   background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;

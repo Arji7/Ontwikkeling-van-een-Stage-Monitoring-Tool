@@ -189,6 +189,55 @@ body {
 .side-student-name { font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 5px; }
 .side-card-title { font-size: 13px; font-weight: 700; color: var(--heading); margin-bottom: 14px; }
 
+/* ===== KOPPELINGEN ===== */
+.docent-wrap { margin-bottom: 14px; }
+.koppeling-wrap { margin-bottom: 14px; padding-top: 12px; border-top: 1px solid #f3f4f6; }
+.docent-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.docent-label .opt { font-weight: 400; color: var(--text-muted); }
+.docent-wrap select,
+.koppeling-wrap select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+}
+.docent-wrap select:focus,
+.koppeling-wrap select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px #e8f0ff;
+}
+.btn-koppeling {
+  width: 100%;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 9px 12px;
+  margin-bottom: 14px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.btn-koppeling:hover {
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+}
+.btn-koppeling:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ===== BADGES ===== */
 .badge {
   display: inline-flex; align-items: center;
@@ -196,7 +245,8 @@ body {
   font-size: 12px; font-weight: 600; white-space: nowrap;
 }
 .badge-pending  { background: #fff3cd; color: #92400e; }
-.badge-changes  { background: #fee2e2; color: #b91c1c; }
+.badge-changes  { background: #fff3e0; color: #e65100; }
+.badge-danger   { background: #fee2e2; color: #b91c1c; }
 .badge-active   { background: #dcfce7; color: #166534; }
 .badge-completed{ background: #e0e7ff; color: #3730a3; }
 

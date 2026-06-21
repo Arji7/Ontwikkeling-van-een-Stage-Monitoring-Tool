@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overeenkomsten – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="rapporten.css" />
+  <link rel="stylesheet" href="overeenkomsten.css" />
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles"></span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h1>Overeenkomstenbeheer</h1>
+        <p class="page-sub">Overzicht van alle stageovereenkomsten en ondertekeningsstatus</p>
+      </div>
+      <div id="laadStatus" class="laad-status">Gegevens laden…</div>
+    </div>
+
+    <div class="ov-toolbar">
+      <div class="ov-search-wrap">
+        <span class="ov-search-icon">🔍</span>
+        <input type="text" id="zoekInput" class="ov-search" placeholder="Zoek op student of bedrijf…" />
+      </div>
+      <select id="statusFilter" class="filter-chip">
+        <option value="">Alle statussen</option>
+        <option value="ontbreekt">Ontbreekt</option>
+        <option value="geupload">Geüpload</option>
+        <option value="ondertekend">Ondertekend</option>
+        <option value="verlopen">Verlopen</option>
+      </select>
+    </div>
+
+    <div class="section-card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Bedrijf</th>
+              <th>Status overeenkomst</th>
+              <th>Ondertekend</th>
+              <th>Laatste update</th>
+            </tr>
+          </thead>
+          <tbody id="tabelBody">
+            <tr><td colspan="5" class="table-empty">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="tabelFooter" class="tabel-footer"></div>
+    </div>
+
+    <div class="bottom-bar">
+      <a href="rapporten.html" class="btn-terug">← Terug naar rapporten</a>
+    </div>
+
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'rapporten'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../sidebar-builder.js"></script>
+<script src="overeenkomsten.js"></script>
+</body>
+</html>

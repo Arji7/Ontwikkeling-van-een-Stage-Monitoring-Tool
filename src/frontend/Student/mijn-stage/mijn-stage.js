@@ -18,16 +18,29 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // Meest relevante stage (zelfde prioriteit als dashboard)
-    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
-    const stage = stages.slice().sort(function (a, b) {
-      const pa = PRIORITEIT.indexOf(a.status);
-      const pb = PRIORITEIT.indexOf(b.status);
-      if (pa !== pb) return pa - pb;
-      return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
-    })[0];
+    // Splits in niet-afgeronde en afgeronde stages
+    const nietAfgerond = stages.filter(function (s) { return s.status !== "afgerond"; });
+    const afgerond = stages.filter(function (s) { return s.status === "afgerond"; });
 
-    // Als niet goedgekeurd: redirect naar passende pagina
+    const PRIORITEIT = ["actief", "wacht_op_overeenkomst", "goedgekeurd", "aanpassingen_vereist", "afgekeurd", "ingediend", "in_beoordeling", "concept"];
+    function sorteerOp(arr) {
+      return arr.slice().sort(function (a, b) {
+        const pa = PRIORITEIT.indexOf(a.status);
+        const pb = PRIORITEIT.indexOf(b.status);
+        if (pa !== pb) return pa - pb;
+        return new Date(b.aangemaakt_op) - new Date(a.aangemaakt_op);
+      });
+    }
+
+    // Als er een nieuw (niet-afgerond) voorstel is → toon dat
+    // Anders → toon de afgeronde stage
+    const stage = nietAfgerond.length > 0 ? sorteerOp(nietAfgerond)[0] : sorteerOp(afgerond)[0];
+
+    // Afgeronde stage zonder nieuw voorstel → altijd naar afgerond-pagina
+    if (stage.status === "afgerond") {
+      window.location.href = "../stage-beoordeling/stage-afgerond/stage-afgerond.html";
+      return;
+    }
     if (stage.status === "aanpassingen_vereist") {
       window.location.href = "../stage-beoordeling/stage-aanpassingen/stage-aanpassingen.html";
       return;
@@ -79,6 +92,10 @@ async function vulOvereenkomstKaart(token, stageStatus) {
       subEl.textContent = "Ondertekend door alle partijen";
       badgeEl.textContent = "Ondertekend";
       badgeEl.className = "card-badge badge-green";
+      if (stageStatus === "wacht_op_overeenkomst" && studentGetekend && mentorGetekend) {
+        const banner = document.getElementById("mentorWaitBanner");
+        if (banner) banner.style.display = "flex";
+      }
     } else if (studentGetekend && !mentorGetekend) {
       subEl.textContent = "Wacht op ondertekening van mentor";
       badgeEl.textContent = "In afwachting";
@@ -113,15 +130,18 @@ function vulPaginaIn(d) {
     start + " — " + eind + (weken ? " (" + weken + " weken)" : "");
 
   const statusEl = document.getElementById("tabelStatus");
-  if (d.status === "actief") {
+  if (d.status === "afgerond") {
+    statusEl.textContent = "Stage afgerond";
+    statusEl.className = "info-value status-success";
+  } else if (d.status === "actief") {
     statusEl.textContent = "Stage loopt";
     statusEl.className = "info-value status-success";
   } else if (d.status === "wacht_op_overeenkomst") {
-    statusEl.textContent = "Goedgekeurd — wacht op overeenkomst";
-    statusEl.className = "info-value status-success";
+    statusEl.textContent = "Wacht op ondertekening";
+    statusEl.className = "info-value status-pending";
   } else {
-    statusEl.textContent = "Goedgekeurd — wacht op overeenkomst";
-    statusEl.className = "info-value status-success";
+    statusEl.textContent = "Goedgekeurd";
+    statusEl.className = "info-value status-pending";
   }
 
   // Stagevoorstel kaart — link + datum
@@ -134,10 +154,15 @@ function vulPaginaIn(d) {
   ["kaartLogboeken", "kaartEvaluaties"].forEach(function (id) {
     const kaart = document.getElementById(id);
     if (!kaart) return;
+    const badge = kaart.querySelector(".card-badge");
     if (!isActief) {
       kaart.style.opacity = "0.55";
       kaart.style.cursor = "not-allowed";
-      kaart.style.pointerEvents = "none"; // blokkeert klikken
+      kaart.style.pointerEvents = "none";
+    } else if (badge) {
+      badge.textContent = "Actief";
+      badge.classList.remove("badge-gray");
+      badge.classList.add("badge-green");
     }
   });
 }

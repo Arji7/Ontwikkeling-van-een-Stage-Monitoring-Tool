@@ -58,14 +58,54 @@
           <h2 class="section-title">Bedrijfsgegevens</h2>
           <div class="grid-2">
             <div class="field">
-              <label for="bedrijf">Naam bedrijf <span class="req">*</span></label>
-              <input type="text" id="bedrijf" name="bedrijf" placeholder="TechCorp BV" />
+              <label for="bedrijfSelect">Naam bedrijf <span class="req">*</span></label>
+              <select id="bedrijfSelect" name="bedrijfSelect">
+                <option value="">-- Kies een bedrijf --</option>
+                <option value="__nieuw__">➕ Nieuw bedrijf toevoegen…</option>
+              </select>
+              <input type="text" id="bedrijf" name="bedrijf" placeholder="Naam nieuw bedrijf" style="display:none; margin-top:8px;" />
               <p class="field-error" id="bedrijfError" aria-live="polite"></p>
             </div>
             <div class="field">
-              <label for="sector">Sector <span class="req">*</span></label>
-              <input type="text" id="sector" name="sector" placeholder="Software ontwikkeling" />
+              <label for="sector">Sector</label>
+              <input type="text" id="sector" name="sector" placeholder="bv. ICT, Bouw, Zorg" />
               <p class="field-error" id="sectorError" aria-live="polite"></p>
+            </div>
+            <div class="field full" id="nieuwBedrijfWrap" style="display:none;">
+              <div class="info-box" style="margin-top:8px;">
+                <strong>🆕 Nieuw bedrijf</strong>
+                Dit bedrijf staat nog niet in onze lijst — vul de gegevens hieronder aan.
+              </div>
+            </div>
+            <div class="field nieuw-bedrijf-veld" style="display:none;">
+              <label for="bedrijfAdres">Adres <span class="req">*</span></label>
+              <input type="text" id="bedrijfAdres" name="bedrijfAdres" placeholder="Straat + nummer" />
+              <p class="field-error" id="bedrijfAdresError" aria-live="polite"></p>
+            </div>
+            <div class="field nieuw-bedrijf-veld" style="display:none;">
+              <label for="bedrijfPostcode">Postcode</label>
+              <input type="text" id="bedrijfPostcode" name="bedrijfPostcode" placeholder="1000" />
+              <p class="field-error" id="bedrijfPostcodeError" aria-live="polite"></p>
+            </div>
+            <div class="field nieuw-bedrijf-veld" style="display:none;">
+              <label for="bedrijfStad">Stad</label>
+              <input type="text" id="bedrijfStad" name="bedrijfStad" placeholder="Brussel" />
+              <p class="field-error" id="bedrijfStadError" aria-live="polite"></p>
+            </div>
+            <div class="field nieuw-bedrijf-veld" style="display:none;">
+              <label for="bedrijfBtw">BTW-nummer <span class="req">*</span></label>
+              <input type="text" id="bedrijfBtw" name="bedrijfBtw" placeholder="BE0123456789" />
+              <p class="field-error" id="bedrijfBtwError" aria-live="polite"></p>
+            </div>
+            <div class="field nieuw-bedrijf-veld" style="display:none;">
+              <label for="bedrijfEmail">E-mail bedrijf <span class="req">*</span></label>
+              <input type="email" id="bedrijfEmail" name="bedrijfEmail" placeholder="info@bedrijf.be" />
+              <p class="field-error" id="bedrijfEmailError" aria-live="polite"></p>
+            </div>
+            <div class="field nieuw-bedrijf-veld" style="display:none;">
+              <label for="bedrijfWebsite">Website</label>
+              <input type="text" id="bedrijfWebsite" name="bedrijfWebsite" placeholder="https://www.bedrijf.be" />
+              <p class="field-error" id="bedrijfWebsiteError" aria-live="polite"></p>
             </div>
             <div class="field">
               <label for="mentor">Stagementor <span class="req">*</span></label>

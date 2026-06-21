@@ -19,10 +19,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const stages = await response.json();
 
-    if (!Array.isArray(stages) || stages.length === 0) {
+    // Afgeronde stages tellen niet mee voor "huidige" stage — student kan nieuwe opstarten
+    const actieveStages = (Array.isArray(stages) ? stages : []).filter(function (s) {
+      return s.status !== "afgerond";
+    });
+
+    if (actieveStages.length === 0) {
       document.getElementById("emptyState").style.display = "block";
       return;
     }
+    // Vervang variabele zodat sortering verderop op actieveStages werkt
+    stages.length = 0;
+    Array.prototype.push.apply(stages, actieveStages);
 
     // Toon meest relevante stage:
     //   1. Met openstaande actie (aanpassingen_vereist / afgekeurd)

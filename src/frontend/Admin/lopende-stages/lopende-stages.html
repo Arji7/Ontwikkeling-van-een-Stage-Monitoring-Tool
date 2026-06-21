@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lopende Stages – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="lopende-stages.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">StageMonitoring</div>
+      <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-role-label">
+          Actieve rollen:<br />
+          <strong id="sidebarRoles">—</strong>
+        </div>
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarUserAvatar">??</div>
+          <div class="user-info">
+            <span class="user-name" id="sidebarUserName">...</span>
+            <span class="user-role" id="sidebarUserRole">Administratie</span>
+          </div>
+        </div>
+        <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+           onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+          🔓 Uitloggen
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Lopende Stages</h1>
+        <p>Overzicht van de aanvragen dit academiejaar</p>
+      </div>
+
+      <div class="controls">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="🔍 Zoek stagiair of bedrijf..." />
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-filter="alle">Alle (<span id="tabAlleCount">0</span>)</button>
+        <button class="tab-btn" data-filter="wacht_op_ondertekening">Wachten op ondertekening (<span id="tabWachtCount">0</span>)</button>
+        <button class="tab-btn" data-filter="actief">Actief (<span id="tabActiefCount">0</span>)</button>
+        <button class="tab-btn" data-filter="afgerond">Afgerond (<span id="tabAfgerondCount">0</span>)</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Bedrijf</th>
+              <th>Mentor</th>
+              <th>Docent</th>
+              <th>Periode</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="stagesBody">
+            <tr><td colspan="6" class="table-empty">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bottom-actions">
+        <a href="../dashboard/dashboard.html" class="btn btn-danger">Terug</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../config.js"></script>
+  <script>window.SIDEBAR_PAGE = 'lopende-stages'; window.FRONTEND_ROOT = '../../';</script>
+  <script src="../sidebar-builder.js"></script>
+  <script src="lopende-stages.js"></script>
+</body>
+</html>

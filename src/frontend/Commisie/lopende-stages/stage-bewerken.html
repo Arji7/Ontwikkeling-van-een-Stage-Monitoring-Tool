@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stage bewerken – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="stage-bewerken.css" />
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles"></span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+      <a href="lopende-stages.html">← Lopende stages</a>
+      <span>/</span>
+      <span>Stage bewerken</span>
+    </div>
+
+    <div class="page-header">
+      <div>
+        <h1>Stage bewerken</h1>
+        <p class="page-sub" id="paginaSub">Gegevens laden…</p>
+      </div>
+      <div id="laadStatus" class="laad-status"></div>
+    </div>
+
+    <div class="bewerk-layout">
+
+      <!-- FORMULIER -->
+      <div class="form-col">
+
+        <!-- SECTIE: Stage-info (lees-alleen) -->
+        <div class="form-card">
+          <h2 class="form-card-titel">Stagegegevens</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Student</span>
+              <span class="info-waarde" id="infoStudent">—</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Bedrijf</span>
+              <span class="info-waarde" id="infoBedrijf">—</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Status</span>
+              <span class="info-waarde" id="infoStatus">—</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Ingediend op</span>
+              <span class="info-waarde" id="infoIngediend">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTIE: Bewerkbare velden -->
+        <div class="form-card">
+          <h2 class="form-card-titel">Bewerken</h2>
+
+          <div class="form-groep">
+            <label class="form-label" for="veldDocent">Begeleider (docent)</label>
+            <input type="text" id="veldDocent" class="form-input" placeholder="Voornaam Achternaam" />
+          </div>
+
+          <div class="form-groep">
+            <label class="form-label" for="veldMentor">Mentor (bedrijf)</label>
+            <input type="text" id="veldMentor" class="form-input" placeholder="Voornaam Achternaam" />
+          </div>
+
+          <div class="form-groep">
+            <label class="form-label" for="veldMentorEmail">E-mail mentor</label>
+            <input type="email" id="veldMentorEmail" class="form-input" placeholder="mentor@bedrijf.be" />
+          </div>
+
+          <div class="form-rij">
+            <div class="form-groep">
+              <label class="form-label" for="veldStart">Startdatum</label>
+              <input type="date" id="veldStart" class="form-input" />
+            </div>
+            <div class="form-groep">
+              <label class="form-label" for="veldEinde">Einddatum</label>
+              <input type="date" id="veldEinde" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-groep">
+            <label class="form-label" for="veldStatus">Status</label>
+            <select id="veldStatus" class="form-input">
+              <option value="goedgekeurd">Goedgekeurd</option>
+              <option value="actief">Actief</option>
+              <option value="afgerond">Afgerond</option>
+              <option value="afgekeurd">Afgekeurd</option>
+            </select>
+          </div>
+
+          <div class="form-groep">
+            <label class="form-label" for="veldNotities">Notities / opmerkingen</label>
+            <textarea id="veldNotities" class="form-input" rows="4"
+              placeholder="Interne opmerkingen over deze stage…"></textarea>
+          </div>
+        </div>
+
+        <!-- ACTIES -->
+        <div class="form-acties">
+          <a href="lopende-stages.html" class="btn-secondary">Annuleren</a>
+          <button class="btn-primary" onclick="slaanOp()">Wijzigingen opslaan</button>
+        </div>
+
+        <!-- SUCCESS MESSAGE -->
+        <div class="feedback-msg" id="feedbackMsg"></div>
+
+      </div>
+
+      <!-- RECHTS: overzicht kaart -->
+      <aside class="preview-col">
+        <div class="preview-card">
+          <div class="preview-avatar" id="prevAvatar">??</div>
+          <div class="preview-naam" id="prevNaam">—</div>
+          <div class="preview-bedrijf" id="prevBedrijf">—</div>
+
+          <div class="preview-divider"></div>
+
+          <div class="preview-rij">
+            <span class="preview-lbl">Docent</span>
+            <span class="preview-val" id="prevDocent">—</span>
+          </div>
+          <div class="preview-rij">
+            <span class="preview-lbl">Mentor</span>
+            <span class="preview-val" id="prevMentor">—</span>
+          </div>
+          <div class="preview-rij">
+            <span class="preview-lbl">Startdatum</span>
+            <span class="preview-val" id="prevStart">—</span>
+          </div>
+          <div class="preview-rij">
+            <span class="preview-lbl">Einddatum</span>
+            <span class="preview-val" id="prevEinde">—</span>
+          </div>
+          <div class="preview-rij">
+            <span class="preview-lbl">Status</span>
+            <span class="preview-val" id="prevStatus">—</span>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'commissie-lopende-stages'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../../Admin/sidebar-builder.js"></script>
+<script src="stage-bewerken.js"></script>
+</body>
+</html>

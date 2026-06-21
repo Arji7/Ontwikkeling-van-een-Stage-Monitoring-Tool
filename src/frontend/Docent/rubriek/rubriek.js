@@ -43,7 +43,10 @@ async function laadStageInfo(stageId) {
 
 async function laadRubriek() {
   try {
-    const res = await fetch(API_BASE_URL + "/evaluaties/competenties/rubriek", { headers: authHeader() });
+    const params = new URLSearchParams(window.location.search);
+    const stageId = params.get("stage_id");
+    const url = API_BASE_URL + "/evaluaties/competenties/rubriek" + (stageId ? "?stage_id=" + stageId : "");
+    const res = await fetch(url, { headers: authHeader() });
     if (!res.ok) return;
     rubriekData = await res.json();
     renderSidebar();

@@ -46,7 +46,7 @@
     }
 
     var html = '<table class="data-table"><thead><tr>' +
-      '<th>Student</th><th>Bedrijf</th><th>Docent</th><th>Stageperiode</th><th>Status</th><th>Laatst bijgewerkt</th>' +
+      '<th>Student</th><th>Bedrijf</th><th>Docent</th><th>Stageperiode</th><th>Status</th><th>Acties</th>' +
       '</tr></thead><tbody>';
 
     gefilterd.forEach(function (s) {
@@ -62,7 +62,7 @@
           '<td>' + docent + '</td>' +
           '<td>' + periode + '</td>' +
           '<td>' + badge(s.status) + '</td>' +
-          '<td>' + updated + '</td>' +
+          '<td><a class="btn-bewerken" href="stage-bewerken.html?id=' + esc(s.id) + '">Bewerken</a></td>' +
         '</tr>';
     });
 

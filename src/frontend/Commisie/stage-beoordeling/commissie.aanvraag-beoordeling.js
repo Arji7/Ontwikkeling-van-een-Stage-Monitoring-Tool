@@ -15,6 +15,9 @@ const BESLISSING_MAP = {
   afwijzen:    "afgekeurd",
 };
 
+let huidigeStage = null;
+let alleMentoren = [];
+
 // ────────────────────────────────────────────────────────────
 // HELPERS
 // ────────────────────────────────────────────────────────────
@@ -68,6 +71,15 @@ function authHeaders() {
   };
 }
 
+function gebruikerIsAdmin() {
+  const user = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  const rollen = Array.isArray(user.rollen) ? user.rollen.slice() : [];
+  if (user.role) rollen.push(user.role);
+  if (user.rol) rollen.push(user.rol);
+  const genormaliseerdeRollen = rollen.map(r => String(r).toLowerCase());
+  return genormaliseerdeRollen.includes("admin");
+}
+
 // ────────────────────────────────────────────────────────────
 // DATA LADEN
 // ────────────────────────────────────────────────────────────
@@ -111,6 +123,7 @@ async function laadStage() {
 }
 
 function vulPaginaIn(d) {
+  huidigeStage = d;
   const naam = `${d.student_voornaam ?? ""} ${d.student_achternaam ?? ""}`.trim() || "Onbekend";
   const init = initialen(naam);
 
@@ -146,8 +159,8 @@ function vulPaginaIn(d) {
 
   // Studentgegevens
   txt("detailNaam",     naam);
-  txt("detailLeeftijd", "—");
-  txt("detailTel",      "—");
+  txt("detailOpleiding",     d.opleiding_naam || "—");
+  txt("detailStudentnummer", d.studentnummer || "—");
   const emailStudent = document.getElementById("detailEmail");
   if (emailStudent && d.student_email) {
     emailStudent.textContent = d.student_email;
@@ -187,23 +200,39 @@ function vulPaginaIn(d) {
     if (fbText) fbText.disabled = true;
     const docSel = document.getElementById('docentSelect');
     if (docSel) docSel.disabled = true;
+    if (!gebruikerIsAdmin()) {
+      const bedrijfSel = document.getElementById('bedrijfSelect');
+      if (bedrijfSel) bedrijfSel.disabled = true;
+      const mentorSel = document.getElementById('mentorSelect');
+      if (mentorSel) mentorSel.disabled = true;
+    }
     const sideTitle = document.querySelector('.side-card-title');
     if (sideTitle) sideTitle.textContent = 'Reeds beoordeeld';
   }
 
   // Voorselecteren huidige docent in dropdown
   if (d.docent_id) {
-    const select = document.getElementById("docentSelect");
-    if (select) {
-      const tryen = setInterval(() => {
-        if (select.querySelector(`option[value="${d.docent_id}"]`)) {
-          select.value = d.docent_id;
-          clearInterval(tryen);
-        }
-      }, 100);
-      setTimeout(() => clearInterval(tryen), 5000);
-    }
+    setSelectValueWhenReady("docentSelect", d.docent_id);
   }
+  if (d.bedrijf_id) {
+    setSelectValueWhenReady("bedrijfSelect", d.bedrijf_id);
+  }
+  if (d.mentor_id) {
+    setSelectValueWhenReady("mentorSelect", d.mentor_id);
+  }
+}
+
+function setSelectValueWhenReady(selectId, value) {
+  const select = document.getElementById(selectId);
+  if (!select || value == null) return;
+
+  const interval = setInterval(() => {
+    if (select.querySelector(`option[value="${value}"]`)) {
+      select.value = value;
+      clearInterval(interval);
+    }
+  }, 100);
+  setTimeout(() => clearInterval(interval), 5000);
 }
 
 // ────────────────────────────────────────────────────────────
@@ -214,8 +243,6 @@ function initBeslissing() {
   const feedbackEl  = document.querySelector(".feedback-wrap");
   let gekozen       = null;
 
-  const docentWrap = document.querySelector(".docent-wrap");
-
   opties.forEach(opt => {
     opt.addEventListener("click", () => {
       opties.forEach(o => o.classList.remove("selected"));
@@ -224,15 +251,6 @@ function initBeslissing() {
 
       // Schuif feedback-blok onder de gekozen optie
       if (feedbackEl) opt.insertAdjacentElement("afterend", feedbackEl);
-
-      // Docent-select enkel tonen bij goedkeuren
-      if (docentWrap) {
-        docentWrap.style.display = gekozen === "goedkeuren" ? "" : "none";
-        if (gekozen !== "goedkeuren") {
-          const sel = document.getElementById("docentSelect");
-          if (sel) sel.value = "";
-        }
-      }
     });
   });
 
@@ -242,15 +260,28 @@ function initBeslissing() {
     const stageId  = getStageIdFromUrl();
     const feedback = document.getElementById("feedbackText")?.value?.trim() || "";
     const docentId = document.getElementById("docentSelect")?.value || null;
+    const isAdmin = gebruikerIsAdmin();
+    const bedrijfId = isAdmin ? (document.getElementById("bedrijfSelect")?.value || null) : null;
+    const mentorId = isAdmin ? (document.getElementById("mentorSelect")?.value || null) : null;
     const beslissing = BESLISSING_MAP[gekozen];
 
     if (!stageId || !beslissing) { alert("Iets ging mis. Herlaad de pagina."); return; }
+    if (gekozen === "goedkeuren" && !docentId) {
+      alert("Kies eerst een begeleidende docent bij goedkeuren.");
+      return;
+    }
 
     try {
       const res = await fetch(`${API_BASE_URL}/stages/${stageId}/beslissing`, {
         method:  "POST",
         headers: authHeaders(),
-        body:    JSON.stringify({ beslissing, opmerking: feedback, docent_id: docentId || null }),
+        body:    JSON.stringify({
+          beslissing,
+          opmerking: feedback,
+          docent_id: docentId || null,
+          bedrijf_id: bedrijfId || null,
+          mentor_id: mentorId || null
+        }),
       });
 
       const data = await res.json();
@@ -294,8 +325,131 @@ async function laadDocenten() {
   }
 }
 
+async function laadBedrijven() {
+  if (!gebruikerIsAdmin()) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/bedrijven`, {
+      headers: authHeaders(),
+    });
+    if (!res.ok) return;
+    const bedrijven = await res.json();
+
+    const select = document.getElementById("bedrijfSelect");
+    if (!select) return;
+
+    bedrijven.forEach(b => {
+      const opt = document.createElement("option");
+      opt.value = b.id;
+      opt.textContent = b.naam + (b.stad ? ` — ${b.stad}` : "");
+      select.appendChild(opt);
+    });
+
+    if (huidigeStage && huidigeStage.bedrijf_id) {
+      select.value = huidigeStage.bedrijf_id;
+    }
+  } catch (err) {
+    console.error("Bedrijven ophalen fout:", err);
+  }
+}
+
+async function laadMentoren() {
+  if (!gebruikerIsAdmin()) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/gebruikers/mentoren`, {
+      headers: authHeaders(),
+    });
+    if (!res.ok) return;
+    alleMentoren = await res.json();
+
+    const select = document.getElementById("mentorSelect");
+    if (!select) return;
+
+    alleMentoren.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.mentor_id;
+      const naam = `${m.voornaam ?? ""} ${m.achternaam ?? ""}`.trim();
+      const bedrijf = m.bedrijf_naam ? ` — ${m.bedrijf_naam}` : "";
+      opt.textContent = `${naam} (${m.email})${bedrijf}`;
+      select.appendChild(opt);
+    });
+
+    if (huidigeStage && huidigeStage.mentor_id) {
+      select.value = huidigeStage.mentor_id;
+    }
+  } catch (err) {
+    console.error("Mentoren ophalen fout:", err);
+  }
+}
+
+function initKoppelingen() {
+  if (!gebruikerIsAdmin()) return;
+
+  const bedrijfWrap = document.getElementById("bedrijfKoppelingWrap");
+  const mentorWrap = document.getElementById("mentorKoppelingWrap");
+  const btnOpslaan = document.getElementById("btnKoppelingOpslaan");
+  if (bedrijfWrap) bedrijfWrap.style.display = "";
+  if (mentorWrap) mentorWrap.style.display = "";
+  if (btnOpslaan) btnOpslaan.style.display = "";
+
+  const mentorSelect = document.getElementById("mentorSelect");
+  const bedrijfSelect = document.getElementById("bedrijfSelect");
+  if (!mentorSelect || !bedrijfSelect) return;
+
+  mentorSelect.addEventListener("change", function () {
+    const mentor = alleMentoren.find(m => String(m.mentor_id) === String(mentorSelect.value));
+    if (mentor && mentor.bedrijf_id) {
+      bedrijfSelect.value = mentor.bedrijf_id;
+    }
+  });
+
+  btnOpslaan?.addEventListener("click", async function () {
+    const stageId = getStageIdFromUrl();
+    const bedrijfId = bedrijfSelect.value || null;
+    const mentorId = mentorSelect.value || null;
+
+    if (!stageId) {
+      alert("Geen stage gevonden.");
+      return;
+    }
+    if (!bedrijfId && !mentorId) {
+      alert("Kies eerst een bedrijf of mentor.");
+      return;
+    }
+
+    btnOpslaan.disabled = true;
+    btnOpslaan.textContent = "Opslaan...";
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/stages/${stageId}/koppelingen`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          bedrijf_id: bedrijfId,
+          mentor_id: mentorId
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert("Fout: " + (data.error || "Koppeling opslaan mislukt."));
+        return;
+      }
+      alert("Koppeling opgeslagen.");
+      laadStage();
+    } catch (err) {
+      console.error("Koppeling opslaan fout:", err);
+      alert("Geen verbinding met server. Staat de backend aan?");
+    } finally {
+      btnOpslaan.disabled = false;
+      btnOpslaan.textContent = "Koppeling opslaan";
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   laadStage();
   laadDocenten();
+  laadBedrijven();
+  laadMentoren();
   initBeslissing();
+  initKoppelingen();
 });

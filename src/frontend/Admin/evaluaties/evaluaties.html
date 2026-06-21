@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluatiebeheer – Admin | StageMonitor</title>
+  <link rel="stylesheet" href="evaluaties.css" />
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">StageMonitor</div>
+    <div class="sidebar-subbrand">Erasmushogeschool Brussel</div>
+    <nav class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-role-label">
+        <strong id="adminVoornaam">Admin</strong>
+        <span id="sidebarRoles"></span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarUserAvatar">??</div>
+        <div class="user-info">
+          <span class="user-name" id="sidebarUserName">...</span>
+          <span class="user-role" id="sidebarUserRole">Beheerder</span>
+        </div>
+      </div>
+      <a href="../../inloggen/inloggen.html" class="sidebar-logout"
+         onclick="sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token');">
+        Uitloggen
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h1>Evaluatiebeheer</h1>
+        <p class="page-sub">Lees-alleen overzicht van alle evaluaties + competentieconfiguratie</p>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Actieve stages</div>
+        <div class="stat-value" id="statActief">—</div>
+        <div class="stat-desc">Academiejaar 2025–26</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tussentijdse eval.</div>
+        <div class="stat-value stat-blue" id="statTussentijds">—</div>
+        <div class="stat-desc" id="statTussentijdsDesc">van — ingediend</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Eindevaluaties</div>
+        <div class="stat-value stat-green" id="statEinde">—</div>
+        <div class="stat-desc">volledig afgerond</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="overzicht">Evaluatieoverzicht</button>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="zoekInput" class="search-input" placeholder="Zoek op student, bedrijf of docent…" />
+      </div>
+      <select id="filterType" class="filter-chip">
+        <option value="">Alle types</option>
+        <option value="tussentijds">Tussentijds</option>
+        <option value="eindevaluatie">Eindevaluatie</option>
+      </select>
+      <select id="filterStatus" class="filter-chip">
+        <option value="">Alle statussen</option>
+        <option value="ingediend">Ingediend</option>
+        <option value="afgerond">Afgerond</option>
+        <option value="behandeling">In behandeling</option>
+        <option value="wacht">Wacht op docent</option>
+      </select>
+    </div>
+
+    <!-- TABEL -->
+    <div class="section-card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Bedrijf</th>
+              <th>Docent</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Gemiddelde score</th>
+            </tr>
+          </thead>
+          <tbody id="tabelBody">
+            <tr><td colspan="6" class="table-empty">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="tabelFooter" class="tabel-footer"></div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>window.SIDEBAR_PAGE = 'evaluaties'; window.FRONTEND_ROOT = '../../';</script>
+<script src="../sidebar-builder.js"></script>
+<script src="evaluaties.js"></script>
+</body>
+</html>
